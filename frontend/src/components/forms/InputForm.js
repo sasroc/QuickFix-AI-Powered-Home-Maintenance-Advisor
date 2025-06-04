@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import './InputForm.css';
 
-const InputForm = ({ onSubmit }) => {
+const InputForm = ({ onSubmit, isLoading }) => {
   const [textInput, setTextInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -9,15 +9,16 @@ const InputForm = ({ onSubmit }) => {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
-  const handleTextSubmit = (e) => {
+  const handleTextSubmit = async (e) => {
     e.preventDefault();
-    if (textInput.trim()) {
-      onSubmit({
-        type: 'text',
-        content: textInput,
-        image: selectedImage
-      });
-    }
+    if (!textInput.trim()) return;
+
+    const formData = {
+      text: textInput,
+      image: selectedImage
+    };
+
+    await onSubmit(formData);
   };
 
   const handleVoiceInput = async () => {
@@ -85,12 +86,14 @@ const InputForm = ({ onSubmit }) => {
               onChange={(e) => setTextInput(e.target.value)}
               placeholder="Describe your repair issue in detail..."
               rows={4}
+              disabled={isLoading}
             />
             <div className="voice-input-button">
               <button
                 type="button"
                 className={isRecording ? 'recording' : ''}
                 onClick={handleVoiceInput}
+                disabled={isLoading}
               >
                 {isRecording ? (
                   <>
@@ -126,6 +129,7 @@ const InputForm = ({ onSubmit }) => {
                     type="button"
                     className="remove-image"
                     onClick={removeImage}
+                    disabled={isLoading}
                   >
                     Remove
                   </button>
@@ -138,11 +142,13 @@ const InputForm = ({ onSubmit }) => {
                     onChange={handleImageUpload}
                     accept="image/*"
                     style={{ display: 'none' }}
+                    disabled={isLoading}
                   />
                   <button
                     type="button"
                     className="upload-button"
                     onClick={() => fileInputRef.current.click()}
+                    disabled={isLoading}
                   >
                     <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -156,8 +162,19 @@ const InputForm = ({ onSubmit }) => {
             </div>
           </div>
 
-          <button type="submit" className="submit-button">
-            Get Repair Guide
+          <button 
+            type="submit" 
+            className="submit-button"
+            disabled={isLoading || !textInput.trim()}
+          >
+            {isLoading ? (
+              <>
+                <span className="loading-spinner"></span>
+                Processing...
+              </>
+            ) : (
+              'Get Repair Guide'
+            )}
           </button>
         </form>
       </div>

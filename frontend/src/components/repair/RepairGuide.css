@@ -1,0 +1,276 @@
+.repair-guide-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.repair-guide-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.repair-guide-header h2 {
+  color: #1f2937;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 4px;
+}
+
+.progress-text {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.repair-guide-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+
+.steps-container {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.step-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.step-header h3 {
+  color: #3b82f6;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.complete-button {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.complete-button.completed {
+  background: #059669;
+}
+
+.complete-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.step-description {
+  color: #4b5563;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.step-image {
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.step-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.nav-button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-button:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+.nav-button:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+.tools-sidebar {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.tools-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.tools-header h3 {
+  color: #1f2937;
+  margin: 0;
+}
+
+.toggle-button {
+  background: none;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #4b5563;
+  transition: all 0.3s ease;
+}
+
+.toggle-button:hover {
+  background: #e5e7eb;
+}
+
+.tools-content {
+  overflow: hidden;
+}
+
+.tools-section,
+.materials-section {
+  margin-bottom: 1.5rem;
+}
+
+.tools-section h4,
+.materials-section h4 {
+  color: #4b5563;
+  margin-bottom: 0.75rem;
+}
+
+.tools-section ul,
+.materials-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tools-section li,
+.materials-section li {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0;
+  color: #6b7280;
+}
+
+.tools-section input[type="checkbox"],
+.materials-section input[type="checkbox"] {
+  margin-right: 0.75rem;
+}
+
+.estimated-time {
+  background: #e5e7eb;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+.estimated-time h4 {
+  color: #4b5563;
+  margin: 0 0 0.5rem;
+}
+
+.estimated-time p {
+  color: #6b7280;
+  margin: 0;
+}
+
+.tools-list,
+.materials-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tool-item,
+.material-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tool-item input[type="checkbox"],
+.material-item input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #3b82f6;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tool-item label,
+.material-item label {
+  color: #4b5563;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.find-stores-button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background: #3b82f6;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.find-stores-button:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .repair-guide-container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .repair-guide-content {
+    grid-template-columns: 1fr;
+  }
+
+  .tools-sidebar {
+    margin-top: 2rem;
+  }
+} 

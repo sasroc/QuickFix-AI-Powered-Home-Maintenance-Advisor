@@ -1,0 +1,217 @@
+.landing-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f6f8fc 0%, #e9f0f7 100%);
+  padding: 2rem;
+}
+
+.hero-section {
+  text-align: center;
+  padding: 4rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.app-title {
+  font-size: 4.5rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.title-quick {
+  color: #2563eb;
+  display: inline-block;
+  animation: slideInLeft 0.8s ease-out;
+}
+
+.title-fix {
+  color: #1e40af;
+  display: inline-block;
+  animation: slideInUp 0.8s ease-out;
+}
+
+.title-ai {
+  color: #3b82f6;
+  font-size: 2.5rem;
+  vertical-align: super;
+  margin-left: 0.5rem;
+  animation: fadeIn 1s ease-out;
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  color: #4b5563;
+  margin-bottom: 3rem;
+  animation: fadeInUp 1s ease-out;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 4rem;
+  animation: fadeInUp 1.2s ease-out;
+}
+
+.start-button {
+  background: #2563eb;
+  color: white;
+  padding: 1rem 2.5rem;
+  border-radius: 9999px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+}
+
+.start-button:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(37, 99, 235, 0.3);
+}
+
+.secondary-button {
+  background: white;
+  color: #2563eb;
+  padding: 1rem 2rem;
+  border-radius: 9999px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 2px solid #2563eb;
+}
+
+.secondary-button:hover {
+  background: #f8fafc;
+  transform: translateY(-2px);
+}
+
+.steps-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.step-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  animation: fadeInUp 1.4s ease-out;
+}
+
+.step-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+}
+
+.step-number {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: #2563eb;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.step-card h3 {
+  color: #1f2937;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.step-card p {
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-page {
+    padding: 1rem;
+  }
+
+  .hero-section {
+    padding: 2rem 1rem;
+  }
+
+  .app-title {
+    font-size: 3rem;
+  }
+
+  .title-ai {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .start-button,
+  .secondary-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .steps-section {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+} 
