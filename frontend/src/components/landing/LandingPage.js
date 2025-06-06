@@ -16,9 +16,6 @@ function LandingPage() {
           <Link to="/repair" className="start-button">
             Start Repair
           </Link>
-          <Link to="/find-pro" className="secondary-button">
-            Find a Professional
-          </Link>
           <Link to="/community" className="secondary-button">
             View Success Stories
           </Link>
