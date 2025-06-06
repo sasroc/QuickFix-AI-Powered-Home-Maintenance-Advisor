@@ -19,16 +19,6 @@ import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
 import aiRoutes from './routes/ai.routes';
 
-// Log environment variables (excluding sensitive data)
-console.log('Environment variables loaded:', {
-  NODE_ENV: process.env.NODE_ENV,
-  PORT: process.env.PORT,
-  FRONTEND_URL: process.env.FRONTEND_URL,
-  LOG_LEVEL: process.env.LOG_LEVEL,
-  HUGGINGFACE_API_KEY_SET: !!process.env.HUGGINGFACE_API_KEY,
-  HUGGINGFACE_API_KEY_PREFIX: process.env.HUGGINGFACE_API_KEY?.substring(0, 3) // Log first 3 chars to verify format
-});
-
 const app = express();
 const port = parseInt(process.env.PORT || '4000', 10);
 

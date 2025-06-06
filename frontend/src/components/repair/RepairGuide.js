@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './RepairGuide.css';
-import { Link } from 'react-router-dom';
 
 const RepairGuide = ({ repairData }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -154,9 +153,12 @@ const RepairGuide = ({ repairData }) => {
                   <p>{repairData.estimatedTime}</p>
                 </div>
 
-                <Link to="/stores" className="find-stores-button">
+                <button 
+                  className="find-stores-button"
+                  onClick={() => window.open('https://www.google.com/maps/search/hardware+stores+near+me', '_blank')}
+                >
                   Find Nearby Hardware Stores
-                </Link>
+                </button>
               </motion.div>
             )}
           </AnimatePresence>
