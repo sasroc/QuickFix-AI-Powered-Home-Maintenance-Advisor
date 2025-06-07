@@ -1,8 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import './LandingPage.css';
 
 function LandingPage() {
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  const handleStartRepair = () => {
+    if (currentUser) {
+      navigate('/repair');
+    } else {
+      navigate('/auth', { state: { from: { pathname: '/repair' } } });
+    }
+  };
+
   return (
     <div className="landing-page">
       <div className="hero-section">
@@ -13,9 +25,9 @@ function LandingPage() {
         </h1>
         <p className="hero-subtitle">Your AI-powered home maintenance companion</p>
         <div className="cta-buttons">
-          <Link to="/repair" className="start-button">
+          <button onClick={handleStartRepair} className="start-button">
             Start Repair
-          </Link>
+          </button>
           <Link to="/community" className="secondary-button">
             View Success Stories
           </Link>

@@ -4,6 +4,17 @@
   background-color: #f3f4f6;
 }
 
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding-top: 1rem;
+}
+
 /* Landing Page Styles */
 .landing-page {
   min-height: 100vh;
