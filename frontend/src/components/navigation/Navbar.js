@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import DisplayNameModal from '../auth/DisplayNameModal';
 import logo from '../../assets/logo2.png';
 import './Navbar.css';
 
@@ -9,6 +10,7 @@ function Navbar() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDisplayNameModalOpen, setIsDisplayNameModalOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -25,6 +27,16 @@ function Navbar() {
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const getDisplayName = () => {
+    if (!currentUser) return '';
+    return currentUser.displayName || currentUser.email.split('@')[0];
+  };
+
+  const getInitials = () => {
+    const name = getDisplayName();
+    return name.charAt(0).toUpperCase();
   };
 
   return (
@@ -57,14 +69,23 @@ function Navbar() {
                   onClick={toggleDropdown}
                 >
                   <div className="user-avatar">
-                    {currentUser.email[0].toUpperCase()}
+                    {getInitials()}
                   </div>
-                  <span className="user-email">{currentUser.email}</span>
+                  <span className="user-email">{getDisplayName()}</span>
                   <span className={`dropdown-arrow ${isDropdownOpen ? 'open' : ''}`}>▼</span>
                 </button>
                 
                 {isDropdownOpen && (
                   <div className="dropdown-menu">
+                    <button 
+                      className="dropdown-item"
+                      onClick={() => {
+                        setIsDisplayNameModalOpen(true);
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      Change Display Name
+                    </button>
                     <button 
                       className="dropdown-item"
                       onClick={handleLogout}
@@ -82,6 +103,11 @@ function Navbar() {
           </div>
         </div>
       </div>
+
+      <DisplayNameModal 
+        isOpen={isDisplayNameModalOpen}
+        onClose={() => setIsDisplayNameModalOpen(false)}
+      />
     </nav>
   );
 }

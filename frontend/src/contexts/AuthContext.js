@@ -6,7 +6,8 @@ import {
   onAuthStateChanged,
   sendPasswordResetEmail,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  updateProfile
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
@@ -41,6 +42,13 @@ export function AuthProvider({ children }) {
     return sendPasswordResetEmail(auth, email);
   }
 
+  async function updateDisplayName(displayName) {
+    if (!currentUser) throw new Error('No user logged in');
+    await updateProfile(currentUser, { displayName });
+    // Force a refresh of the current user to update the display name
+    setCurrentUser({ ...currentUser, displayName });
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
@@ -56,7 +64,8 @@ export function AuthProvider({ children }) {
     login,
     loginWithGoogle,
     logout,
-    resetPassword
+    resetPassword,
+    updateDisplayName
   };
 
   return (

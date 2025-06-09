@@ -12,12 +12,12 @@ import { AuthProvider } from './contexts/AuthContext';
 function App() {
   return (
     <AuthProvider>
-      <Router>
+    <Router>
         <div className="app">
           <Navbar />
           <main className="main-content">
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route
                 path="/repair"
@@ -27,13 +27,13 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route path="/community" element={<Community />} />
+        <Route path="/community" element={<Community />} />
               <Route path="/pricing" element={<div>Pricing Page (Coming Soon)</div>} />
               <Route path="/faq" element={<div>FAQ Page (Coming Soon)</div>} />
-            </Routes>
+      </Routes>
           </main>
         </div>
-      </Router>
+    </Router>
     </AuthProvider>
   );
 }
