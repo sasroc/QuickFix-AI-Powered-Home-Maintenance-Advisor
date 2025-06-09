@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import InputForm from '../forms/InputForm';
 import RepairGuide from './RepairGuide';
 import { analyzeRepairIssue } from '../../services/aiService';
+import SubscriptionGate from '../auth/SubscriptionGate';
 
 function RepairPage() {
   const [repairData, setRepairData] = useState(null);
@@ -41,13 +42,15 @@ function RepairPage() {
   };
 
   return (
-    <div className="App">
-      {!repairData ? (
-        <InputForm onSubmit={handleSubmit} isLoading={isLoading} />
-      ) : (
-        <RepairGuide repairData={repairData} />
-      )}
-    </div>
+    <SubscriptionGate>
+      <div className="App">
+        {!repairData ? (
+          <InputForm onSubmit={handleSubmit} isLoading={isLoading} />
+        ) : (
+          <RepairGuide repairData={repairData} />
+        )}
+      </div>
+    </SubscriptionGate>
   );
 }
 

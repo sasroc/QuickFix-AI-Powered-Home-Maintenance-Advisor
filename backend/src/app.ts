@@ -18,6 +18,7 @@ import morgan from 'morgan';
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
 import aiRoutes from './routes/ai.routes';
+import stripeRoutes from './routes/stripe.routes';
 
 const app = express();
 const port = parseInt(process.env.PORT || '4000', 10);
@@ -31,10 +32,13 @@ app.use(cors({
   credentials: true
 }));
 app.use(morgan('dev'));
+// Stripe webhook raw body parser
+app.use('/api/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '50mb' }));
 
 // Routes
 app.use('/api/ai', aiRoutes);
+app.use('/api', stripeRoutes);
 
 // Error handling
 app.use(errorHandler);

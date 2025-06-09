@@ -8,8 +8,11 @@ import Community from './components/community/Community';
 import AuthPage from './components/auth/AuthPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import PaymentSuccess from './components/landing/PaymentSuccess';
+import useCreateUserInFirestore from './contexts/useCreateUserInFirestore';
 
 function App() {
+  useCreateUserInFirestore();
   return (
     <AuthProvider>
     <Router>
@@ -30,6 +33,7 @@ function App() {
         <Route path="/community" element={<Community />} />
               <Route path="/pricing" element={<div>Pricing Page (Coming Soon)</div>} />
               <Route path="/faq" element={<div>FAQ Page (Coming Soon)</div>} />
+              <Route path="/payment-success" element={<PaymentSuccess />} />
       </Routes>
           </main>
         </div>
