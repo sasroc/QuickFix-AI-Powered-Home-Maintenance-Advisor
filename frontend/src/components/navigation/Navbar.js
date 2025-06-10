@@ -86,6 +86,15 @@ function Navbar() {
                     >
                       Change Display Name
                     </button>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => {
+                        navigate('/settings');
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      Settings
+                    </button>
                     <button 
                       className="dropdown-item"
                       onClick={handleLogout}

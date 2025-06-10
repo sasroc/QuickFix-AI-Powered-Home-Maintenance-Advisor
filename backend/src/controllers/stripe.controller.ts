@@ -63,35 +63,41 @@ export const handleWebhook = async (req: Request, res: Response) => {
 
   // Handle the event
   try {
-    if (
-      event.type === 'checkout.session.completed' ||
-      event.type === 'customer.subscription.updated' ||
-      event.type === 'customer.subscription.deleted'
-    ) {
-      let uid = '';
-      let status = '';
-      let subscriptionId = '';
-      let plan = '';
-
-      if (event.type === 'checkout.session.completed') {
-        const session = event.data.object as Stripe.Checkout.Session;
-        uid = session.metadata?.uid || '';
-        status = 'active';
-        subscriptionId = (session.subscription as string) || '';
-        plan = session.metadata?.plan || '';
-      } else {
-        const subscription = event.data.object as Stripe.Subscription;
-        status = subscription.status;
-        subscriptionId = subscription.id;
-        // plan = subscription.items.data[0]?.plan.id;
-      }
-
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const uid = session.metadata?.uid || '';
+      const status = 'active';
+      const subscriptionId = (session.subscription as string) || '';
+      const plan = session.metadata?.plan || '';
+      const stripeCustomerId = (session.customer as string) || '';
       if (uid) {
         await admin.firestore().collection('users').doc(uid).set(
           {
             subscriptionStatus: status,
             stripeSubscriptionId: subscriptionId,
             plan,
+            stripeCustomerId,
+          },
+          { merge: true }
+        );
+      }
+    } else if (
+      event.type === 'customer.subscription.updated' ||
+      event.type === 'customer.subscription.deleted'
+    ) {
+      const subscription = event.data.object as Stripe.Subscription;
+      const stripeCustomerId = (subscription.customer as string) || '';
+      const status = subscription.status;
+      const subscriptionId = subscription.id;
+      // Find the user by stripeCustomerId
+      const usersRef = admin.firestore().collection('users');
+      const querySnap = await usersRef.where('stripeCustomerId', '==', stripeCustomerId).get();
+      if (!querySnap.empty) {
+        const userDoc = querySnap.docs[0];
+        await userDoc.ref.set(
+          {
+            subscriptionStatus: status,
+            stripeSubscriptionId: subscriptionId,
           },
           { merge: true }
         );
@@ -101,5 +107,33 @@ export const handleWebhook = async (req: Request, res: Response) => {
   } catch (err) {
     console.error('Error handling Stripe webhook:', err);
     res.status(500).send('Webhook handler failed');
+  }
+};
+
+export const createPortalSession = async (req: Request, res: Response) => {
+  try {
+    const { uid } = req.body;
+    if (!uid) {
+      return res.status(400).json({ message: 'Missing uid' });
+    }
+    // Get the user's Stripe customer ID from Firestore
+    const userDoc = await admin.firestore().collection('users').doc(uid).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const userData = userDoc.data();
+    const stripeCustomerId = userData?.stripeCustomerId;
+    if (!stripeCustomerId) {
+      return res.status(400).json({ message: 'No Stripe customer ID found for user' });
+    }
+    // Create a Stripe Customer Portal session
+    const portalSession = await stripe.billingPortal.sessions.create({
+      customer: stripeCustomerId,
+      return_url: process.env.FRONTEND_URL || 'http://localhost:3000/account',
+    });
+    return res.json({ url: portalSession.url });
+  } catch (error) {
+    console.error('Stripe portal error:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 }; 

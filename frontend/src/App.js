@@ -10,6 +10,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import PaymentSuccess from './components/landing/PaymentSuccess';
 import useCreateUserInFirestore from './contexts/useCreateUserInFirestore';
+import AccountSettings from './components/auth/AccountSettings';
 
 function App() {
   useCreateUserInFirestore();
@@ -34,6 +35,7 @@ function App() {
               <Route path="/pricing" element={<div>Pricing Page (Coming Soon)</div>} />
               <Route path="/faq" element={<div>FAQ Page (Coming Soon)</div>} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
+              <Route path="/settings" element={<AccountSettings />} />
       </Routes>
           </main>
         </div>
