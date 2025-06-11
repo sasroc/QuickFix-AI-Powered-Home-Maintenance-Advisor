@@ -1,0 +1,245 @@
+.payment-plan-container {
+  background: #18181b;
+  color: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 2rem auto;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+.payment-plan-title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.billing-toggle {
+  margin-bottom: 2.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+}
+
+.billing-button {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 2.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.billing-button:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.billing-button:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.billing-button.active {
+  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+}
+
+.payment-plans-grid {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+}
+
+.payment-plan {
+  background: #23272f;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(59,130,246,0.10);
+  padding: 2rem 2rem 1.5rem 2rem;
+  min-width: 280px;
+  max-width: 340px;
+  flex: 1;
+  margin: 0 8px;
+  text-align: left;
+  border: 1.5px solid #333;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.payment-plan.popular {
+  border: 2.5px solid #3b82f6;
+}
+
+.popular-badge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.2rem 0.9rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+}
+
+.plan-label {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.plan-price {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.price-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.price-amount .price {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #e5e7eb;
+  line-height: 1;
+}
+
+.period {
+  font-size: 1.15rem;
+  color: #e5e7eb;
+  font-weight: 700;
+  margin-top: 0;
+}
+
+.annual-note {
+  font-size: 1.1rem;
+  color: #a3a3a3;
+  font-weight: 500;
+  margin-left: 12px;
+  margin-top: 8px;
+}
+
+.plan-features {
+  margin: 1.2rem 0 1.5rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plan-features li {
+  margin-bottom: 8px;
+  color: #e5e7eb;
+  font-size: 1.08rem;
+}
+
+.plan-features li::before {
+  content: '•';
+  margin-right: 8px;
+}
+
+.subscribe-button {
+  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.9rem 2.2rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 8px;
+  transition: all 0.2s ease;
+}
+
+.subscribe-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59,130,246,0.3);
+}
+
+@media (max-width: 768px) {
+  .payment-plan-container {
+    padding: 1rem;
+    margin: 0;
+    border-radius: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .payment-plan-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .billing-toggle {
+    margin-bottom: 1.5rem;
+  }
+
+  .billing-button {
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .payment-plans-grid {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .payment-plan {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 1.5rem;
+    box-sizing: border-box;
+  }
+
+  .popular-badge {
+    top: 12px;
+    right: 12px;
+    font-size: 0.85rem;
+    padding: 0.2rem 0.7rem;
+  }
+
+  .plan-label {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .price-amount .price {
+    font-size: 2rem;
+  }
+
+  .period {
+    font-size: 1rem;
+  }
+
+  .annual-note {
+    font-size: 0.9rem;
+    margin-left: 8px;
+  }
+
+  .plan-features {
+    margin: 1rem 0;
+  }
+
+  .plan-features li {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+
+  .subscribe-button {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+} 

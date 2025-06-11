@@ -6,6 +6,7 @@ import SubscriptionGate from '../auth/SubscriptionGate';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import './RepairPage.css';
 
 const db = getFirestore();
 
@@ -76,59 +77,25 @@ function RepairPage() {
 
   return (
     <SubscriptionGate>
-      <div className="App" style={{ 
-        maxWidth: 700, 
-        margin: '0 auto', 
-        padding: '2rem 0',
-        background: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
-      }}>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          marginBottom: 24, 
-          justifyContent: 'space-between',
-          padding: '1rem 2rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-            <span style={{
-              background: 'linear-gradient(90deg, #3b82f6 0%, #10b981 100%)',
-              color: '#fff',
-              borderRadius: 9999,
-              padding: '0.5rem 1.3rem',
-              fontWeight: 700,
-              fontSize: '1.1rem',
-              letterSpacing: 0.5,
-              boxShadow: '0 2px 8px rgba(59,130,246,0.08)',
-              marginRight: 8
-            }}>
+      <div className="repair-page-container">
+        <div className="credits-container">
+          <div className="credits-info">
+            <span className="credits-badge">
               {credits !== null ? `Credits: ${credits}/${maxCredits}` : 'Loading credits...'}
             </span>
-            <div style={{ width: 120, height: 10, background: '#e5e7eb', borderRadius: 8, overflow: 'hidden' }}>
-              <div style={{ width: `${percent}%`, height: '100%', background: 'linear-gradient(90deg, #3b82f6 0%, #10b981 100%)', transition: 'width 0.3s' }} />
+            <div className="progress-bar-container">
+              <div className="progress-bar-fill" style={{ width: `${percent}%` }} />
             </div>
           </div>
           <button
-            style={{
-              background: 'linear-gradient(90deg, #3b82f6 0%, #10b981 100%)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              padding: '0.6rem 1.7rem',
-              fontWeight: 700,
-              fontSize: '1.08rem',
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(59,130,246,0.08)',
-              marginLeft: 16
-            }}
+            className="upgrade-button"
             onClick={() => navigate('/pricing')}
           >
             Upgrade
           </button>
         </div>
         {outOfCredits && (
-          <div style={{ color: 'red', marginBottom: 24, fontWeight: 600 }}>
+          <div className="no-credits-message">
             You have no credits remaining. Please upgrade your plan or wait for your credits to reset.
           </div>
         )}

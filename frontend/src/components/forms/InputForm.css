@@ -392,27 +392,117 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .repair-page {
-    padding: 1rem 0;
+    padding: 0;
+    width: 100%;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  .repair-header {
+    padding: 0 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 1rem 0;
   }
 
   .app-title {
-    font-size: 3rem;
+    font-size: 2.5rem;
+    margin: 1rem 0;
   }
 
   .title-ai {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
 
   .hero-subtitle {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
+    padding: 0 1rem;
   }
 
   .repair-input-container {
-    margin: 1rem;
-    padding: 1.5rem;
+    width: 100%;
+    margin: 0;
+    padding: 1rem;
+    box-sizing: border-box;
+    border-radius: 0;
+  }
+
+  .input-header {
+    margin-bottom: 1rem;
+  }
+
+  .input-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .input-header p {
+    font-size: 1rem;
+    padding: 0 0.5rem;
+  }
+
+  .text-input-section {
+    width: 100%;
+    padding: 0;
+  }
+
+  .text-input-section textarea {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0.75rem;
+  }
+
+  .voice-input-button {
+    width: 100%;
+    padding: 0 0.5rem;
+  }
+
+  .voice-input-button button {
+    width: 100%;
+    padding: 0.75rem;
+  }
+
+  .image-upload-section {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1rem;
+    margin: 0;
+  }
+
+  .image-upload-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .image-upload-header p {
+    font-size: 0.9rem;
   }
 
   .image-upload-area {
-    min-height: 150px;
+    width: 100%;
+    min-height: 120px;
+  }
+
+  .upload-placeholder {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .image-preview-container {
+    width: 100%;
+    margin: 0;
+  }
+
+  .image-preview-container img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .submit-button {
+    width: 100%;
+    margin: 1rem 0;
+  }
+
+  .unified-input-form {
+    gap: 1rem;
   }
 } 

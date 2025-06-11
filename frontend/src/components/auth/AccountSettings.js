@@ -2,65 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import ManageSubscriptionButton from './ManageSubscriptionButton';
+import './AccountSettings.css';
 
 const db = getFirestore();
-
-const sectionStyle = {
-  background: '#fff',
-  borderRadius: 16,
-  boxShadow: '0 4px 16px rgba(59,130,246,0.07)',
-  margin: '2.5rem 0',
-  padding: '2.5rem 2.5rem 2rem 2.5rem',
-  maxWidth: 700,
-  width: '100%',
-  border: '1px solid #e5e7eb',
-  textAlign: 'left',
-};
-
-const labelStyle = {
-  fontWeight: 700,
-  color: '#3b82f6',
-  fontSize: '1.35rem',
-  marginBottom: 18,
-  display: 'block',
-  letterSpacing: 0.5,
-  textAlign: 'left',
-};
-
-const inputStyle = {
-  padding: '0.5rem 1rem',
-  fontSize: '1.1rem',
-  borderRadius: 8,
-  border: '1px solid #d1d5db',
-  marginRight: 8,
-  marginBottom: 8,
-  background: '#f3f4f6',
-};
-
-const buttonStyle = {
-  background: 'linear-gradient(90deg, #3b82f6 0%, #10b981 100%)',
-  color: '#fff',
-  border: 'none',
-  borderRadius: '8px',
-  padding: '0.7rem 2rem',
-  fontSize: '1.08rem',
-  fontWeight: 700,
-  cursor: 'pointer',
-  marginRight: 12,
-  marginTop: 8,
-  boxShadow: '0 2px 8px rgba(59,130,246,0.08)',
-  transition: 'background 0.2s',
-};
-
-const containerStyle = {
-  width: '100vw',
-  minHeight: '100vh',
-  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'flex-start',
-  padding: '60px 0 0 5vw',
-};
 
 const AccountSettings = () => {
   const { currentUser, updateDisplayName, resetPassword, deleteAccount } = useAuth();
@@ -125,72 +69,72 @@ const AccountSettings = () => {
   };
 
   return (
-    <div style={containerStyle}>
-      <h2 style={{ marginBottom: '2.5rem', fontSize: '2.7rem', letterSpacing: 1, color: '#1f2937', fontWeight: 800, textAlign: 'left' }}>Account Settings</h2>
+    <div className="settings-container">
+      <h2 className="settings-title">Account Settings</h2>
       {loading ? (
-        <div style={{ textAlign: 'left', margin: '2rem 0' }}>Loading...</div>
+        <div className="section-content">Loading...</div>
       ) : (
-        <div style={{ width: '100%', maxWidth: 900 }}>
+        <div className="settings-content">
           {/* Profile Section */}
-          <section style={sectionStyle}>
-            <h3 style={labelStyle}>Profile</h3>
-            <div style={{ marginBottom: 18, fontSize: '1.1rem' }}>
+          <section className="settings-section">
+            <h3 className="section-title">Profile</h3>
+            <div className="section-content">
               <strong>Email:</strong> {currentUser?.email}
             </div>
-            <div style={{ marginBottom: 18, fontSize: '1.1rem' }}>
+            <div className="section-content">
               <strong>Display Name:</strong>{' '}
               {editingName ? (
                 <>
                   <input
-                    style={inputStyle}
+                    className="input-field"
                     value={newName}
                     onChange={e => setNewName(e.target.value)}
                     placeholder="Enter new display name"
                   />
-                  <button style={buttonStyle} onClick={handleNameChange}>Save</button>
-                  <button style={{ ...buttonStyle, background: '#888', color: '#fff', backgroundImage: 'none' }} onClick={() => setEditingName(false)}>Cancel</button>
-                  {nameError && <div style={{ color: 'red', marginTop: 8 }}>{nameError}</div>}
+                  <button className="action-button" onClick={handleNameChange}>Save</button>
+                  <button className="action-button secondary" onClick={() => setEditingName(false)}>Cancel</button>
+                  {nameError && <div className="error-message">{nameError}</div>}
                 </>
               ) : (
                 <>
                   {currentUser?.displayName || currentUser?.email?.split('@')[0]}
-                  <button style={{ ...buttonStyle, marginLeft: 16, padding: '0.4rem 1.2rem', fontSize: '0.95rem' }} onClick={() => { setEditingName(true); setNewName(currentUser?.displayName || currentUser?.email?.split('@')[0]); }}>Edit</button>
+                  <button className="action-button" onClick={() => { setEditingName(true); setNewName(currentUser?.displayName || currentUser?.email?.split('@')[0]); }}>Edit</button>
                 </>
               )}
             </div>
           </section>
 
           {/* Subscription Section */}
-          <section style={sectionStyle}>
-            <h3 style={labelStyle}>Subscription</h3>
-            <div style={{ marginBottom: 12, fontSize: '1.1rem' }}>
+          <section className="settings-section">
+            <h3 className="section-title">Subscription</h3>
+            <div className="section-content">
               <strong>Status:</strong> {userData?.subscriptionStatus ? userData.subscriptionStatus.charAt(0).toUpperCase() + userData.subscriptionStatus.slice(1) : 'Inactive'}
             </div>
-            <div style={{ marginBottom: 12, fontSize: '1.1rem' }}>
+            <div className="section-content">
               <strong>Plan:</strong> {userData?.plan ? userData.plan.charAt(0).toUpperCase() + userData.plan.slice(1) : 'None'}
             </div>
             <ManageSubscriptionButton />
           </section>
 
           {/* Password Reset Section */}
-          <section style={sectionStyle}>
-            <h3 style={labelStyle}>Password & Security</h3>
-            <button style={buttonStyle} onClick={handleResetPassword}>Send Password Reset Email</button>
-            {resetMsg && <div style={{ color: resetMsg.includes('sent') ? 'green' : 'red', marginTop: 8 }}>{resetMsg}</div>}
+          <section className="settings-section">
+            <h3 className="section-title">Password & Security</h3>
+            <button className="action-button" onClick={handleResetPassword}>Send Password Reset Email</button>
+            {resetMsg && <div className={resetMsg.includes('sent') ? 'success-message' : 'error-message'}>{resetMsg}</div>}
           </section>
 
           {/* Delete Account Section */}
-          <section style={{ ...sectionStyle, border: '1.5px solid #f87171', background: '#fff0f1' }}>
-            <h3 style={{ ...labelStyle, color: '#c00' }}>Danger Zone</h3>
+          <section className="settings-section danger-zone">
+            <h3 className="section-title">Danger Zone</h3>
             {!deleteConfirm ? (
-              <button style={{ ...buttonStyle, background: '#c00', backgroundImage: 'none' }} onClick={() => setDeleteConfirm(true)}>Delete Account</button>
+              <button className="action-button danger" onClick={() => setDeleteConfirm(true)}>Delete Account</button>
             ) : (
               <>
-                <div style={{ marginBottom: 12, color: '#c00', fontWeight: 600 }}>Are you sure? This cannot be undone.</div>
-                <button style={{ ...buttonStyle, background: '#c00', backgroundImage: 'none' }} onClick={handleDeleteAccount}>Yes, Delete</button>
-                <button style={{ ...buttonStyle, background: '#888', color: '#fff', backgroundImage: 'none' }} onClick={() => setDeleteConfirm(false)}>Cancel</button>
-                {deleteError && <div style={{ color: 'red', marginTop: 8 }}>{deleteError}</div>}
-                {deleteSuccess && <div style={{ color: 'green', marginTop: 8 }}>{deleteSuccess}</div>}
+                <div className="section-content" style={{ color: '#c00', fontWeight: 600 }}>Are you sure? This cannot be undone.</div>
+                <button className="action-button danger" onClick={handleDeleteAccount}>Yes, Delete</button>
+                <button className="action-button secondary" onClick={() => setDeleteConfirm(false)}>Cancel</button>
+                {deleteError && <div className="error-message">{deleteError}</div>}
+                {deleteSuccess && <div className="success-message">{deleteSuccess}</div>}
               </>
             )}
           </section>

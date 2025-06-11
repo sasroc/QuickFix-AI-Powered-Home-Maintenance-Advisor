@@ -113,6 +113,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
   transition: all 0.3s ease;
+  min-height: 300px;
 }
 
 .step-card:hover {
@@ -130,17 +131,18 @@
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  margin: 0 auto 1rem;
+  margin: 0 auto;
 }
 
 .step-card h3 {
   color: #1f2937;
-  margin-bottom: 1rem;
+  margin: 0;
 }
 
 .step-card p {
   color: #6b7280;
   line-height: 1.6;
+  margin: 0;
 }
 
 @keyframes fadeInDown {
@@ -177,6 +179,15 @@
 @media (max-width: 768px) {
   .landing-page {
     padding: 1rem 0;
+    width: 100%;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  .hero-section {
+    padding: 0 1rem;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .app-title {
@@ -198,5 +209,13 @@
   .steps-section {
     grid-template-columns: 1fr;
     margin-top: 2rem;
+    padding: 0 1rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .step-card {
+    width: 100%;
+    box-sizing: border-box;
   }
 } 

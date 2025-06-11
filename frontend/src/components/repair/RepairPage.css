@@ -1,0 +1,116 @@
+.repair-page-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.credits-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+}
+
+.credits-info {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.credits-badge {
+  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  color: #fff;
+  border-radius: 9999px;
+  padding: 0.5rem 1.3rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.08);
+  margin-right: 8px;
+  white-space: nowrap;
+}
+
+.progress-bar-container {
+  width: 120px;
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  transition: width 0.3s;
+}
+
+.upgrade-button {
+  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.7rem;
+  font-weight: 700;
+  font-size: 1.08rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.08);
+  margin-left: 16px;
+  white-space: nowrap;
+}
+
+.no-credits-message {
+  color: red;
+  margin-bottom: 24px;
+  font-weight: 600;
+  padding: 0 2rem;
+}
+
+@media (max-width: 768px) {
+  .repair-page-container {
+    max-width: 100%;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .credits-container {
+    flex-direction: row;
+    gap: 0.5rem;
+    padding: 1rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .credits-info {
+    flex-direction: row;
+    gap: 0.5rem;
+    width: auto;
+  }
+
+  .credits-badge {
+    width: auto;
+    text-align: center;
+    margin-right: 0;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .progress-bar-container {
+    display: none;
+  }
+
+  .upgrade-button {
+    width: auto;
+    margin-left: 0;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .no-credits-message {
+    padding: 0 1rem;
+    font-size: 0.9rem;
+  }
+} 
