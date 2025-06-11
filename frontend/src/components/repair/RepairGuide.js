@@ -5,6 +5,8 @@ import './RepairGuide.css';
 const RepairGuide = ({ repairData }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
+  const [completedTools, setCompletedTools] = useState([]);
+  const [completedMaterials, setCompletedMaterials] = useState([]);
   const [showTools, setShowTools] = useState(true);
 
   // Calculate progress percentage
@@ -15,6 +17,22 @@ const RepairGuide = ({ repairData }) => {
       setCompletedSteps(completedSteps.filter(step => step !== stepIndex));
     } else {
       setCompletedSteps([...completedSteps, stepIndex]);
+    }
+  };
+
+  const handleToolComplete = (toolIndex) => {
+    if (completedTools.includes(toolIndex)) {
+      setCompletedTools(completedTools.filter(tool => tool !== toolIndex));
+    } else {
+      setCompletedTools([...completedTools, toolIndex]);
+    }
+  };
+
+  const handleMaterialComplete = (materialIndex) => {
+    if (completedMaterials.includes(materialIndex)) {
+      setCompletedMaterials(completedMaterials.filter(material => material !== materialIndex));
+    } else {
+      setCompletedMaterials([...completedMaterials, materialIndex]);
     }
   };
 
@@ -123,8 +141,8 @@ const RepairGuide = ({ repairData }) => {
                         <input
                           type="checkbox"
                           id={`tool-${index}`}
-                          checked={completedSteps.includes(currentStep)}
-                          onChange={() => {}}
+                          checked={completedTools.includes(index)}
+                          onChange={() => handleToolComplete(index)}
                         />
                         <label htmlFor={`tool-${index}`}>{tool}</label>
                       </div>
@@ -140,8 +158,8 @@ const RepairGuide = ({ repairData }) => {
                         <input
                           type="checkbox"
                           id={`material-${index}`}
-                          checked={completedSteps.includes(currentStep)}
-                          onChange={() => {}}
+                          checked={completedMaterials.includes(index)}
+                          onChange={() => handleMaterialComplete(index)}
                         />
                         <label htmlFor={`material-${index}`}>{material}</label>
                       </div>

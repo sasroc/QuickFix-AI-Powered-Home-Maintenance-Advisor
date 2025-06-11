@@ -244,13 +244,14 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  height: fit-content;
+  height: calc(100vh - 120px); /* Adjust height to account for header and padding */
   position: fixed;
   top: 90px;
   right: 1rem;
   width: 280px;
   z-index: 10;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Hide overflow on the container */
 }
 
 .tools-header {
@@ -258,6 +259,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.5rem;
+  flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .tools-header h3 {
@@ -288,6 +290,28 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  overflow-y: auto; /* Make content scrollable */
+  padding-right: 8px; /* Add padding for scrollbar */
+  max-height: calc(100% - 50px); /* Adjust for header height */
+}
+
+/* Add custom scrollbar styling */
+.tools-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tools-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.tools-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.tools-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .tools-section,
