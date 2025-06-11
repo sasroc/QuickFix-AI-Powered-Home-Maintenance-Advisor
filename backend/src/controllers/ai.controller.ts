@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 import OpenAI from 'openai';
+import admin from '../utils/firebaseAdmin';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -86,13 +87,38 @@ export const analyzeIssue = async (
   next: NextFunction
 ) => {
   try {
-    const { description, image } = req.body;
+    const { description, image, uid } = req.body;
 
     if (!description && !image) {
       throw new AppError('Either description or image is required', 400);
     }
 
-    logger.info('Processing repair request:', { hasDescription: !!description, hasImage: !!image });
+    if (!uid) {
+      throw new AppError('User ID (uid) is required', 400);
+    }
+
+    // Fetch user plan and credits from Firestore
+    const userRef = admin.firestore().collection('users').doc(uid);
+    const userSnap = await userRef.get();
+    if (!userSnap.exists) {
+      throw new AppError('User not found', 404);
+    }
+    const userData = userSnap.data();
+    const plan = userData?.plan || 'starter';
+    let credits = userData?.credits ?? 0;
+    if (credits <= 0) {
+      return res.status(403).json({ message: 'You have no credits remaining. Please upgrade your plan.' });
+    }
+
+    // Deduct a credit
+    await userRef.update({ credits: credits - 1 });
+
+    // Select model based on plan
+    let model = 'gpt-4.1-nano';
+    if (plan === 'pro') model = 'gpt-4o-mini';
+    else if (plan === 'premium') model = 'gpt-4o';
+
+    logger.info('Processing repair request:', { hasDescription: !!description, hasImage: !!image, plan, model });
 
     // Initialize response object
     const response: any = {
@@ -141,7 +167,7 @@ CONFIDENCE: [number]`;
         logger.debug('Sending request to OpenAI API...');
         
         const completion = await openai.chat.completions.create({
-          model: "gpt-3.5-turbo",
+          model,
           messages: [
             {
               role: "system",

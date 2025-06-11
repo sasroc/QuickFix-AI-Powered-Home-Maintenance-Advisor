@@ -6,22 +6,28 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
   try {
-    const { uid, plan } = req.body;
-    if (!uid || !plan) {
-      return res.status(400).json({ message: 'Missing uid or plan' });
+    const { uid, plan, billing } = req.body;
+    if (!uid || !plan || !billing) {
+      return res.status(400).json({ message: 'Missing uid, plan, or billing' });
     }
 
-    // Choose the correct price ID
-    let priceId = '';
-    if (plan === 'monthly') {
-      priceId = process.env.STRIPE_MONTHLY_PRICE_ID!;
-    } else if (plan === 'annual') {
-      priceId = process.env.STRIPE_ANNUAL_PRICE_ID!;
-    } else {
-      return res.status(400).json({ message: 'Invalid plan' });
+    // Lookup table for price IDs
+    const priceIdMap: Record<string, string> = {
+      'starter_monthly': process.env.STRIPE_STARTER_MONTHLY_PRICE_ID!,
+      'starter_annual': process.env.STRIPE_STARTER_ANNUAL_PRICE_ID!,
+      'pro_monthly': process.env.STRIPE_PRO_MONTHLY_PRICE_ID!,
+      'pro_annual': process.env.STRIPE_PRO_ANNUAL_PRICE_ID!,
+      'premium_monthly': process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID!,
+      'premium_annual': process.env.STRIPE_PREMIUM_ANNUAL_PRICE_ID!,
+    };
+
+    const priceKey = `${plan}_${billing}`;
+    const priceId = priceIdMap[priceKey];
+
+    if (!priceId) {
+      return res.status(400).json({ message: 'Invalid plan or billing interval' });
     }
 
-    // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'subscription',
@@ -36,6 +42,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       metadata: {
         uid,
         plan,
+        billing,
       },
     });
 
@@ -70,12 +77,18 @@ export const handleWebhook = async (req: Request, res: Response) => {
       const subscriptionId = (session.subscription as string) || '';
       const plan = session.metadata?.plan || '';
       const stripeCustomerId = (session.customer as string) || '';
+      // Set initial credits based on plan
+      let credits = 0;
+      if (plan === 'starter') credits = 50;
+      else if (plan === 'pro') credits = 100;
+      else if (plan === 'premium') credits = 500;
       if (uid) {
         await admin.firestore().collection('users').doc(uid).set(
           {
             subscriptionStatus: status,
             stripeSubscriptionId: subscriptionId,
             plan,
+            credits,
             stripeCustomerId,
           },
           { merge: true }

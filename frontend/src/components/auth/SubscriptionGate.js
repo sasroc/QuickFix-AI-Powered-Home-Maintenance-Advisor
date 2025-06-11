@@ -24,14 +24,14 @@ const SubscriptionGate = ({ children }) => {
     return unsub;
   }, [currentUser]);
 
-  const onSubscribe = async (plan) => {
+  const onSubscribe = async (plan, billing) => {
     setLoadingCheckout(true);
     setError('');
     try {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid: currentUser.uid, plan }),
+        body: JSON.stringify({ uid: currentUser.uid, plan, billing }),
       });
       const data = await res.json();
       if (data.url) {

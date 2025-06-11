@@ -13,11 +13,14 @@ const getBackendUrl = () => {
   return `http://${host}:4000/api/ai/analyze`;
 };
 
-export async function analyzeRepairIssue({ description, image }) {
+export async function analyzeRepairIssue({ description, image, uid }) {
   try {
     const body = { description };
     if (image) {
       body.image = image;
+    }
+    if (uid) {
+      body.uid = uid;
     }
 
     const API_URL = getBackendUrl();
