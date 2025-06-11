@@ -76,8 +76,21 @@ function RepairPage() {
 
   return (
     <SubscriptionGate>
-      <div className="App" style={{ maxWidth: 700, margin: '0 auto', padding: '2rem 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24, justifyContent: 'space-between' }}>
+      <div className="App" style={{ 
+        maxWidth: 700, 
+        margin: '0 auto', 
+        padding: '2rem 0',
+        background: 'white',
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          marginBottom: 24, 
+          justifyContent: 'space-between',
+          padding: '1rem 2rem'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
             <span style={{
               background: 'linear-gradient(90deg, #3b82f6 0%, #10b981 100%)',

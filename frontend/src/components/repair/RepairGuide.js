@@ -32,65 +32,67 @@ const RepairGuide = ({ repairData }) => {
 
   return (
     <div className="repair-guide-container">
-      <div className="repair-guide-header">
-        <h2>{repairData.title}</h2>
-        <div className="progress-bar">
-          <motion.div
-            className="progress-fill"
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.5 }}
-          />
-        </div>
-        <p className="progress-text">{Math.round(progress)}% Complete</p>
-      </div>
-
       <div className="repair-guide-content">
-        <div className="steps-container">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-              className="step-card"
-            >
-              <div className="step-header">
-                <h3>Step {currentStep + 1}</h3>
-                <button
-                  className={`complete-button ${completedSteps.includes(currentStep) ? 'completed' : ''}`}
-                  onClick={() => handleStepComplete(currentStep)}
-                >
-                  {completedSteps.includes(currentStep) ? 'Completed' : 'Mark Complete'}
-                </button>
-              </div>
-              <p className="step-description">{repairData.steps[currentStep].description}</p>
-              {repairData.steps[currentStep].image && (
-                <img
-                  src={repairData.steps[currentStep].image}
-                  alt={`Step ${currentStep + 1}`}
-                  className="step-image"
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
+        <div className="left-content">
+          <div className="repair-guide-header">
+            <h2>{repairData.title}</h2>
+            <div className="progress-bar">
+              <motion.div
+                className="progress-fill"
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+            <p className="progress-text">{Math.round(progress)}% Complete</p>
+          </div>
 
-          <div className="step-navigation">
-            <button
-              onClick={handlePreviousStep}
-              disabled={currentStep === 0}
-              className="nav-button"
-            >
-              Previous
-            </button>
-            <button
-              onClick={handleNextStep}
-              disabled={currentStep === repairData.steps.length - 1}
-              className="nav-button"
-            >
-              Next
-            </button>
+          <div className="steps-container">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentStep}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="step-card"
+              >
+                <div className="step-header">
+                  <h3>Step {currentStep + 1}</h3>
+                  <button
+                    className={`complete-button ${completedSteps.includes(currentStep) ? 'completed' : ''}`}
+                    onClick={() => handleStepComplete(currentStep)}
+                  >
+                    {completedSteps.includes(currentStep) ? 'Completed' : 'Mark Complete'}
+                  </button>
+                </div>
+                <p className="step-description">{repairData.steps[currentStep].description}</p>
+                {repairData.steps[currentStep].image && (
+                  <img
+                    src={repairData.steps[currentStep].image}
+                    alt={`Step ${currentStep + 1}`}
+                    className="step-image"
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
+
+            <div className="step-navigation">
+              <button
+                onClick={handlePreviousStep}
+                disabled={currentStep === 0}
+                className="nav-button"
+              >
+                Previous
+              </button>
+              <button
+                onClick={handleNextStep}
+                disabled={currentStep === repairData.steps.length - 1}
+                className="nav-button"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
 
@@ -104,7 +106,6 @@ const RepairGuide = ({ repairData }) => {
               {showTools ? 'Hide' : 'Show'}
             </button>
           </div>
-          
           <AnimatePresence>
             {showTools && (
               <motion.div
