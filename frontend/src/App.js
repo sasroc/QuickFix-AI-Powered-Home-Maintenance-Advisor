@@ -12,6 +12,7 @@ import PaymentSuccess from './components/landing/PaymentSuccess';
 import useCreateUserInFirestore from './contexts/useCreateUserInFirestore';
 import AccountSettings from './components/auth/AccountSettings';
 import PaymentPlan from './components/pricing/PaymentPlan';
+import FAQ from './components/faq/FAQ';
 
 function App() {
   useCreateUserInFirestore();
@@ -34,7 +35,7 @@ function App() {
               />
         <Route path="/community" element={<Community />} />
               <Route path="/pricing" element={<PaymentPlan />} />
-              <Route path="/faq" element={<div>FAQ Page (Coming Soon)</div>} />
+              <Route path="/faq" element={<FAQ />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/settings" element={<AccountSettings />} />
       </Routes>

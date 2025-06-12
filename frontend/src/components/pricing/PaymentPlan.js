@@ -10,7 +10,7 @@ const plans = [
     annualTotal: 108,
     features: [
       '50 repair guides per month',
-      'Powered by GPT-4.1 Nano',
+      'Powered by GPT-4.1 Nano - Basic, capable model for simple repairs',
       'For individuals and light DIYers',
       'Access to standard repair guides',
     ],
@@ -23,7 +23,7 @@ const plans = [
     annualTotal: 348,
     features: [
       '100 repair guides per month',
-      'Powered by GPT-4o Mini',
+      'Powered by GPT-4o Mini - Advanced model with enhanced accuracy and detailed solutions',
       'For busy homeowners and advanced DIYers',
       'Access to all standard and advanced repair guides',
       'Early access to new features',
@@ -37,7 +37,7 @@ const plans = [
     annualTotal: 588,
     features: [
       '500 repair guides per month',
-      'Powered by GPT-4o',
+      'Powered by GPT-4o - Most advanced model with expert-level precision and comprehensive solutions',
       'For professionals and power users',
       'All Pro features',
     ],
@@ -106,6 +106,11 @@ const PaymentPlan = ({ onSubscribe }) => {
             >
               Subscribe
             </button>
+            {billing === 'monthly' && (
+              <div className="yearly-save-note">
+                Save with yearly
+              </div>
+            )}
           </div>
         ))}
       </div>
