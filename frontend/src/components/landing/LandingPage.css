@@ -19,7 +19,15 @@
   font-weight: 800;
   margin: 2rem 0;
   line-height: 1;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow:
+    1px 1px 0 #000,
+    -1px 1px 0 #000,
+    1px -1px 0 #000,
+    -1px -1px 0 #000,
+    0 1px 0 #000,
+    1px 0 0 #000,
+    0 -1px 0 #000,
+    -1px 0 0 #000;
   animation: fadeInDown 1s ease-out;
 }
 
@@ -48,7 +56,7 @@
 
 .hero-subtitle {
   font-size: 1.5rem;
-  color: #6b7280;
+  color: rgba(255,255,255,0.9);
   margin-top: 1rem;
   animation: fadeInUp 1s ease-out 0.5s both;
 }

@@ -1,18 +1,20 @@
 .repair-page-container {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 2rem 0;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .credits-container {
   display: flex;
   align-items: center;
   margin-bottom: 24px;
-  justify-content: space-between;
-  padding: 1rem 2rem;
+  justify-content: flex-start;
+  padding: 1rem 0 1rem 0;
+  width: 100vw;
+  box-sizing: border-box;
 }
 
 .credits-info {
@@ -69,19 +71,25 @@
   padding: 0 2rem;
 }
 
+@media (max-width: 1024px) {
+  .credits-container {
+    padding-left: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .repair-page-container {
-    max-width: 100%;
+    width: 100vw;
     padding: 0;
     border-radius: 0;
   }
-
   .credits-container {
     flex-direction: row;
     gap: 0.5rem;
-    padding: 1rem;
+    padding: 1rem 0 1rem 0;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+    width: 100vw;
   }
 
   .credits-info {

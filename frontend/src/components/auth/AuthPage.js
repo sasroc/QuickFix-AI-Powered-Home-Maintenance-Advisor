@@ -64,8 +64,9 @@ function AuthPage() {
   }
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
+    <div className="auth-container" style={{ position: 'relative', overflow: 'hidden' }}>
+      <div className="quickfix-gradient-bg" />
+      <div className="auth-card" style={{ position: 'relative', zIndex: 1 }}>
         <div className="auth-header">
           <h1 className="app-title">
             <span className="title-quick">Quick</span>

@@ -16,8 +16,9 @@ function LandingPage() {
   };
 
   return (
-    <div className="landing-page">
-      <div className="hero-section">
+    <div className="landing-page" style={{ position: 'relative', overflow: 'hidden' }}>
+      <div className="quickfix-gradient-bg" />
+      <div className="hero-section" style={{ position: 'relative', zIndex: 1 }}>
         <h1 className="app-title">
           <span className="title-quick">Quick</span>
           <span className="title-fix">Fix</span>

@@ -54,15 +54,17 @@ const RepairGuide = ({ repairData }) => {
         <div className="left-content">
           <div className="repair-guide-header">
             <h2>{repairData.title}</h2>
-            <div className="progress-bar">
-              <motion.div
-                className="progress-fill"
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.5 }}
-              />
+            <div className="progress-row">
+              <div className="progress-bar">
+                <motion.div
+                  className="progress-fill"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.5 }}
+                />
+              </div>
+              <p className="progress-text">{Math.round(progress)}% Complete</p>
             </div>
-            <p className="progress-text">{Math.round(progress)}% Complete</p>
           </div>
 
           <div className="steps-container">
