@@ -1,40 +1,105 @@
 .navbar {
-  background: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.02),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
   position: sticky;
   top: 0;
   z-index: 1000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+}
+
+.navbar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.06) 0%,
+    rgba(16, 185, 129, 0.06) 100%
+  );
+  z-index: -1;
+}
+
+.navbar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.12) 0%, transparent 50%);
+  z-index: -1;
 }
 
 .navbar-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: 0.75rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+}
+
+.navbar-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+  z-index: -1;
 }
 
 .navbar-brand {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.18);
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
   text-decoration: none;
-  color: #1f2937;
-  font-weight: 700;
-  font-size: 1.5rem;
-  transition: transform 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.01),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
 }
 
 .navbar-brand:hover {
   transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.02),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22);
 }
 
-.navbar-logo {
-  height: 40px;
+.navbar-brand img {
+  height: 32px;
   width: auto;
-  border-radius: 8px;
-  object-fit: cover;
+}
+
+.navbar-brand span {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .brand-text {
@@ -61,20 +126,48 @@
 .navbar-menu {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1.5rem;
+  background: rgba(255, 255, 255, 0.18);
+  padding: 0.5rem;
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.01),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
 }
 
 .navbar-start {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .navbar-item {
   color: #4b5563;
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.navbar-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.06) 0%,
+    rgba(16, 185, 129, 0.06) 100%
+  );
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .navbar-item::after {
@@ -82,34 +175,70 @@
   position: absolute;
   width: 0;
   height: 2px;
-  bottom: -4px;
-  left: 0;
-  background-color: #3b82f6;
-  transition: width 0.3s ease;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 2px;
 }
 
 .navbar-item:hover {
   color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+.navbar-item:hover::before {
+  opacity: 1;
 }
 
 .navbar-item:hover::after {
-  width: 100%;
+  width: 80%;
 }
 
 .login-button {
-  background: #3b82f6;
+  background: rgba(59, 130, 246, 0.55);
   color: white;
   padding: 0.5rem 1.5rem;
-  border-radius: 8px;
+  border-radius: 12px;
   text-decoration: none;
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.03),
+    inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .login-button:hover {
-  background: #2563eb;
+  background: rgba(59, 130, 246, 0.65);
   transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+  box-shadow: 
+    0 4px 6px rgba(37, 99, 235, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.18);
+}
+
+.login-button:hover::before {
+  opacity: 1;
 }
 
 .user-menu {
@@ -120,27 +249,40 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: none;
-  border: none;
-  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.01),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
 }
 
 .user-button:hover {
   transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.02),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22);
 }
 
 .user-avatar {
   width: 32px;
   height: 32px;
-  background: #3b82f6;
+  background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
   color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
 }
 
 .user-email {
@@ -162,12 +304,31 @@
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: 0.5rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 0.75rem;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 12px;
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.03),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22);
   min-width: 200px;
-  animation: slideDown 0.3s ease;
+  animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    rgba(59, 130, 246, 0.12) 0%,
+    rgba(16, 185, 129, 0.12) 100%
+  );
 }
 
 .dropdown-item {
@@ -179,12 +340,31 @@
   color: #4b5563;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.dropdown-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.06) 0%,
+    rgba(16, 185, 129, 0.06) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .dropdown-item:hover {
-  background: #f3f4f6;
   color: #3b82f6;
+}
+
+.dropdown-item:hover::before {
+  opacity: 1;
 }
 
 .mobile-menu-button {

@@ -1,37 +1,38 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
-import PaymentPlan from '../pricing/PaymentPlan';
+import PaymentPlan from './PaymentPlan';
+import { useNavigate } from 'react-router-dom';
 
 const db = getFirestore();
 
-const SubscriptionGate = ({ children }) => {
+const PricingPage = () => {
   const { currentUser } = useAuth();
-  const [status, setStatus] = useState('loading');
-  const [loadingCheckout, setLoadingCheckout] = useState(false);
-  const [error, setError] = useState('');
   const [currentPlan, setCurrentPlan] = useState(null);
   const [currentBilling, setCurrentBilling] = useState(null);
+  const [loadingCheckout, setLoadingCheckout] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!currentUser) return;
     const userRef = doc(db, 'users', currentUser.uid);
     const unsub = onSnapshot(userRef, (snap) => {
-      if (!snap.exists()) {
-        setStatus('none');
-        setCurrentPlan(null);
-        setCurrentBilling(null);
-      } else {
-        const data = snap.data();
-        setStatus(data.subscriptionStatus || 'inactive');
-        setCurrentPlan(data.plan || null);
-        setCurrentBilling(data.billingInterval || 'monthly');
+      if (snap.exists()) {
+        setCurrentPlan(snap.data().plan || null);
+        // Determine billing interval from subscription ID or other metadata
+        // For now, we'll default to monthly if not specified
+        setCurrentBilling(snap.data().billingInterval || 'monthly');
       }
     });
     return unsub;
   }, [currentUser]);
 
   const onSubscribe = async (plan, billing) => {
+    if (!currentUser) {
+      navigate('/auth');
+      return;
+    }
     setLoadingCheckout(true);
     setError('');
     try {
@@ -53,23 +54,25 @@ const SubscriptionGate = ({ children }) => {
     }
   };
 
-  if (status === 'loading') {
-    return <div style={{ textAlign: 'center', marginTop: '4rem' }}>Checking subscription...</div>;
-  }
-  if (status === 'active') {
-    return <>{children}</>;
-  }
   return (
-    <>
+    <div className="pricing-page">
       <PaymentPlan 
         onSubscribe={onSubscribe} 
         currentPlan={currentPlan}
         currentBilling={currentBilling}
       />
-      {loadingCheckout && <div style={{ textAlign: 'center', marginTop: 16 }}>Redirecting to checkout...</div>}
-      {error && <div style={{ color: 'red', textAlign: 'center', marginTop: 16 }}>{error}</div>}
-    </>
+      {loadingCheckout && (
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          Redirecting to checkout...
+        </div>
+      )}
+      {error && (
+        <div style={{ color: 'red', textAlign: 'center', marginTop: 16 }}>
+          {error}
+        </div>
+      )}
+    </div>
   );
 };
 
-export default SubscriptionGate; 
+export default PricingPage; 

@@ -43,8 +43,8 @@ function Navbar() {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-brand">
-          <img src={logo} alt="QuickFixAI Logo" className="navbar-logo" />
-          <span className="brand-text">QuickFixAI</span>
+          <img src={logo} alt="QuickFixAI Logo" />
+          <span>QuickFixAI</span>
         </Link>
 
         <button className="mobile-menu-button" onClick={toggleMenu}>

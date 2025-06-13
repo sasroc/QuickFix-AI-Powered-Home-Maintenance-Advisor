@@ -12,7 +12,7 @@ const db = getFirestore();
 
 // Plan credit limits for progress bar
 const PLAN_CREDITS = {
-  starter: 50,
+  starter: 25,
   pro: 100,
   premium: 500
 };
@@ -91,7 +91,7 @@ function RepairPage() {
             className="upgrade-button"
             onClick={() => navigate('/pricing')}
           >
-            Upgrade
+            {plan === 'starter' ? 'Upgrade' : 'Change plan'}
           </button>
         </div>
         {outOfCredits && (

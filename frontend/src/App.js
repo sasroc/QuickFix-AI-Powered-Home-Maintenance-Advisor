@@ -11,19 +11,19 @@ import { AuthProvider } from './contexts/AuthContext';
 import PaymentSuccess from './components/landing/PaymentSuccess';
 import useCreateUserInFirestore from './contexts/useCreateUserInFirestore';
 import AccountSettings from './components/auth/AccountSettings';
-import PaymentPlan from './components/pricing/PaymentPlan';
+import PricingPage from './components/pricing/PricingPage';
 import FAQ from './components/faq/FAQ';
 
 function App() {
   useCreateUserInFirestore();
   return (
     <AuthProvider>
-    <Router>
+      <Router>
         <div className="app">
           <Navbar />
           <main className="main-content">
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route
                 path="/repair"
@@ -33,15 +33,15 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-        <Route path="/community" element={<Community />} />
-              <Route path="/pricing" element={<PaymentPlan />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/pricing" element={<PricingPage />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/settings" element={<AccountSettings />} />
-      </Routes>
+            </Routes>
           </main>
         </div>
-    </Router>
+      </Router>
     </AuthProvider>
   );
 }

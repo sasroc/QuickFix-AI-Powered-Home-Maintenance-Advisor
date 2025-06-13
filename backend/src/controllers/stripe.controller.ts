@@ -76,10 +76,11 @@ export const handleWebhook = async (req: Request, res: Response) => {
       const status = 'active';
       const subscriptionId = (session.subscription as string) || '';
       const plan = session.metadata?.plan || '';
+      const billing = session.metadata?.billing || 'monthly';
       const stripeCustomerId = (session.customer as string) || '';
       // Set initial credits based on plan
       let credits = 0;
-      if (plan === 'starter') credits = 50;
+      if (plan === 'starter') credits = 25;
       else if (plan === 'pro') credits = 100;
       else if (plan === 'premium') credits = 500;
       if (uid) {
@@ -88,6 +89,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
             subscriptionStatus: status,
             stripeSubscriptionId: subscriptionId,
             plan,
+            billingInterval: billing,
             credits,
             stripeCustomerId,
           },

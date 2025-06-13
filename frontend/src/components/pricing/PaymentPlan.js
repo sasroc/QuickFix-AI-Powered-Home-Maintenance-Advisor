@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import './PaymentPlan.css';
 
 const plans = [
@@ -9,8 +10,8 @@ const plans = [
     annual: 9,
     annualTotal: 108,
     features: [
-      '50 repair guides per month',
-      'Powered by GPT-4.1 Nano - Basic, capable model for simple repairs',
+      '25 repair guides per month',
+      <span key="starter-ai">Powered by <span className="ai-model starter">GPT-4.1 Nano</span> - Basic, capable model for simple repairs</span>,
       'For individuals and light DIYers',
       'Access to standard repair guides',
     ],
@@ -23,7 +24,7 @@ const plans = [
     annualTotal: 348,
     features: [
       '100 repair guides per month',
-      'Powered by GPT-4o Mini - Advanced model with enhanced accuracy and detailed solutions',
+      <span key="pro-ai">Powered by <span className="ai-model pro">GPT-4o Mini</span> - Advanced model with enhanced accuracy and detailed solutions</span>,
       'For busy homeowners and advanced DIYers',
       'Access to all standard and advanced repair guides',
       'Early access to new features',
@@ -37,20 +38,49 @@ const plans = [
     annualTotal: 588,
     features: [
       '500 repair guides per month',
-      'Powered by GPT-4o - Most advanced model with expert-level precision and comprehensive solutions',
+      <span key="premium-ai">Powered by <span className="ai-model premium">GPT-4o</span> - Most advanced model with expert-level precision and comprehensive solutions</span>,
       'For professionals and power users',
       'All Pro features',
     ],
   },
 ];
 
-const PaymentPlan = ({ onSubscribe }) => {
-  const [billing, setBilling] = useState('monthly'); // 'monthly' or 'annual'
+const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling }) => {
+  const { currentUser } = useAuth();
+  const [billing, setBilling] = useState(currentBilling || 'monthly'); // 'monthly' or 'annual'
+  const [loadingPortal, setLoadingPortal] = useState(false);
+  const [portalError, setPortalError] = useState('');
 
   const handleSubscribe = (planKey) => {
     if (onSubscribe) {
       onSubscribe(planKey, billing);
     }
+  };
+
+  const handleManageSubscription = async () => {
+    setLoadingPortal(true);
+    setPortalError('');
+    try {
+      const res = await fetch('/api/create-portal-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: currentUser.uid }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setPortalError('Failed to open Stripe portal.');
+      }
+    } catch (err) {
+      setPortalError('Failed to open Stripe portal.');
+    } finally {
+      setLoadingPortal(false);
+    }
+  };
+
+  const isCurrentPlan = (planKey) => {
+    return currentPlan === planKey && currentBilling === billing;
   };
 
   return (
@@ -74,11 +104,16 @@ const PaymentPlan = ({ onSubscribe }) => {
         {plans.map((plan) => (
           <div
             key={plan.key}
-            className={`payment-plan ${plan.key === 'pro' ? 'popular' : ''}`}
+            className={`payment-plan ${plan.key === 'pro' ? 'popular' : ''} ${isCurrentPlan(plan.key) ? 'current-plan' : ''}`}
           >
-            {plan.key === 'pro' && (
+            {plan.key === 'pro' && !isCurrentPlan(plan.key) && (
               <div className="popular-badge">
                 Most Popular
+              </div>
+            )}
+            {isCurrentPlan(plan.key) && (
+              <div className="current-plan-badge">
+                Current Plan
               </div>
             )}
             <h3 className="plan-label">{plan.label}</h3>
@@ -101,12 +136,13 @@ const PaymentPlan = ({ onSubscribe }) => {
               ))}
             </ul>
             <button
-              className="subscribe-button"
-              onClick={() => handleSubscribe(plan.key)}
+              className={`subscribe-button ${isCurrentPlan(plan.key) ? 'current-plan-button' : ''}`}
+              onClick={isCurrentPlan(plan.key) ? handleManageSubscription : () => handleSubscribe(plan.key)}
+              disabled={loadingPortal}
             >
-              Subscribe
+              {isCurrentPlan(plan.key) ? (loadingPortal ? 'Loading...' : 'Manage Subscription') : 'Subscribe'}
             </button>
-            {billing === 'monthly' && (
+            {billing === 'monthly' && !isCurrentPlan(plan.key) && (
               <div className="yearly-save-note">
                 Save with yearly
               </div>
@@ -114,6 +150,11 @@ const PaymentPlan = ({ onSubscribe }) => {
           </div>
         ))}
       </div>
+      {portalError && (
+        <div style={{ color: 'red', textAlign: 'center', marginTop: 16 }}>
+          {portalError}
+        </div>
+      )}
     </div>
   );
 };
