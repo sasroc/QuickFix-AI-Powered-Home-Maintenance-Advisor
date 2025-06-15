@@ -14,6 +14,7 @@ const plans = [
       <span key="starter-ai">Powered by <span className="ai-model starter">GPT-4.1 Nano</span> - Basic, capable model for simple repairs</span>,
       'For individuals and light DIYers',
       'Access to standard repair guides',
+      'Store up to 10 repair guides in history',
     ],
   },
   {
@@ -28,6 +29,7 @@ const plans = [
       'For busy homeowners and advanced DIYers',
       'Access to all standard and advanced repair guides',
       'Early access to new features',
+      'Store up to 50 repair guides in history',
     ],
   },
   {
@@ -41,6 +43,7 @@ const plans = [
       <span key="premium-ai">Powered by <span className="ai-model premium">GPT-4o</span> - Most advanced model with expert-level precision and comprehensive solutions</span>,
       'For professionals and power users',
       'All Pro features',
+      'Unlimited repair history storage',
     ],
   },
 ];

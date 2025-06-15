@@ -154,14 +154,7 @@ const InputForm = ({ onSubmit, isLoading, disabled }) => {
               className="submit-button"
               disabled={isLoading || disabled || !textInput.trim()}
             >
-              {isLoading ? (
-                <>
-                  <span className="loading-spinner"></span>
-                  Processing...
-                </>
-              ) : (
-                'Get Repair Guide'
-              )}
+              {isLoading ? 'Processing...' : 'Get Repair Guide'}
             </button>
           </div>
         </form>

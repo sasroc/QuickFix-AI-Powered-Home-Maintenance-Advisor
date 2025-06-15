@@ -4,6 +4,8 @@ import './App.css';
 import Navbar from './components/navigation/Navbar';
 import LandingPage from './components/landing/LandingPage';
 import RepairPage from './components/repair/RepairPage';
+import RepairHistory from './components/repair/RepairHistory';
+import HistoricalRepairView from './components/repair/HistoricalRepairView';
 import Community from './components/community/Community';
 import AuthPage from './components/auth/AuthPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -30,6 +32,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <RepairPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/repair/history"
+                element={
+                  <ProtectedRoute>
+                    <RepairHistory />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/repair/history/:id"
+                element={
+                  <ProtectedRoute>
+                    <HistoricalRepairView />
                   </ProtectedRoute>
                 }
               />
