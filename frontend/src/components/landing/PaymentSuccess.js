@@ -77,7 +77,7 @@ const PaymentSuccess = () => {
       }} />
 
       {/* Content container */}
-      <div style={{
+      <div className="payment-success-glass-container" style={{
         position: 'relative',
         zIndex: 1,
         background: 'rgba(255, 255, 255, 0.15)',
@@ -186,6 +186,13 @@ const PaymentSuccess = () => {
             }
             to {
               transform: rotate(360deg);
+            }
+          }
+
+          @media (max-width: 600px) {
+            .payment-success-glass-container {
+              max-width: 95vw !important;
+              padding: 1.2rem !important;
             }
           }
         `}
