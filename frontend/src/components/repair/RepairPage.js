@@ -76,7 +76,6 @@ function RepairPage() {
 
       // Save repair data to Firestore only if history is not full
       if (currentUser && !historyFull) {
-        console.log('Saving repair for user:', currentUser.uid);
         const repairData = {
           userId: currentUser.uid,
           title: mappedResponse.title,
@@ -88,13 +87,11 @@ function RepairPage() {
           imageAnalysis: mappedResponse.imageAnalysis,
           timestamp: serverTimestamp()
         };
-        console.log('Saving repair data:', repairData);
-        const docRef = await addDoc(repairsRef, repairData);
-        console.log('Repair saved with ID:', docRef.id);
+        await addDoc(repairsRef, repairData);
       } else if (currentUser && historyFull) {
-        console.log('History full - repair not saved to history');
+        // History full - repair not saved to history
       } else {
-        console.warn('No current user found, repair not saved to history');
+        // No current user found, repair not saved to history
       }
 
       setRepairData(mappedResponse);
