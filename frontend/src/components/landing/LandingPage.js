@@ -109,11 +109,11 @@ function LandingPage() {
           <div className="before-after-card">
             <div className="image-comparison">
               <div className="before">
-                <img src="/images/leaky-faucet-before.jpg" alt="Leaky faucet before repair" />
+                <img src="https://placehold.co/400x300/e2e8f0/64748b?text=Before" alt="Leaky faucet before repair" />
                 <span className="label">Before</span>
               </div>
               <div className="after">
-                <img src="/images/leaky-faucet-after.jpg" alt="Leaky faucet after repair" />
+                <img src="https://placehold.co/400x300/e2e8f0/64748b?text=After" alt="Leaky faucet after repair" />
                 <span className="label">After</span>
               </div>
             </div>
@@ -123,11 +123,11 @@ function LandingPage() {
           <div className="before-after-card">
             <div className="image-comparison">
               <div className="before">
-                <img src="/images/drywall-before.jpg" alt="Damaged drywall before repair" />
+                <img src="https://placehold.co/400x300/e2e8f0/64748b?text=Before" alt="Damaged drywall before repair" />
                 <span className="label">Before</span>
               </div>
               <div className="after">
-                <img src="/images/drywall-after.jpg" alt="Drywall after repair" />
+                <img src="https://placehold.co/400x300/e2e8f0/64748b?text=After" alt="Drywall after repair" />
                 <span className="label">After</span>
               </div>
             </div>
@@ -137,11 +137,11 @@ function LandingPage() {
           <div className="before-after-card">
             <div className="image-comparison">
               <div className="before">
-                <img src="/images/electrical-before.jpg" alt="Faulty outlet before repair" />
+                <img src="https://placehold.co/400x300/e2e8f0/64748b?text=Before" alt="Faulty outlet before repair" />
                 <span className="label">Before</span>
               </div>
               <div className="after">
-                <img src="/images/electrical-after.jpg" alt="Fixed outlet after repair" />
+                <img src="https://placehold.co/400x300/e2e8f0/64748b?text=After" alt="Fixed outlet after repair" />
                 <span className="label">After</span>
               </div>
             </div>
