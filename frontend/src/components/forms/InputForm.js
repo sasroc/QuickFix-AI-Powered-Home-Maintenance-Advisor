@@ -1,11 +1,55 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './InputForm.css';
 
 const InputForm = ({ onSubmit, isLoading, disabled }) => {
   const [textInput, setTextInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [recognitionError, setRecognitionError] = useState(null);
   const fileInputRef = useRef(null);
+  const recognitionRef = useRef(null);
+
+  useEffect(() => {
+    // Initialize speech recognition
+    if ('webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setRecognitionError(null);
+        setIsRecording(true);
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map(result => result[0].transcript)
+          .join('');
+        
+        setTextInput(transcript);
+      };
+
+      recognition.onerror = (event) => {
+        setRecognitionError(`Error: ${event.error}`);
+        setIsRecording(false);
+      };
+
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
 
   const handleTextSubmit = (e) => {
     e.preventDefault();
@@ -14,15 +58,26 @@ const InputForm = ({ onSubmit, isLoading, disabled }) => {
     }
   };
 
-  const handleVoiceInput = () => {
+  const handleVoiceInput = async () => {
+    if (!recognitionRef.current) {
+      setRecognitionError('Speech recognition is not available. Please use Chrome, Edge, or Safari.');
+      return;
+    }
+
     if (!isRecording) {
-      // Start recording
-      setIsRecording(true);
-      // TODO: Implement voice recording functionality
-      setTimeout(() => setIsRecording(false), 3000); // Temporary simulation
+      try {
+        recognitionRef.current.start();
+      } catch (error) {
+        setRecognitionError('Failed to start speech recognition. Please try again.');
+        setIsRecording(false);
+      }
     } else {
-      // Stop recording
-      setIsRecording(false);
+      try {
+        recognitionRef.current.stop();
+      } catch (error) {
+        setRecognitionError('Failed to stop speech recognition. Please try again.');
+        setIsRecording(false);
+      }
     }
   };
 
@@ -71,6 +126,11 @@ const InputForm = ({ onSubmit, isLoading, disabled }) => {
                 rows={4}
                 disabled={isLoading || disabled}
               />
+              {recognitionError && (
+                <div className="recognition-error">
+                  {recognitionError}
+                </div>
+              )}
               <div className="voice-input-button">
                 <button
                   type="button"
