@@ -448,7 +448,7 @@ body {
   position: relative;
 }
 
-.section-title::after {
+.landing-page .section-title::after {
   content: '';
   position: absolute;
   bottom: -1rem;

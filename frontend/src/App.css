@@ -329,3 +329,16 @@ main {
     font-size: 1.25rem;
   }
 }
+
+/* Hide any decorative blue/green line globally */
+*[style*="linear-gradient(90deg, #3b82f6 0%, #10b981 100%)"],
+*[style*="linear-gradient(135deg, #3b82f6 0%, #10b981 100%)"],
+*[style*="#3b82f6" i][style*="#10b981" i] {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}

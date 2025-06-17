@@ -27,7 +27,7 @@
 .settings-section {
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(59,130,246,0.07);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
   margin: 2.5rem 0;
   padding: 2.5rem 2.5rem 2rem 2.5rem;
   max-width: 700px;
@@ -39,7 +39,7 @@
 
 .section-title {
   font-weight: 700;
-  color: #3b82f6;
+  color: #1f2937;
   font-size: 1.35rem;
   margin-bottom: 18px;
   display: block;
@@ -122,6 +122,35 @@
 
 .danger-zone .section-title {
   color: #c00;
+}
+
+.settings-section > div, .settings-section > span {
+  /* Hide any decorative line that might be present */
+  min-height: 8px;
+}
+
+.settings-section > div[style*="linear-gradient"],
+.settings-section > span[style*="linear-gradient"] {
+  display: none !important;
+}
+
+.settings-section * {
+  /* Hide any small element with a linear-gradient background */
+  /* This targets any element with a gradient background and small height */
+  /* Use !important to override inline styles */
+  height: auto;
+}
+.settings-section *[style*="linear-gradient"],
+.settings-section *[style*="#3b82f6"],
+.settings-section *[style*="#10b981"] {
+  /* If the element is very short, hide it */
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 @media (max-width: 768px) {

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Navbar from './components/navigation/Navbar';
+import ScrollToTop from './components/navigation/ScrollToTop';
 import LandingPage from './components/landing/LandingPage';
 import RepairPage from './components/repair/RepairPage';
 import RepairHistory from './components/repair/RepairHistory';
@@ -21,6 +22,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <div className="app">
           <Navbar />
           <main className="main-content">
