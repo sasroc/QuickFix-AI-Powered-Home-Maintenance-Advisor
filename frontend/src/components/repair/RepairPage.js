@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, doc, onSnapshot, collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { PLAN_CREDITS, PLAN_HISTORY_CAPS } from '../../constants/plans';
+import useAnalytics from '../../hooks/useAnalytics';
 import './RepairPage.css';
 
 const db = getFirestore();
@@ -19,6 +20,7 @@ function RepairPage() {
   const [error, setError] = useState(null);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const { trackEvent } = useAnalytics();
 
   const handleCloseError = () => {
     setError(null);
@@ -40,6 +42,13 @@ function RepairPage() {
     setIsLoading(true);
     setError(null);
     try {
+      // Track repair request
+      trackEvent('repair_request', {
+        has_image: !!input.image,
+        plan: plan,
+        remaining_credits: credits
+      });
+
       // Check repair history cap
       const repairsRef = collection(db, 'repairs');
       const q = query(repairsRef, where('userId', '==', currentUser.uid));
@@ -57,6 +66,15 @@ function RepairPage() {
         description: input.text,
         image: input.image,
         uid: currentUser?.uid
+      });
+
+      // Track successful repair analysis
+      trackEvent('repair_analysis_complete', {
+        has_steps: aiResponse.steps?.length > 0,
+        has_tools: aiResponse.tools?.length > 0,
+        has_materials: aiResponse.materials?.length > 0,
+        confidence_score: aiResponse.confidenceScore,
+        estimated_time: aiResponse.estimatedTime
       });
 
       // Map the AI response to the format expected by RepairGuide
@@ -83,21 +101,28 @@ function RepairPage() {
           tools: mappedResponse.tools,
           materials: mappedResponse.materials,
           estimatedTime: mappedResponse.estimatedTime,
-          confidenceScore: mappedResponse.confidenceScore,
           imageAnalysis: mappedResponse.imageAnalysis,
           timestamp: serverTimestamp()
         };
         await addDoc(repairsRef, repairData);
-      } else if (currentUser && historyFull) {
-        // History full - repair not saved to history
-      } else {
-        // No current user found, repair not saved to history
+        
+        // Track repair saved to history
+        trackEvent('repair_saved_to_history', {
+          plan: plan,
+          history_count: currentHistoryCount + 1
+        });
       }
 
       setRepairData(mappedResponse);
     } catch (error) {
       console.error('Error processing repair request:', error);
       setError('An error occurred while processing your repair request. Please try again.');
+      
+      // Track repair error
+      trackEvent('repair_error', {
+        error_message: error.message,
+        plan: plan
+      });
     } finally {
       setIsLoading(false);
     }

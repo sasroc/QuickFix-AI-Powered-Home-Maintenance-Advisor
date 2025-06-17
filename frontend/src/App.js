@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import Navbar from './components/navigation/Navbar';
 import ScrollToTop from './components/navigation/ScrollToTop';
@@ -16,6 +16,20 @@ import useCreateUserInFirestore from './contexts/useCreateUserInFirestore';
 import AccountSettings from './components/auth/AccountSettings';
 import PricingPage from './components/pricing/PricingPage';
 import FAQ from './components/faq/FAQ';
+import useAnalytics from './hooks/useAnalytics';
+
+// Component to track page views
+const PageViewTracker = () => {
+  const location = useLocation();
+  const { trackPageView } = useAnalytics();
+
+  useEffect(() => {
+    const pageName = location.pathname.split('/').pop() || 'home';
+    trackPageView(pageName);
+  }, [location, trackPageView]);
+
+  return null;
+};
 
 function App() {
   useCreateUserInFirestore();
@@ -23,6 +37,7 @@ function App() {
     <AuthProvider>
       <Router>
         <ScrollToTop />
+        <PageViewTracker />
         <div className="app">
           <Navbar />
           <main className="main-content">
