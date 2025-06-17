@@ -10,6 +10,7 @@
 .community-header {
   text-align: center;
   margin-bottom: 2rem;
+  position: relative;
 }
 
 .community-header h2 {
@@ -21,6 +22,198 @@
 .community-header p {
   color: #6b7280;
   font-size: 1.1rem;
+}
+
+.create-post-button {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-post-button:hover {
+  background: #2563eb;
+  transform: translateY(-50%) scale(1.05);
+}
+
+.create-post-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.create-post-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.create-post-content h3 {
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.form-group input[type="text"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-group input[type="file"] {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px dashed #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.tag-input {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tag-input input {
+  flex: 1;
+}
+
+.tag-input button {
+  padding: 0.5rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tag-input button:hover {
+  background: #2563eb;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  background: #f3f4f6;
+  color: #4b5563;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tag button {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.tag button:hover {
+  color: #ef4444;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.submit-button,
+.cancel-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  flex: 1;
+}
+
+.submit-button:hover {
+  background: #2563eb;
+}
+
+.cancel-button {
+  background: #f3f4f6;
+  color: #4b5563;
+  border: none;
+}
+
+.cancel-button:hover {
+  background: #e5e7eb;
+}
+
+.delete-button {
+  background: #fee2e2;
+  color: #ef4444;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.delete-button:hover {
+  background: #fecaca;
 }
 
 .filters-section {
@@ -36,6 +229,7 @@
 .category-filter {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .category-filter button {
@@ -46,6 +240,7 @@
   color: #4b5563;
   cursor: pointer;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .category-filter button:hover {
@@ -154,21 +349,6 @@
   line-height: 1.5;
 }
 
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.tag {
-  background: #f3f4f6;
-  color: #4b5563;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-}
-
 .post-actions {
   display: flex;
   gap: 1rem;
@@ -214,6 +394,126 @@
   font-weight: 500;
 }
 
+.error-message {
+  background: #fee2e2;
+  color: #ef4444;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message button {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.error-message button:hover {
+  color: #dc2626;
+}
+
+.submit-button:disabled,
+.cancel-button:disabled,
+.tag-input button:disabled,
+.tag button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.submit-button:disabled {
+  background: #93c5fd;
+}
+
+.cancel-button:disabled {
+  background: #e5e7eb;
+}
+
+.no-posts-message {
+  text-align: center;
+  padding: 3rem;
+  background: #f9fafb;
+  border-radius: 12px;
+  color: #6b7280;
+  font-size: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.no-posts-message .create-post-button {
+  position: static;
+  transform: none;
+  margin-top: 1rem;
+}
+
+.like-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: #f3f4f6;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.like-button:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.like-button.liked {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.like-button.liked:hover {
+  background: #fecaca;
+}
+
+.sign-in-prompt {
+  color: #6b7280;
+  font-size: 1rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #f3f4f6;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.like-button.disabled {
+  cursor: default;
+  opacity: 0.7;
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.like-button.disabled:hover {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.subscription-prompt {
+  color: #6b7280;
+  font-size: 1rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #f3f4f6;
+  border-radius: 8px;
+  display: inline-block;
+  border: 1px solid #e5e7eb;
+}
+
 @media (max-width: 768px) {
   .community-container {
     margin: 1rem;
@@ -229,6 +529,17 @@
     width: 100%;
     overflow-x: auto;
     padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  .category-filter::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  .category-filter button {
+    flex-shrink: 0;
   }
 
   .sort-filter {
@@ -248,4 +559,72 @@
     flex: 1;
     justify-content: center;
   }
+}
+
+.delete-confirmation-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.delete-confirmation-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.delete-confirmation-content h3 {
+  color: #1f2937;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.delete-confirmation-content p {
+  color: #4b5563;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.delete-confirmation-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.delete-confirm-button,
+.delete-cancel-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.delete-confirm-button {
+  background: #ef4444;
+  color: white;
+}
+
+.delete-confirm-button:hover {
+  background: #dc2626;
+}
+
+.delete-cancel-button {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.delete-cancel-button:hover {
+  background: #e5e7eb;
 } 
