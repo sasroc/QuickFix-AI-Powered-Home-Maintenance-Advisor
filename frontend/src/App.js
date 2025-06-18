@@ -20,6 +20,7 @@ import FAQ from './components/faq/FAQ';
 import useAnalytics from './hooks/useAnalytics';
 import TermsOfService from './components/legal/TermsOfService';
 import PrivacyPolicy from './components/legal/PrivacyPolicy';
+import HelpButton from './components/common/HelpButton';
 
 // Component to track page views
 const PageViewTracker = () => {
@@ -82,6 +83,7 @@ function App() {
             </Routes>
           </main>
           <Footer />
+          <HelpButton />
         </div>
       </Router>
     </AuthProvider>

@@ -19,6 +19,10 @@ import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
 import aiRoutes from './routes/ai.routes';
 import stripeRoutes from './routes/stripe.routes';
+import supportRoutes from './routes/support.routes';
+import subscribeRoutes from './routes/subscribe.routes';
+import webhookRoutes from './routes/webhook.routes';
+import welcomeRoutes from './routes/welcome.routes';
 
 const app = express();
 const port = parseInt(process.env.PORT || '4000', 10);
@@ -38,7 +42,11 @@ app.use(express.json({ limit: '50mb' }));
 
 // Routes
 app.use('/api/ai', aiRoutes);
-app.use('/api', stripeRoutes);
+app.use('/api/stripe', stripeRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api/subscribe', subscribeRoutes);
+app.use('/api/webhook', express.raw({ type: 'application/json' }), webhookRoutes);
+app.use('/api/welcome', welcomeRoutes);
 
 // Error handling
 app.use(errorHandler);

@@ -29,7 +29,7 @@ function Footer() {
         <div className="footer-section">
           <h4>Contact</h4>
           <ul>
-            <li><a href="mailto:support@quickfix.ai">support@quickfix.ai</a></li>
+            <li><a href="mailto:support@quickfixai.net">support@quickfixai.net</a></li>
           </ul>
         </div>
       </div>

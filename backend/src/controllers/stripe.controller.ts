@@ -95,6 +95,14 @@ export const handleWebhook = async (req: Request, res: Response) => {
           },
           { merge: true }
         );
+        // Fetch user email and name from Firestore
+        const userDoc = await admin.firestore().collection('users').doc(uid).get();
+        const userData = userDoc.data();
+        if (userData && userData.email) {
+          const name = userData.displayName || userData.email.split('@')[0];
+          const EmailService = (await import('../services/email.service')).default;
+          await EmailService.getInstance().sendSubscriptionConfirmation(userData.email, name, plan);
+        }
       }
     } else if (
       event.type === 'customer.subscription.updated' ||
