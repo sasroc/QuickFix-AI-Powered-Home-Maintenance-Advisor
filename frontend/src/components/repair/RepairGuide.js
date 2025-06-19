@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../../contexts/ThemeContext';
 import './RepairGuide.css';
 
 const RepairGuide = ({ repairData }) => {
@@ -8,6 +9,7 @@ const RepairGuide = ({ repairData }) => {
   const [completedTools, setCompletedTools] = useState([]);
   const [completedMaterials, setCompletedMaterials] = useState([]);
   const [showTools, setShowTools] = useState(true);
+  const { isDarkMode } = useTheme();
 
   // Calculate progress percentage
   const progress = (completedSteps.length / repairData.steps.length) * 100;
@@ -49,7 +51,7 @@ const RepairGuide = ({ repairData }) => {
   };
 
   return (
-    <div className="repair-guide-container">
+    <div className={`repair-guide-container ${isDarkMode ? 'dark' : ''}`}>
       <div className="repair-guide-content">
         <div className="left-content">
           <div className="repair-guide-header">

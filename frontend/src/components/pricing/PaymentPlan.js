@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import './PaymentPlan.css';
 
 const plans = [
@@ -50,6 +51,7 @@ const plans = [
 
 const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling }) => {
   const { currentUser } = useAuth();
+  const { isDarkMode } = useTheme();
   const [billing, setBilling] = useState(currentBilling || 'monthly'); // 'monthly' or 'annual'
   const [loadingPortal, setLoadingPortal] = useState(false);
   const [portalError, setPortalError] = useState('');
@@ -87,7 +89,7 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling }) => {
   };
 
   return (
-    <div className="payment-plan-container">
+    <div className={`payment-plan-container ${!isDarkMode ? 'light' : ''}`}>
       <h2 className="payment-plan-title">Subscribe to unlock QuickFixAI</h2>
       <div className="billing-toggle">
         <button

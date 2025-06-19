@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { getFirestore, collection, query, where, orderBy, getDocs, deleteDoc, doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { PLAN_HISTORY_CAPS } from '../../constants/plans';
@@ -12,6 +13,7 @@ function RepairHistory() {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [userPlan, setUserPlan] = useState('starter');
   const { currentUser } = useAuth();
+  const { isDarkMode } = useTheme();
   const navigate = useNavigate();
   const db = getFirestore();
 
@@ -95,7 +97,7 @@ function RepairHistory() {
 
   if (isLoading) {
     return (
-      <div className="repair-history-container">
+      <div className={`repair-history-container ${isDarkMode ? 'dark' : ''}`}>
         <div className="repair-history-header">
           <h1>Repair History</h1>
           <p>View and manage your past repairs</p>
@@ -110,7 +112,7 @@ function RepairHistory() {
 
   if (error) {
     return (
-      <div className="repair-history-container">
+      <div className={`repair-history-container ${isDarkMode ? 'dark' : ''}`}>
         <div className="error-message">
           <h2>Error</h2>
           <p>{error}</p>
@@ -120,7 +122,7 @@ function RepairHistory() {
   }
 
   return (
-    <div className="repair-history-container">
+    <div className={`repair-history-container ${isDarkMode ? 'dark' : ''}`}>
       <div className="repair-history-header">
         <h1>Repair History</h1>
         <p>View and manage your past repairs</p>

@@ -1,17 +1,25 @@
 .payment-plan-container {
-  background: #18181b;
-  color: #fff;
+  background: var(--card-bg);
+  color: var(--text-primary);
   border-radius: 16px;
   padding: 2rem;
   max-width: 1200px;
   margin: 2rem auto;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 24px var(--shadow-medium);
   text-align: center;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.light .payment-plan-container {
+  background: #f8fafc;
+  color: #1f2937;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
 }
 
 .payment-plan-title {
   font-size: 2rem;
   margin-bottom: 2rem;
+  color: var(--text-primary);
 }
 
 .billing-toggle {
@@ -22,14 +30,19 @@
 }
 
 .billing-button {
-  background: #333;
-  color: #fff;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   border: none;
   padding: 0.6rem 2.5rem;
   font-weight: 600;
   cursor: pointer;
   font-size: 1.1rem;
   transition: all 0.2s ease;
+}
+
+.light .billing-button {
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .billing-button:first-child {
@@ -41,7 +54,8 @@
 }
 
 .billing-button.active {
-  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  color: white;
 }
 
 .payment-plans-grid {
@@ -55,31 +69,38 @@
 }
 
 .payment-plan {
-  background: #23272f;
+  background: var(--card-bg);
   border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(59,130,246,0.10);
+  box-shadow: 0 2px 12px var(--shadow-light);
   padding: 2rem 2rem 1.5rem 2rem;
   min-width: 280px;
   max-width: 340px;
   flex: 1;
   margin: 0 8px;
   text-align: left;
-  border: 1.5px solid #333;
+  border: 1.5px solid var(--card-border);
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.light .payment-plan {
+  background: white;
+  border: 1.5px solid #e5e7eb;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
 .payment-plan.popular {
-  border: 2.5px solid #3b82f6;
+  border: 2.5px solid var(--accent-primary);
 }
 
 .popular-badge {
   position: absolute;
   top: 18px;
   right: 18px;
-  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   color: #fff;
   border-radius: 8px;
   padding: 0.2rem 0.9rem;
@@ -89,15 +110,19 @@
 }
 
 .payment-plan.current-plan {
-  border: 2.5px solid #10b981;
-  background: linear-gradient(180deg, #23272f 0%, rgba(16, 185, 129, 0.1) 100%);
+  border: 2.5px solid var(--accent-secondary);
+  background: linear-gradient(180deg, var(--card-bg) 0%, rgba(16, 185, 129, 0.1) 100%);
+}
+
+.light .payment-plan.current-plan {
+  background: linear-gradient(180deg, white 0%, rgba(16, 185, 129, 0.05) 100%);
 }
 
 .current-plan-badge {
   position: absolute;
   top: 18px;
   right: 18px;
-  background: #10b981;
+  background: var(--accent-secondary);
   color: #fff;
   border-radius: 8px;
   padding: 0.2rem 0.9rem;
@@ -110,6 +135,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 8px;
+  color: var(--text-primary);
 }
 
 .plan-price {
@@ -127,20 +153,20 @@
 .price-amount .price {
   font-size: 2.6rem;
   font-weight: 800;
-  color: #e5e7eb;
+  color: var(--text-primary);
   line-height: 1;
 }
 
 .period {
   font-size: 1.15rem;
-  color: #e5e7eb;
+  color: var(--text-secondary);
   font-weight: 700;
   margin-top: 0;
 }
 
 .annual-note {
   font-size: 1.1rem;
-  color: #a3a3a3;
+  color: var(--text-light);
   font-weight: 500;
   margin-left: 12px;
   margin-top: 8px;
@@ -154,7 +180,7 @@
 
 .plan-features li {
   margin-bottom: 8px;
-  color: #e5e7eb;
+  color: var(--text-secondary);
   font-size: 1.08rem;
 }
 
@@ -171,6 +197,11 @@
   color: #ffffff;
 }
 
+/* Light mode override for AI model text */
+.light .ai-model {
+  color: #000000;
+}
+
 .ai-model.starter {
   background: rgba(239, 68, 68, 0.2);
 }
@@ -184,7 +215,7 @@
 }
 
 .subscribe-button {
-  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   color: #fff;
   border: none;
   border-radius: 8px;

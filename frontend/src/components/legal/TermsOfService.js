@@ -1,9 +1,12 @@
 import React from 'react';
+import { useTheme } from '../../contexts/ThemeContext';
 import './Legal.css';
 
 function TermsOfService() {
+  const { isDarkMode } = useTheme();
+
   return (
-    <div className="legal-page">
+    <div className={`legal-page ${isDarkMode ? 'dark' : ''}`}>
       <div className="legal-content">
         <h1>Terms of Service</h1>
         <p className="last-updated">Last updated: {new Date().toLocaleDateString()}</p>

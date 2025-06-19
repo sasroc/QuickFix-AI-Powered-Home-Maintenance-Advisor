@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTheme } from '../../contexts/ThemeContext';
 import './FAQ.css';
 
 const faqCategories = [
@@ -63,6 +64,7 @@ const faqCategories = [
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);
   const [activeCategory, setActiveCategory] = useState('Getting Started');
+  const { isDarkMode } = useTheme();
 
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -71,7 +73,7 @@ const FAQ = () => {
   const currentCategory = faqCategories.find(cat => cat.title === activeCategory);
 
   return (
-    <div className="faq-container">
+    <div className={`faq-container ${isDarkMode ? 'dark' : ''}`}>
       <div className="quickfix-gradient-bg" />
       <div className="faq-content-wrapper">
         <div className="faq-header">

@@ -12,6 +12,7 @@ import Community from './components/community/Community';
 import AuthPage from './components/auth/AuthPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import PaymentSuccess from './components/landing/PaymentSuccess';
 import useCreateUserInFirestore from './contexts/useCreateUserInFirestore';
 import AccountSettings from './components/auth/AccountSettings';
@@ -39,53 +40,55 @@ function App() {
   useCreateUserInFirestore();
   return (
     <AuthProvider>
-      <Router>
-        <ScrollToTop />
-        <PageViewTracker />
-        <div className="app">
-          <Navbar />
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route
-                path="/repair"
-                element={
-                  <ProtectedRoute>
-                    <RepairPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/repair/history"
-                element={
-                  <ProtectedRoute>
-                    <RepairHistory />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/repair/history/:id"
-                element={
-                  <ProtectedRoute>
-                    <HistoricalRepairView />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/community" element={<Community />} />
-              <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/payment-success" element={<PaymentSuccess />} />
-              <Route path="/settings" element={<AccountSettings />} />
-              <Route path="/terms" element={<TermsOfService />} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
-          <Footer />
-          <HelpButton />
-        </div>
-      </Router>
+      <ThemeProvider>
+        <Router>
+          <ScrollToTop />
+          <PageViewTracker />
+          <div className="app">
+            <Navbar />
+            <main className="main-content">
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route
+                  path="/repair"
+                  element={
+                    <ProtectedRoute>
+                      <RepairPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/repair/history"
+                  element={
+                    <ProtectedRoute>
+                      <RepairHistory />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/repair/history/:id"
+                  element={
+                    <ProtectedRoute>
+                      <HistoricalRepairView />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/community" element={<Community />} />
+                <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
+                <Route path="/settings" element={<AccountSettings />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </main>
+            <Footer />
+            <HelpButton />
+          </div>
+        </Router>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

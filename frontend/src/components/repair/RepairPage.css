@@ -2,9 +2,10 @@
   width: 100vw;
   margin: 0;
   padding: 0;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 0;
   box-shadow: none;
+  transition: background-color 0.3s ease;
 }
 
 .credits-container {
@@ -30,7 +31,7 @@
 }
 
 .credits-badge {
-  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   color: #fff;
   border-radius: 9999px;
   padding: 0.5rem 1.3rem;
@@ -43,7 +44,7 @@
 }
 
 .history-button {
-  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -62,6 +63,10 @@
   background: linear-gradient(90deg, #2563eb 0%, #059669 100%);
 }
 
+.dark .history-button:hover {
+  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+}
+
 .history-button:active {
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(59,130,246,0.08);
@@ -75,14 +80,18 @@
   overflow: hidden;
 }
 
+.dark .progress-bar-container {
+  background: #374151;
+}
+
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   transition: width 0.3s;
 }
 
 .upgrade-button {
-  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -96,20 +105,24 @@
 }
 
 .no-credits-message {
-  color: red;
+  color: #ef4444;
   margin-bottom: 24px;
   font-weight: 600;
   padding: 0 2rem;
 }
 
+.dark .no-credits-message {
+  color: #fca5a5;
+}
+
 .error-message {
-  background: #fff;
-  color: #1f2937;
+  background: var(--card-bg);
+  color: var(--text-primary);
   padding: 1rem 1.5rem;
   margin: 0 2rem 24px 2rem;
   font-weight: 500;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px var(--shadow-light);
   position: relative;
   border-left: 4px solid #ef4444;
   display: grid;
@@ -117,6 +130,7 @@
   gap: 1rem;
   align-items: center;
   min-height: 60px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .error-text {
@@ -144,9 +158,19 @@
   margin-left: auto;
 }
 
+.dark .error-close-button {
+  background: #374151;
+  color: #d1d5db;
+}
+
 .error-close-button:hover {
   background: #e5e7eb;
   color: #1f2937;
+}
+
+.dark .error-close-button:hover {
+  background: #4b5563;
+  color: #f9fafb;
 }
 
 @media (max-width: 1024px) {

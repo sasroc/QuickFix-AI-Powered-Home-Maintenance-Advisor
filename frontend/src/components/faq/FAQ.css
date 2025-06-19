@@ -3,10 +3,11 @@
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
   padding: 2rem;
   position: relative;
   overflow: hidden;
+  transition: background 0.3s ease;
 }
 
 .quickfix-gradient-bg {
@@ -15,24 +16,26 @@
   left: 0;
   right: 0;
   height: 40vh;
-  background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
   z-index: 0;
+  transition: background 0.3s ease;
 }
 
 .faq-content-wrapper {
   max-width: 1000px;
   margin: 0 auto;
   padding: 3rem 2rem;
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--card-bg);
   border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px var(--shadow-medium);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border: 1.5px solid var(--card-border);
   position: relative;
   z-index: 2;
   animation: slideUp 0.5s ease-out;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 @keyframes slideUp {
@@ -52,18 +55,20 @@
 }
 
 .faq-title {
-  color: #1f2937;
+  color: var(--text-primary);
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 2px 4px var(--shadow-light);
+  transition: color 0.3s ease;
 }
 
 .faq-subtitle {
-  color: #4b5563;
+  color: var(--text-secondary);
   font-size: 1.2rem;
   max-width: 600px;
   margin: 0 auto;
+  transition: color 0.3s ease;
 }
 
 .faq-content {
@@ -85,8 +90,8 @@
   gap: 0.75rem;
   padding: 1rem;
   border: none;
-  background: rgba(255, 255, 255, 0.8);
-  color: #4a5568;
+  background: var(--card-bg);
+  color: var(--text-secondary);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -95,18 +100,27 @@
   font-weight: 500;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--card-border);
 }
 
 .category-button:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--card-bg);
   transform: translateX(5px);
+  border-color: var(--accent-primary);
 }
 
 .category-button.active {
   background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  color: var(--accent-primary);
   font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px var(--shadow-light);
+  border-color: var(--accent-primary);
+}
+
+.dark .category-button.active {
+  background: rgba(96, 165, 250, 0.15);
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
 }
 
 .category-icon {
@@ -120,18 +134,18 @@
 }
 
 .faq-item {
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid var(--card-border);
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--card-bg);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
 .faq-item.open {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border-color: rgba(203, 213, 224, 0.8);
+  box-shadow: 0 4px 6px var(--shadow-light);
+  border-color: var(--accent-primary);
 }
 
 .faq-question {
@@ -142,7 +156,7 @@
   text-align: left;
   font-size: 1.1rem;
   font-weight: 500;
-  color: #2d3748;
+  color: var(--text-primary);
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -151,7 +165,11 @@
 }
 
 .faq-question:hover {
-  background: rgba(247, 250, 252, 0.8);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.dark .faq-question:hover {
+  background: rgba(96, 165, 250, 0.1);
 }
 
 .question-text {
@@ -161,7 +179,7 @@
 
 .faq-icon {
   font-size: 1.5rem;
-  color: #4a5568;
+  color: var(--text-secondary);
   transition: transform 0.3s ease;
   min-width: 24px;
   text-align: center;
@@ -172,7 +190,11 @@
   max-height: 0;
   overflow: hidden;
   transition: all 0.3s ease;
-  background: rgba(248, 250, 252, 0.8);
+  background: rgba(59, 130, 246, 0.02);
+}
+
+.dark .faq-answer {
+  background: rgba(96, 165, 250, 0.05);
 }
 
 .faq-item.open .faq-answer {
@@ -181,7 +203,7 @@
 }
 
 .answer-content {
-  color: #4a5568;
+  color: var(--text-secondary);
   line-height: 1.6;
   font-size: 1rem;
 }

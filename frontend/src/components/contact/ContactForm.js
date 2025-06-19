@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTheme } from '../../contexts/ThemeContext';
 import './ContactForm.css';
 
 const ContactForm = () => {
@@ -7,6 +8,7 @@ const ContactForm = () => {
     email: '',
     message: ''
   });
+  const { isDarkMode } = useTheme();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +24,7 @@ const ContactForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="contact-form">
+    <form onSubmit={handleSubmit} className={`contact-form ${isDarkMode ? 'dark' : ''}`}>
       <div className="form-group">
         <label htmlFor="name">Name</label>
         <input

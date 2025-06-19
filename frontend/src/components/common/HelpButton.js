@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { FaQuestionCircle } from 'react-icons/fa';
+import { useTheme } from '../../contexts/ThemeContext';
 import ContactForm from '../contact/ContactForm';
 import './HelpButton.css';
 
 const HelpButton = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { isDarkMode } = useTheme();
 
   return (
     <>
@@ -19,7 +21,7 @@ const HelpButton = () => {
 
       {isOpen && (
         <div className="help-modal-overlay" onClick={() => setIsOpen(false)}>
-          <div className="help-modal" onClick={e => e.stopPropagation()}>
+          <div className={`help-modal ${isDarkMode ? 'dark' : ''}`} onClick={e => e.stopPropagation()}>
             <button 
               className="close-button"
               onClick={() => setIsOpen(false)}

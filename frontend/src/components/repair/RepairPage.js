@@ -4,6 +4,7 @@ import RepairGuide from './RepairGuide';
 import { analyzeRepairIssue } from '../../services/aiService';
 import SubscriptionGate from '../auth/SubscriptionGate';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { getFirestore, doc, onSnapshot, collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { PLAN_CREDITS, PLAN_HISTORY_CAPS } from '../../constants/plans';
@@ -19,6 +20,7 @@ function RepairPage() {
   const [plan, setPlan] = useState('starter');
   const [error, setError] = useState(null);
   const { currentUser } = useAuth();
+  const { isDarkMode } = useTheme();
   const navigate = useNavigate();
   const { trackEvent } = useAnalytics();
 
@@ -134,7 +136,7 @@ function RepairPage() {
 
   return (
     <SubscriptionGate>
-      <div className="repair-page-container">
+      <div className={`repair-page-container ${isDarkMode ? 'dark' : ''}`}>
         <div className="credits-container">
           <div className="credits-info">
             <span className="credits-badge">

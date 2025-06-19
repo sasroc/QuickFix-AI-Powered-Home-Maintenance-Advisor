@@ -9,44 +9,58 @@
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #374151;
+  color: var(--text-secondary);
   font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--card-border);
   border-radius: 6px;
   font-size: 0.875rem;
-  transition: border-color 0.2s ease;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dark .form-group input:focus,
+.dark .form-group textarea:focus {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 
 .submit-button {
   width: 100%;
   padding: 0.75rem;
-  background: #3b82f6;
+  background: var(--accent-primary);
   color: white;
   border: none;
   border-radius: 6px;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .submit-button:hover {
-  background: #2563eb;
+  background: var(--accent-secondary);
+  transform: translateY(-1px);
 }
 
 .submit-button:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dark .submit-button:focus {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 } 

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTheme } from '../../contexts/ThemeContext';
 import './InputForm.css';
 
 const InputForm = ({ onSubmit, isLoading, disabled }) => {
@@ -6,6 +7,7 @@ const InputForm = ({ onSubmit, isLoading, disabled }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [recognitionError, setRecognitionError] = useState(null);
+  const { isDarkMode } = useTheme();
   const fileInputRef = useRef(null);
   const recognitionRef = useRef(null);
 
@@ -100,7 +102,7 @@ const InputForm = ({ onSubmit, isLoading, disabled }) => {
   };
 
   return (
-    <div className="repair-page">
+    <div className={`repair-page ${isDarkMode ? 'dark' : ''}`}>
       <div className="repair-header">
         <h1 className="app-title">
           <span className="title-quick">Quick</span>

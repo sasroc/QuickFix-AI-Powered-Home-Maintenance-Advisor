@@ -1,9 +1,10 @@
 .historical-repair-container {
   width: 100%;
   min-height: calc(100vh - 64px);
-  background: white;
+  background: var(--bg-primary);
   padding: 2rem;
   box-sizing: border-box;
+  transition: background-color 0.3s ease;
 }
 
 .historical-repair-header {
@@ -14,18 +15,26 @@
 }
 
 .historical-repair-header h2 {
-  color: #1f2937;
+  color: var(--text-primary);
   font-size: 1.75rem;
   font-weight: 700;
   margin: 0;
-  background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
 }
 
+/* Override gradient text for dark mode */
+.dark .historical-repair-header h2 {
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
+  color: var(--text-primary);
+}
+
 .back-button {
-  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -37,38 +46,39 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 2px 4px var(--shadow-light);
 }
 
 .back-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 6px var(--shadow-medium);
 }
 
 .back-button:active {
   transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 2px 4px var(--shadow-light);
 }
 
 .error-message {
   text-align: center;
   padding: 4rem 2rem;
-  background: #f9fafb;
+  background: var(--card-bg);
   border-radius: 12px;
   margin: 2rem auto;
   max-width: 600px;
-  border: 1px solid rgba(59, 130, 246, 0.1);
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .error-message h2 {
-  color: #1f2937;
+  color: var(--text-primary);
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
 }
 
 .error-message p {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 1.1rem;
   margin: 0 0 1.5rem 0;
   line-height: 1.5;

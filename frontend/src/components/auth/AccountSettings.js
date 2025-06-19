@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { getFirestore, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import ManageSubscriptionButton from './ManageSubscriptionButton';
 import './AccountSettings.css';
@@ -8,6 +9,7 @@ const db = getFirestore();
 
 const AccountSettings = () => {
   const { currentUser, updateDisplayName, resetPassword, deleteAccount } = useAuth();
+  const { isDarkMode } = useTheme();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editingName, setEditingName] = useState(false);
@@ -69,7 +71,7 @@ const AccountSettings = () => {
   };
 
   return (
-    <div className="settings-container">
+    <div className={`settings-container ${isDarkMode ? 'dark' : ''}`}>
       <h2 className="settings-title">Account Settings</h2>
       {loading ? (
         <div className="section-content">Loading...</div>

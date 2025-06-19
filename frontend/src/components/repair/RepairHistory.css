@@ -2,7 +2,9 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  background: white;
+  background: var(--bg-primary);
+  min-height: 100vh;
+  transition: background-color 0.3s ease;
 }
 
 .repair-history-header {
@@ -12,14 +14,16 @@
 
 .repair-history-header h1 {
   font-size: 2.5rem;
-  color: #1f2937;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
 }
 
 .repair-history-header p {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 1.1rem;
   margin-bottom: 1rem;
+  transition: color 0.3s ease;
 }
 
 .history-stats {
@@ -29,13 +33,13 @@
 }
 
 .history-count {
-  background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   color: white;
   padding: 0.5rem 1.5rem;
   border-radius: 9999px;
   font-weight: 600;
   font-size: 1rem;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 2px 4px var(--shadow-light);
 }
 
 .history-cap-message {
@@ -57,11 +61,11 @@
 }
 
 .repair-history-card {
-  background: white;
+  background: var(--card-bg);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.08);
+  box-shadow: 0 4px 6px var(--shadow-light);
+  border: 1px solid var(--card-border);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
@@ -69,8 +73,8 @@
 
 .repair-history-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.12);
-  border-color: rgba(59, 130, 246, 0.15);
+  box-shadow: 0 6px 12px var(--shadow-medium);
+  border-color: var(--accent-primary);
 }
 
 .repair-history-card-header {
@@ -78,15 +82,17 @@
 }
 
 .repair-history-card-header h3 {
-  color: #1f2937;
+  color: var(--text-primary);
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
 }
 
 .repair-date {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 0.875rem;
+  transition: color 0.3s ease;
 }
 
 .repair-stats {
@@ -97,23 +103,30 @@
 }
 
 .stat {
-  background: #f9fafb;
+  background: rgba(59, 130, 246, 0.03);
   padding: 0.5rem;
   border-radius: 6px;
   text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.dark .stat {
+  background: rgba(96, 165, 250, 0.1);
 }
 
 .stat-label {
   display: block;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 0.75rem;
   margin-bottom: 0.25rem;
+  transition: color 0.3s ease;
 }
 
 .stat-value {
-  color: #1f2937;
+  color: var(--text-primary);
   font-weight: 600;
   font-size: 0.875rem;
+  transition: color 0.3s ease;
 }
 
 .repair-image-preview {
@@ -135,18 +148,28 @@
 }
 
 .delete-button {
-  background: #fee2e2;
+  background: rgba(239, 68, 68, 0.1);
   color: #dc2626;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 6px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+}
+
+.dark .delete-button {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
 }
 
 .delete-button:hover {
-  background: #fecaca;
+  background: rgba(239, 68, 68, 0.15);
+  transform: translateY(-1px);
+}
+
+.dark .delete-button:hover {
+  background: rgba(239, 68, 68, 0.3);
 }
 
 .delete-confirmation {
@@ -163,13 +186,19 @@
   padding: 1.5rem;
   border-radius: 12px;
   z-index: 10;
+  transition: background-color 0.3s ease;
+}
+
+.dark .delete-confirmation {
+  background: rgba(31, 41, 55, 0.95);
 }
 
 .delete-confirmation p {
-  color: #1f2937;
+  color: var(--text-primary);
   font-weight: 600;
   margin-bottom: 1rem;
   text-align: center;
+  transition: color 0.3s ease;
 }
 
 .delete-buttons {
@@ -185,24 +214,30 @@
   border-radius: 6px;
   font-weight: 500;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .confirm-delete:hover {
   background: #b91c1c;
+  transform: translateY(-1px);
 }
 
 .cancel-delete {
-  background: #e5e7eb;
-  color: #4b5563;
-  border: none;
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--card-border);
   padding: 0.5rem 1rem;
   border-radius: 6px;
   font-weight: 500;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .cancel-delete:hover {
-  background: #d1d5db;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border-color: var(--accent-primary);
+  transform: translateY(-1px);
 }
 
 .loading-container {
@@ -211,29 +246,33 @@
   align-items: center;
   justify-content: center;
   padding: 4rem 2rem;
-  background: #f9fafb;
+  background: var(--card-bg);
   border-radius: 12px;
   margin: 2rem auto;
   max-width: 600px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px var(--shadow-light);
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .loading-spinner {
   width: 48px;
   height: 48px;
-  border: 4px solid #e5e7eb;
-  border-top: 4px solid #3b82f6;
+  border: 4px solid var(--card-border);
+  border-top: 4px solid var(--accent-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
+  transition: border-color 0.3s ease;
 }
 
 .loading-text {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 1.1rem;
   font-weight: 500;
   margin: 0;
   text-align: center;
+  transition: color 0.3s ease;
 }
 
 @keyframes spin {
@@ -245,23 +284,42 @@
   text-align: center;
   color: #dc2626;
   margin: 2rem 0;
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px var(--shadow-light);
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.dark .error-message {
+  color: #fca5a5;
 }
 
 .error-message h2 {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .no-history-message {
   text-align: center;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin: 3rem 0;
+  background: var(--card-bg);
+  padding: 3rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px var(--shadow-light);
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .no-history-message h2 {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
-  color: #1f2937;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 @media (max-width: 768px) {

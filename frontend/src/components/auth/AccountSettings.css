@@ -1,21 +1,23 @@
 .settings-container {
   width: 100vw;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   padding: 60px 0 0 5vw;
   box-sizing: border-box;
+  transition: background 0.3s ease;
 }
 
 .settings-title {
   margin-bottom: 2.5rem;
   font-size: 2.7rem;
   letter-spacing: 1px;
-  color: #1f2937;
+  color: var(--text-primary);
   font-weight: 800;
   text-align: left;
+  transition: color 0.3s ease;
 }
 
 .settings-content {
@@ -25,49 +27,66 @@
 }
 
 .settings-section {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 16px var(--shadow-light);
   margin: 2.5rem 0;
   padding: 2.5rem 2.5rem 2rem 2.5rem;
   max-width: 700px;
   width: 100%;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--card-border);
   text-align: left;
   box-sizing: border-box;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .section-title {
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-primary);
   font-size: 1.35rem;
   margin-bottom: 18px;
   display: block;
   letter-spacing: 0.5px;
   text-align: left;
+  transition: color 0.3s ease;
 }
 
 .section-content {
   margin-bottom: 18px;
   font-size: 1.1rem;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 .section-content strong {
-  color: #1f2937;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .input-field {
   padding: 0.5rem 1rem;
   font-size: 1.1rem;
   border-radius: 8px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--card-border);
   margin-right: 8px;
   margin-bottom: 8px;
-  background: #f3f4f6;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dark .input-field:focus {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 
 .action-button {
-  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -78,7 +97,7 @@
   margin-right: 12px;
   margin-top: 8px;
   box-shadow: 0 2px 8px rgba(59,130,246,0.08);
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .action-button:hover {
@@ -106,22 +125,28 @@
 }
 
 .error-message {
-  color: red;
+  color: #ef4444;
   margin-top: 8px;
+  font-weight: 500;
 }
 
 .success-message {
-  color: green;
+  color: #10b981;
   margin-top: 8px;
+  font-weight: 500;
 }
 
 .danger-zone {
   border: 1.5px solid #f87171;
-  background: #fff0f1;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.dark .danger-zone {
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .danger-zone .section-title {
-  color: #c00;
+  color: #ef4444;
 }
 
 .settings-section > div, .settings-section > span {
