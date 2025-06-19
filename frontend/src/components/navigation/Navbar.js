@@ -12,27 +12,35 @@ function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDisplayNameModalOpen, setIsDisplayNameModalOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(event) {
+      // Close dropdown if clicking outside
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
       }
+      
+      // Close mobile menu if clicking outside
+      if (isMenuOpen && menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
     }
 
-    if (isDropdownOpen) {
+    if (isDropdownOpen || isMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDropdownOpen]);
+  }, [isDropdownOpen, isMenuOpen]);
 
   const handleLogout = async () => {
     try {
       await logout();
       navigate('/');
+      setIsMenuOpen(false); // Close mobile menu after logout
     } catch (error) {
       console.error('Failed to log out:', error);
     }
@@ -44,6 +52,10 @@ function Navbar() {
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMenuOpen(false);
   };
 
   const getDisplayName = () => {
@@ -68,12 +80,12 @@ function Navbar() {
           <span className={`hamburger ${isMenuOpen ? 'open' : ''}`}></span>
         </button>
 
-        <div className={`navbar-menu ${isMenuOpen ? 'active' : ''}`}>
+        <div className={`navbar-menu ${isMenuOpen ? 'active' : ''}`} ref={menuRef}>
           <div className="navbar-start">
-            <Link to="/pricing" className="navbar-item">
+            <Link to="/pricing" className="navbar-item" onClick={closeMobileMenu}>
               Pricing
             </Link>
-            <Link to="/faq" className="navbar-item">
+            <Link to="/faq" className="navbar-item" onClick={closeMobileMenu}>
               FAQ
             </Link>
           </div>
@@ -99,6 +111,7 @@ function Navbar() {
                       onClick={() => {
                         setIsDisplayNameModalOpen(true);
                         setIsDropdownOpen(false);
+                        closeMobileMenu();
                       }}
                     >
                       Change Display Name
@@ -108,6 +121,7 @@ function Navbar() {
                       onClick={() => {
                         navigate('/settings');
                         setIsDropdownOpen(false);
+                        closeMobileMenu();
                       }}
                     >
                       Settings
@@ -122,7 +136,7 @@ function Navbar() {
                 )}
               </div>
             ) : (
-              <Link to="/auth" className="login-button">
+              <Link to="/auth" className="login-button" onClick={closeMobileMenu}>
                 Log In
               </Link>
             )}

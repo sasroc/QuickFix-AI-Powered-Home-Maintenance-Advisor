@@ -109,11 +109,11 @@ function LandingPage() {
           <div className="before-after-card">
             <div className="image-comparison">
               <div className="before">
-                <img src="https://placehold.co/400x300/e2e8f0/64748b?text=Before" alt="Leaky faucet before repair" />
+                <img src="/images/faucetb4.png" alt="Leaky faucet before repair" />
                 <span className="label">Before</span>
               </div>
               <div className="after">
-                <img src="https://placehold.co/400x300/e2e8f0/64748b?text=After" alt="Leaky faucet after repair" />
+                <img src="/images/faucetafter.png" alt="Leaky faucet after repair" />
                 <span className="label">After</span>
               </div>
             </div>
@@ -123,11 +123,11 @@ function LandingPage() {
           <div className="before-after-card">
             <div className="image-comparison">
               <div className="before">
-                <img src="https://placehold.co/400x300/e2e8f0/64748b?text=Before" alt="Damaged drywall before repair" />
+                <img src="/images/wallb4.png" alt="Damaged drywall before repair" />
                 <span className="label">Before</span>
               </div>
               <div className="after">
-                <img src="https://placehold.co/400x300/e2e8f0/64748b?text=After" alt="Drywall after repair" />
+                <img src="/images/wallafter.png" alt="Drywall after repair" />
                 <span className="label">After</span>
               </div>
             </div>

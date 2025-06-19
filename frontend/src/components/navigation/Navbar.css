@@ -151,7 +151,13 @@
   position: relative;
   padding: 0.5rem 1rem;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.01),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
 }
 
 .navbar-item::before {
@@ -185,7 +191,11 @@
 
 .navbar-item:hover {
   color: #3b82f6;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.02),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22);
 }
 
 .navbar-item:hover::before {
@@ -373,6 +383,8 @@
   border: none;
   cursor: pointer;
   padding: 0.5rem;
+  z-index: 1001;
+  position: relative;
 }
 
 .hamburger {
@@ -437,16 +449,48 @@
     top: 72px;
     left: 0;
     right: 0;
-    background: white;
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     padding: 1rem;
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.1),
+      inset 0 1px 1px rgba(255, 255, 255, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     transform: translateY(-100%);
     opacity: 0;
     transition: all 0.3s ease;
     pointer-events: none;
+  }
+
+  .navbar-menu::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: linear-gradient(135deg, 
+      rgba(59, 130, 246, 0.06) 0%,
+      rgba(16, 185, 129, 0.06) 100%
+    );
+    z-index: -1;
+  }
+
+  .navbar-menu::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: 
+      radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.12) 0%, transparent 50%),
+      radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.12) 0%, transparent 50%);
+    z-index: -1;
   }
 
   .navbar-menu.active {
@@ -458,10 +502,6 @@
   .navbar-start {
     flex-direction: column;
     gap: 1rem;
-  }
-
-  .user-email {
-    display: none;
   }
 
   .dropdown-menu {
