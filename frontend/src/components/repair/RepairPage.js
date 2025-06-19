@@ -40,6 +40,33 @@ function RepairPage() {
     return unsub;
   }, [currentUser]);
 
+  // Helper function to compress image
+  const compressImage = (base64String, maxWidth = 800, quality = 0.7) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Calculate new dimensions
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+        resolve(compressedBase64);
+      };
+      img.src = base64String;
+    });
+  };
+
   const handleSubmit = async (input) => {
     setIsLoading(true);
     setError(null);
@@ -91,28 +118,40 @@ function RepairPage() {
           ? `${aiResponse.estimatedTime} minutes`
           : '',
         confidenceScore: aiResponse.confidenceScore || null,
-        imageAnalysis: aiResponse.imageAnalysis || null
+        imageAnalysis: input.image || null // Store the original image data
       };
 
       // Save repair data to Firestore only if history is not full
       if (currentUser && !historyFull) {
-        const repairData = {
-          userId: currentUser.uid,
-          title: mappedResponse.title,
-          steps: mappedResponse.steps,
-          tools: mappedResponse.tools,
-          materials: mappedResponse.materials,
-          estimatedTime: mappedResponse.estimatedTime,
-          imageAnalysis: mappedResponse.imageAnalysis,
-          timestamp: serverTimestamp()
-        };
-        await addDoc(repairsRef, repairData);
-        
-        // Track repair saved to history
-        trackEvent('repair_saved_to_history', {
-          plan: plan,
-          history_count: currentHistoryCount + 1
-        });
+        try {
+          // Compress image if it exists
+          let compressedImage = null;
+          if (input.image) {
+            compressedImage = await compressImage(input.image);
+          }
+
+          const repairData = {
+            userId: currentUser.uid,
+            title: mappedResponse.title,
+            steps: mappedResponse.steps,
+            tools: mappedResponse.tools,
+            materials: mappedResponse.materials,
+            estimatedTime: mappedResponse.estimatedTime,
+            imageAnalysis: compressedImage, // Use compressed image
+            timestamp: serverTimestamp()
+          };
+          await addDoc(repairsRef, repairData);
+          
+          // Track repair saved to history
+          trackEvent('repair_saved_to_history', {
+            plan: plan,
+            history_count: currentHistoryCount + 1
+          });
+        } catch (firestoreError) {
+          console.error('Failed to save to Firestore:', firestoreError);
+          // Don't throw error - still show the repair guide
+          setError('Repair guide generated successfully, but failed to save to history. You can still use this guide now.');
+        }
       }
 
       setRepairData(mappedResponse);

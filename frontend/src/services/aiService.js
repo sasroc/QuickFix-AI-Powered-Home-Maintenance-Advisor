@@ -25,13 +25,20 @@ export async function analyzeRepairIssue({ description, image, uid }) {
 
     const API_URL = getBackendUrl();
 
+    // Create an AbortController for timeout handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(`Failed to analyze repair issue: ${response.statusText}`);
@@ -79,6 +86,9 @@ export async function analyzeRepairIssue({ description, image, uid }) {
 
     return data;
   } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out. Please try again with a smaller image or shorter description.');
+    }
     throw error;
   }
 } 

@@ -94,11 +94,17 @@ const InputForm = ({ onSubmit, isLoading, disabled }) => {
     }
   };
 
-  const removeImage = () => {
+  const removeImage = (e) => {
+    e.stopPropagation();
     setSelectedImage(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  const handleUploadClick = (e) => {
+    e.stopPropagation();
+    fileInputRef.current?.click();
   };
 
   return (
@@ -167,7 +173,7 @@ const InputForm = ({ onSubmit, isLoading, disabled }) => {
               </div>
               <div 
                 className="image-upload-area"
-                onClick={() => !selectedImage && fileInputRef.current?.click()}
+                onClick={(e) => !selectedImage && handleUploadClick(e)}
               >
                 {selectedImage ? (
                   <div className="image-preview-container">
@@ -194,7 +200,7 @@ const InputForm = ({ onSubmit, isLoading, disabled }) => {
                     <button
                       type="button"
                       className="upload-button"
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={handleUploadClick}
                       disabled={isLoading || disabled}
                     >
                       <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none">

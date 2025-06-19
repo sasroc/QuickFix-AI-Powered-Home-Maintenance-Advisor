@@ -17,6 +17,19 @@ function RepairHistory() {
   const navigate = useNavigate();
   const db = getFirestore();
 
+  // Helper function to check if imageAnalysis is a valid image URL
+  const isValidImageUrl = (imageAnalysis) => {
+    if (!imageAnalysis || typeof imageAnalysis !== 'string') return false;
+    
+    // Check if it's a valid URL
+    try {
+      const url = new URL(imageAnalysis);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
   const fetchUserPlan = useCallback(async () => {
     if (!currentUser) return;
     try {
@@ -181,7 +194,7 @@ function RepairHistory() {
                     <span className="stat-value">{repair.estimatedTime || 'N/A'}</span>
                   </div>
                 </div>
-                {repair.imageAnalysis && (
+                {isValidImageUrl(repair.imageAnalysis) && (
                   <div className="repair-image-preview">
                     <img src={repair.imageAnalysis} alt="Repair preview" />
                   </div>

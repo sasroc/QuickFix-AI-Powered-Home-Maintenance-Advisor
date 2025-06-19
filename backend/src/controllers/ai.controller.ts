@@ -244,7 +244,136 @@ CONFIDENCE: [number]`;
 
     // Process image if provided
     if (image) {
-      response.imageAnalysis = "Image analysis is currently unavailable. Please provide a text description of the issue.";
+      logger.debug('Processing image input');
+      
+      try {
+        // Optimize image size if it's too large
+        let optimizedImage = image;
+        if (image.length > 1000000) { // If image is larger than ~1MB
+          logger.debug('Image is large, optimizing...');
+          // For now, we'll just log this. In a production environment,
+          // you might want to implement actual image compression
+          logger.debug('Large image detected, consider implementing image compression');
+        }
+
+        // Create a comprehensive prompt that includes both image and text analysis
+        const imagePrompt = `You are a home maintenance expert. Analyze this image and the provided description to create a detailed repair guide.
+
+${description ? `Issue Description: ${description}` : 'Please analyze the image to identify the maintenance or repair issue.'}
+
+Please provide a repair guide with the following sections:
+1. A list of numbered steps for the repair
+2. Required tools
+3. Required materials
+4. Estimated time in minutes
+5. Confidence score (0-100)
+
+Format your response exactly like this:
+STEPS:
+1. [Step 1]
+2. [Step 2]
+...
+
+TOOLS:
+- [Tool 1]
+- [Tool 2]
+...
+
+MATERIALS:
+- [Material 1]
+- [Material 2]
+...
+
+TIME: [number] minutes
+CONFIDENCE: [number]`;
+
+        const messages: any[] = [
+          {
+            role: "system",
+            content: "You are a home maintenance expert assistant that provides detailed repair guides. Analyze images carefully to identify issues and provide accurate repair instructions. Be concise but thorough in your responses."
+          },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: imagePrompt
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: optimizedImage
+                }
+              }
+            ]
+          }
+        ];
+
+        logger.debug('Sending image analysis request to OpenAI Vision API...');
+        
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4o", // Use GPT-4o for vision capabilities
+          messages,
+          temperature: 0.5,
+          max_tokens: 800,
+          top_p: 0.9,
+        });
+
+        const generatedText = completion.choices[0]?.message?.content;
+        
+        if (!generatedText) {
+          throw new Error('No response from OpenAI Vision API');
+        }
+
+        logger.debug('Generated image analysis text:', generatedText);
+
+        // Parse the model's response for image analysis
+        const imageSteps = parseSteps(generatedText);
+        const imageTools = extractTools(generatedText);
+        const imageMaterials = extractMaterials(generatedText);
+        const imageTime = extractTime(generatedText);
+        const imageConfidence = extractConfidence(generatedText);
+
+        // If we have both text and image, combine the results intelligently
+        if (description && imageSteps.length > 0) {
+          // Use image analysis results if they're more detailed
+          if (imageSteps.length > response.steps.length) {
+            response.steps = imageSteps;
+            response.tools = imageTools;
+            response.materials = imageMaterials;
+            response.estimatedTime = imageTime;
+            response.confidenceScore = imageConfidence;
+          }
+          // Otherwise keep the text analysis results
+        } else if (imageSteps.length > 0) {
+          // Use image analysis results if no text description
+          response.steps = imageSteps;
+          response.tools = imageTools;
+          response.materials = imageMaterials;
+          response.estimatedTime = imageTime;
+          response.confidenceScore = imageConfidence;
+        }
+
+        // Store a reference to the image instead of the full image data to reduce response size
+        response.imageAnalysis = "Image analyzed successfully";
+
+        logger.info('Successfully processed image input', {
+          stepsCount: response.steps.length,
+          toolsCount: response.tools.length,
+          materialsCount: response.materials.length,
+          hasImageAnalysis: true
+        });
+      } catch (error) {
+        logger.error('Error processing image input:', error);
+        if (error instanceof Error) {
+          logger.error('Error details:', {
+            message: error.message,
+            stack: error.stack
+          });
+        }
+        // If image analysis fails, still include a reference but use text analysis results
+        response.imageAnalysis = "Image analysis failed, using text description";
+      }
     }
 
     res.json(response);
