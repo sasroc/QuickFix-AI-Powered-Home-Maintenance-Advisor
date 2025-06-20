@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import InputForm from '../forms/InputForm';
 import RepairGuide from './RepairGuide';
 import { analyzeRepairIssue } from '../../services/aiService';
@@ -23,8 +23,14 @@ function RepairPage() {
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
   const { trackEvent } = useAnalytics();
+  const repairPageRef = useRef(null);
 
   const handleCloseError = () => {
+    setError(null);
+  };
+
+  const handleBack = () => {
+    setRepairData(null);
     setError(null);
   };
 
@@ -39,6 +45,32 @@ function RepairPage() {
     });
     return unsub;
   }, [currentUser]);
+
+  // Scroll to top when repair guide is displayed
+  useEffect(() => {
+    if (repairData) {
+      // Use a longer delay to ensure all animations and rendering are complete
+      setTimeout(() => {
+        // Try multiple scroll methods for maximum compatibility
+        if (repairPageRef.current) {
+          repairPageRef.current.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        } else {
+          // Fallback to window scroll
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Additional fallback for edge cases
+        setTimeout(() => {
+          if (window.scrollY > 0) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }, 100);
+      }, 300);
+    }
+  }, [repairData]);
 
   // Helper function to compress image
   const compressImage = (base64String, maxWidth = 800, quality = 0.7) => {
@@ -175,7 +207,7 @@ function RepairPage() {
 
   return (
     <SubscriptionGate>
-      <div className={`repair-page-container ${isDarkMode ? 'dark' : ''}`}>
+      <div className={`repair-page-container ${isDarkMode ? 'dark' : ''}`} ref={repairPageRef}>
         <div className="credits-container">
           <div className="credits-info">
             <span className="credits-badge">
@@ -212,7 +244,7 @@ function RepairPage() {
         {!repairData ? (
           <InputForm onSubmit={handleSubmit} isLoading={isLoading} disabled={outOfCredits} />
         ) : (
-          <RepairGuide repairData={repairData} />
+          <RepairGuide repairData={repairData} onBack={handleBack} />
         )}
       </div>
     </SubscriptionGate>

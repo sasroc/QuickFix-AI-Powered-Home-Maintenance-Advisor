@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
 import './RepairGuide.css';
 
-const RepairGuide = ({ repairData }) => {
+const RepairGuide = ({ repairData, onBack }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
   const [completedTools, setCompletedTools] = useState([]);
@@ -55,7 +55,19 @@ const RepairGuide = ({ repairData }) => {
       <div className="repair-guide-content">
         <div className="left-content">
           <div className="repair-guide-header">
-            <h2>{repairData.title}</h2>
+            <div className="header-top-row">
+              <button 
+                className="back-button"
+                onClick={onBack}
+                aria-label="Back to input form"
+              >
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none">
+                  <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+              </button>
+              <h2>{repairData.title}</h2>
+            </div>
             <div className="progress-row">
               <div className="progress-bar">
                 <motion.div
