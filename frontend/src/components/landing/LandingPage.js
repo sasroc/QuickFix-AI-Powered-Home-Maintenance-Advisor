@@ -226,11 +226,11 @@ function LandingPage() {
           <div className="before-after-card animate-on-scroll animate-scale stagger-3">
             <div className="image-comparison">
               <div className="before">
-                <img src="https://placehold.co/400x300/e2e8f0/64748b?text=Before" alt="Faulty electrical outlet with damaged cover" />
+                <img src="/images/outletb4.png" alt="Faulty electrical outlet with damaged cover" />
                 <span className="label">Before</span>
               </div>
               <div className="after">
-                <img src="https://placehold.co/400x300/e2e8f0/64748b?text=After" alt="Safely installed electrical outlet with new cover" />
+                <img src="/images/outletafter.png" alt="Safely installed electrical outlet with new cover" />
                 <span className="label">After</span>
               </div>
             </div>
