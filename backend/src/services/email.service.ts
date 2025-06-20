@@ -201,6 +201,110 @@ class EmailService {
       `,
     });
   }
+
+  public async sendSubscriptionCancellation(
+    to: string,
+    name: string,
+    plan: string,
+    accessUntilDate: string,
+    billingInterval: string
+  ): Promise<void> {
+    const planLabels = {
+      starter: 'Starter',
+      pro: 'Pro',
+      premium: 'Premium'
+    };
+
+    const intervalLabels = {
+      monthly: 'monthly',
+      annual: 'annual'
+    };
+
+    // Try to use template if available, otherwise use HTML
+    const templateId = process.env.SENDGRID_SUBSCRIPTION_CANCELLATION_TEMPLATE_ID;
+    
+    if (templateId) {
+      // Template-based email
+      await this.sendEmail({
+        to,
+        subject: 'Your QuickFixAI Subscription Has Been Cancelled',
+        templateId,
+        dynamicTemplateData: {
+          name,
+          plan: planLabels[plan as keyof typeof planLabels],
+          billingInterval: intervalLabels[billingInterval as keyof typeof intervalLabels],
+          accessUntilDate,
+          supportEmail: this.supportEmail,
+          frontendUrl: process.env.FRONTEND_URL,
+        },
+      });
+    } else {
+      // HTML-based email (fallback)
+      await this.sendEmail({
+        to,
+        subject: 'Your QuickFixAI Subscription Has Been Cancelled',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #333; margin-bottom: 10px;">Subscription Cancelled</h1>
+              <p style="color: #666; font-size: 16px;">Hi ${name},</p>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h2 style="color: #333; margin-top: 0;">We're sorry to see you go!</h2>
+              <p style="color: #555; line-height: 1.6;">
+                We've received your request to cancel your <strong>${planLabels[plan as keyof typeof planLabels]} ${intervalLabels[billingInterval as keyof typeof intervalLabels]}</strong> subscription.
+              </p>
+            </div>
+
+            <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #28a745;">
+              <h3 style="color: #155724; margin-top: 0;">✅ Your Access Continues</h3>
+              <p style="color: #155724; font-weight: bold; margin-bottom: 10px;">
+                You still have full access to QuickFixAI until: <strong>${accessUntilDate}</strong>
+              </p>
+              <p style="color: #155724; margin-bottom: 0;">
+                Continue using all your current features, including AI repair guides, until your current billing period ends.
+              </p>
+            </div>
+
+            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+              <h3 style="color: #856404; margin-top: 0;">📋 What Happens Next</h3>
+              <ul style="color: #856404; line-height: 1.6;">
+                <li>Your subscription will remain active until <strong>${accessUntilDate}</strong></li>
+                <li>You can continue using all current features and credits</li>
+                <li>No further charges will be made to your account</li>
+                <li>After the end date, your account will be downgraded to the free tier</li>
+              </ul>
+            </div>
+
+            <div style="background: #d1ecf1; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #17a2b8;">
+              <h3 style="color: #0c5460; margin-top: 0;">🔄 Change Your Mind?</h3>
+              <p style="color: #0c5460; line-height: 1.6;">
+                If you change your mind, you can reactivate your subscription anytime before <strong>${accessUntilDate}</strong> 
+                by visiting your account settings. No setup fees or penalties!
+              </p>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+              <a href="${process.env.FRONTEND_URL}/pricing" 
+                 style="background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 0 10px;">
+                Reactivate Subscription
+              </a>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
+              <p style="color: #666; font-size: 14px;">
+                Thank you for being part of the QuickFixAI community. We hope to see you again soon!
+              </p>
+              <p style="color: #666; font-size: 14px;">
+                If you have any questions, please contact us at <a href="mailto:${this.supportEmail}" style="color: #007bff;">${this.supportEmail}</a>
+              </p>
+            </div>
+          </div>
+        `,
+      });
+    }
+  }
 }
 
 export default EmailService; 

@@ -104,19 +104,21 @@ export const handleWebhook = async (req: Request, res: Response) => {
           await EmailService.getInstance().sendSubscriptionConfirmation(userData.email, name, plan);
         }
       }
-    } else if (
-      event.type === 'customer.subscription.updated' ||
-      event.type === 'customer.subscription.deleted'
-    ) {
+    } else if (event.type === 'customer.subscription.updated') {
       const subscription = event.data.object as Stripe.Subscription;
       const stripeCustomerId = (subscription.customer as string) || '';
       const status = subscription.status;
       const subscriptionId = subscription.id;
+      
       // Find the user by stripeCustomerId
       const usersRef = admin.firestore().collection('users');
       const querySnap = await usersRef.where('stripeCustomerId', '==', stripeCustomerId).get();
+      
       if (!querySnap.empty) {
         const userDoc = querySnap.docs[0];
+        const userData = userDoc.data();
+        
+        // Update user subscription status
         await userDoc.ref.set(
           {
             subscriptionStatus: status,
@@ -124,6 +126,127 @@ export const handleWebhook = async (req: Request, res: Response) => {
           },
           { merge: true }
         );
+
+        // Check if subscription was canceled and send cancellation email
+        // Check for both immediate cancellation and end-of-period cancellation
+        const isCanceled = status === 'canceled' || (subscription as any).cancel_at_period_end === true;
+        
+        if (isCanceled && userData && userData.email) {
+          try {
+            const name = userData.displayName || userData.email.split('@')[0];
+            const plan = userData.plan || 'starter';
+            const billingInterval = userData.billingInterval || 'monthly';
+            
+            // Calculate access until date (end of current period)
+            // Try to get current_period_end from subscription items first, then fallback to cancel_at
+            const subscriptionItems = (subscription as any).items?.data;
+            const currentPeriodEnd = subscriptionItems && subscriptionItems.length > 0 ? 
+              subscriptionItems[0].current_period_end : 
+              (subscription as any).current_period_end || (subscription as any).cancel_at;
+            
+            let accessUntilDate = 'End of current billing period';
+            if (currentPeriodEnd) {
+              try {
+                // Handle both Unix timestamp (seconds) and milliseconds
+                const timestamp = typeof currentPeriodEnd === 'number' ? 
+                  (currentPeriodEnd > 1000000000000 ? currentPeriodEnd : currentPeriodEnd * 1000) : 
+                  new Date(currentPeriodEnd).getTime();
+                
+                accessUntilDate = new Date(timestamp).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                });
+              } catch (dateError) {
+                console.error('Error parsing subscription end date:', dateError);
+              }
+            }
+
+            const EmailService = (await import('../services/email.service')).default;
+            await EmailService.getInstance().sendSubscriptionCancellation(
+              userData.email,
+              name,
+              plan,
+              accessUntilDate,
+              billingInterval
+            );
+
+            console.log(`Cancellation email sent to ${userData.email} for subscription ${subscriptionId}`);
+          } catch (emailError) {
+            console.error('Failed to send cancellation email:', emailError);
+            // Don't fail the webhook if email fails
+          }
+        }
+      }
+    } else if (event.type === 'customer.subscription.deleted') {
+      const subscription = event.data.object as Stripe.Subscription;
+      const stripeCustomerId = (subscription.customer as string) || '';
+      const status = subscription.status;
+      const subscriptionId = subscription.id;
+      
+      // Find the user by stripeCustomerId
+      const usersRef = admin.firestore().collection('users');
+      const querySnap = await usersRef.where('stripeCustomerId', '==', stripeCustomerId).get();
+      
+      if (!querySnap.empty) {
+        const userDoc = querySnap.docs[0];
+        const userData = userDoc.data();
+        
+        // Update user subscription status
+        await userDoc.ref.set(
+          {
+            subscriptionStatus: status,
+            stripeSubscriptionId: subscriptionId,
+          },
+          { merge: true }
+        );
+
+        // Send cancellation email if user has email
+        if (userData && userData.email) {
+          try {
+            const name = userData.displayName || userData.email.split('@')[0];
+            const plan = userData.plan || 'starter';
+            const billingInterval = userData.billingInterval || 'monthly';
+            
+            // Calculate access until date (end of current period)
+            const subscriptionItems = (subscription as any).items?.data;
+            const currentPeriodEnd = subscriptionItems && subscriptionItems.length > 0 ? 
+              subscriptionItems[0].current_period_end : 
+              (subscription as any).current_period_end || (subscription as any).cancel_at;
+            
+            let accessUntilDate = 'End of current billing period';
+            if (currentPeriodEnd) {
+              try {
+                // Handle both Unix timestamp (seconds) and milliseconds
+                const timestamp = typeof currentPeriodEnd === 'number' ? 
+                  (currentPeriodEnd > 1000000000000 ? currentPeriodEnd : currentPeriodEnd * 1000) : 
+                  new Date(currentPeriodEnd).getTime();
+                
+                accessUntilDate = new Date(timestamp).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                });
+              } catch (dateError) {
+                console.error('Error parsing subscription end date:', dateError);
+              }
+            }
+
+            const EmailService = (await import('../services/email.service')).default;
+            await EmailService.getInstance().sendSubscriptionCancellation(
+              userData.email,
+              name,
+              plan,
+              accessUntilDate,
+              billingInterval
+            );
+
+            console.log(`Cancellation email sent to ${userData.email} for subscription ${subscriptionId}`);
+          } catch (emailError) {
+            console.error('Failed to send cancellation email:', emailError);
+            // Don't fail the webhook if email fails
+          }
+        }
       }
     }
     res.json({ received: true });

@@ -10,7 +10,7 @@ const ManageSubscriptionButton = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/create-portal-session', {
+      const res = await fetch('/api/stripe/create-portal-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid: currentUser.uid }),
