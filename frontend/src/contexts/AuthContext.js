@@ -9,6 +9,7 @@ import {
   signInWithPopup,
   updateProfile
 } from 'firebase/auth';
+import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
 import { auth } from '../config/firebase';
 import useAnalytics from '../hooks/useAnalytics';
 
@@ -17,6 +18,8 @@ const AuthContext = createContext();
 export function useAuth() {
   return useContext(AuthContext);
 }
+
+const db = getFirestore();
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -126,14 +129,36 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-      setLoading(false);
       if (user) {
+        // User is signed in, get their Firestore data
+        const userRef = doc(db, 'users', user.uid);
+        const unsubscribeSnapshot = onSnapshot(userRef, (doc) => {
+          if (doc.exists()) {
+            // Create a new object that inherits from the original user object,
+            // then assign the Firestore data to it. This preserves methods
+            // like getIdToken() while adding custom profile data.
+            const newCurrentUser = Object.assign(
+              Object.create(user), 
+              doc.data()
+            );
+            setCurrentUser(newCurrentUser);
+          } else {
+            // This can happen if the user document is not yet created
+            setCurrentUser(user);
+          }
+          setLoading(false);
+        });
+        
         trackEvent('auth_state_change', {
           type: 'login',
           user_id: user.uid
         });
+
+        return () => unsubscribeSnapshot();
       } else {
+        // User is signed out
+        setCurrentUser(null);
+        setLoading(false);
         trackEvent('auth_state_change', {
           type: 'logout'
         });

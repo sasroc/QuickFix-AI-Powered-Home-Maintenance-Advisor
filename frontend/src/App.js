@@ -22,6 +22,8 @@ import useAnalytics from './hooks/useAnalytics';
 import TermsOfService from './components/legal/TermsOfService';
 import PrivacyPolicy from './components/legal/PrivacyPolicy';
 import HelpButton from './components/common/HelpButton';
+import FeedbackDashboard from './components/feedback/FeedbackDashboard';
+import AdminRoute from './components/auth/AdminRoute';
 
 // Component to track page views
 const PageViewTracker = () => {
@@ -81,6 +83,14 @@ function App() {
                 <Route path="/settings" element={<AccountSettings />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route
+                  path="/admin/feedback"
+                  element={
+                    <AdminRoute>
+                      <FeedbackDashboard />
+                    </AdminRoute>
+                  }
+                />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>

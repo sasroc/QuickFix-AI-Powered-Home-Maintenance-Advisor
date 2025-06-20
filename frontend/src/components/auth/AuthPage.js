@@ -11,11 +11,17 @@ function AuthPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [passwordMatch, setPasswordMatch] = useState(null);
-  const { login, signup, loginWithGoogle } = useAuth();
+  const { currentUser, login, signup, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || '/repair';
+  const from = location.state?.from?.pathname || '/';
+
+  useEffect(() => {
+    if (currentUser) {
+      navigate(from, { replace: true });
+    }
+  }, [currentUser, navigate, from]);
 
   useEffect(() => {
     if (!isLogin && password && confirmPassword) {

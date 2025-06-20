@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import DisplayNameModal from '../auth/DisplayNameModal';
+import FeedbackButton from '../feedback/FeedbackButton';
 import logo from '../../assets/logo2.png';
 import './Navbar.css';
 
@@ -109,6 +110,9 @@ function Navbar() {
                 </svg>
               )}
             </button>
+
+            {/* Feedback Button */}
+            {currentUser && <FeedbackButton />}
 
             {currentUser ? (
               <div className="user-menu" ref={dropdownRef}>

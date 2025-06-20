@@ -14,7 +14,10 @@ function useCreateUserInFirestore() {
         if (!userSnap.exists()) {
           await setDoc(userRef, {
             email: user.email,
+            displayName: user.displayName || user.email.split('@')[0],
             subscriptionStatus: 'inactive',
+            credits: 0,
+            isAdmin: false,
             createdAt: serverTimestamp(),
           });
           // Trigger welcome email

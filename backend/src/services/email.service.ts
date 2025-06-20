@@ -46,18 +46,27 @@ class EmailService {
         };
       } else {
         // Content-based email
-        msg = {
-          ...msg,
-          text: options.text || '',
-          html: options.html || options.text || '',
-        };
+        if (!options.html && !options.text) {
+          throw new Error('Email must have either text or html content.');
+        }
+        if (options.html) {
+          msg.html = options.html;
+        }
+        if (options.text) {
+          msg.text = options.text;
+        } else {
+          // SendGrid recommends having a text part. For now, we'll create a simple one if not provided.
+          msg.text = 'Please view this email in an HTML-compatible client.';
+        }
       }
 
-      console.log('Attempting to send email via SendGrid:', msg);
       await sgMail.send(msg);
-      console.log('Email sent via SendGrid');
-    } catch (error) {
-      console.error('SendGrid Error:', error);
+    } catch (error: any) {
+      if (error.response) {
+        console.error('SendGrid API Error Response:', error.response.body);
+      } else {
+        console.error('SendGrid Error:', error);
+      }
       throw new Error('Failed to send email');
     }
   }
@@ -104,6 +113,92 @@ class EmailService {
       to: this.supportEmail,
       subject: `Support Request: ${subject}`,
       text: `From: ${from}\n\nMessage: ${message}`,
+    });
+  }
+
+  // Feedback-related email methods
+  public async sendFeedbackNotification(
+    fromEmail: string,
+    type: string,
+    title: string,
+    description: string,
+    priority: string,
+    screenshotCount: number
+  ): Promise<void> {
+    const typeLabels = {
+      bug: 'Bug Report',
+      feature: 'Feature Request',
+      general: 'General Feedback'
+    };
+
+    const priorityLabels = {
+      low: 'Low',
+      medium: 'Medium',
+      high: 'High',
+      critical: 'Critical'
+    };
+
+    await this.sendEmail({
+      to: this.supportEmail,
+      subject: `[${typeLabels[type as keyof typeof typeLabels]}] ${title}`,
+      html: `
+        <h2>New Feedback Received</h2>
+        <p><strong>Type:</strong> ${typeLabels[type as keyof typeof typeLabels]}</p>
+        <p><strong>Priority:</strong> ${priorityLabels[priority as keyof typeof priorityLabels]}</p>
+        <p><strong>From:</strong> ${fromEmail}</p>
+        <p><strong>Title:</strong> ${title}</p>
+        <p><strong>Description:</strong></p>
+        <p>${description.replace(/\n/g, '<br>')}</p>
+        <p><strong>Screenshots:</strong> ${screenshotCount} attached</p>
+        <hr>
+        <p><em>This is an automated notification from QuickFixAI feedback system.</em></p>
+      `,
+    });
+  }
+
+  public async sendFeedbackConfirmation(
+    to: string,
+    type: string,
+    title: string
+  ): Promise<void> {
+    const typeLabels = {
+      bug: 'bug report',
+      feature: 'feature request',
+      general: 'feedback'
+    };
+
+    await this.sendEmail({
+      to,
+      subject: 'Thank you for your feedback - QuickFixAI',
+      html: `
+        <h2>Thank you for your ${typeLabels[type as keyof typeof typeLabels]}!</h2>
+        <p>We've received your feedback about: <strong>${title}</strong></p>
+        <p>Our team will review it and get back to you as soon as possible.</p>
+        <p>If you have any urgent questions, please don't hesitate to contact us at ${this.supportEmail}.</p>
+        <hr>
+        <p><em>Thank you for helping us improve QuickFixAI!</em></p>
+      `,
+    });
+  }
+
+  public async sendFeedbackResolution(
+    to: string,
+    title: string,
+    response: string
+  ): Promise<void> {
+    await this.sendEmail({
+      to,
+      subject: 'Your feedback has been resolved - QuickFixAI',
+      html: `
+        <h2>Your feedback has been resolved!</h2>
+        <p>Regarding: <strong>${title}</strong></p>
+        <p>Our team has reviewed and resolved your feedback. Here's our response:</p>
+        <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+          ${response.replace(/\n/g, '<br>')}
+        </div>
+        <p>Thank you for helping us improve QuickFixAI!</p>
+        <p>If you have any follow-up questions, please contact us at ${this.supportEmail}.</p>
+      `,
     });
   }
 }
