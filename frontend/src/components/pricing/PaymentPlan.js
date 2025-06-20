@@ -11,7 +11,7 @@ const plans = [
     annual: 9,
     annualTotal: 108,
     features: [
-      '25 repair guides per month',
+      '25 repair guides per month (credits)',
       <span key="starter-ai">Powered by <span className="ai-model starter">GPT-4.1 Nano</span> - Basic, capable model for simple repairs</span>,
       'For individuals and light DIYers',
       'Access to standard repair guides',
@@ -25,7 +25,7 @@ const plans = [
     annual: 29,
     annualTotal: 348,
     features: [
-      '100 repair guides per month',
+      '100 repair guides per month (credits)',
       <span key="pro-ai">Powered by <span className="ai-model pro">GPT-4o Mini</span> - Advanced model with enhanced accuracy and detailed solutions</span>,
       'For busy homeowners and advanced DIYers',
       'Access to all standard and advanced repair guides',
@@ -40,7 +40,7 @@ const plans = [
     annual: 49,
     annualTotal: 588,
     features: [
-      '500 repair guides per month',
+      '500 repair guides per month (credits)',
       <span key="premium-ai">Powered by <span className="ai-model premium">GPT-4o</span> - Most advanced model with expert-level precision and comprehensive solutions</span>,
       'For professionals and power users',
       'All Pro features',
