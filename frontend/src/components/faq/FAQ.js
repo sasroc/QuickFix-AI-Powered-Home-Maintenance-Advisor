@@ -47,7 +47,7 @@ const faqCategories = [
     questions: [
       {
         question: "Can I cancel my subscription anytime?",
-        answer: "Yes, you can cancel your subscription at any time. If you cancel, you'll still have access to your plan until the end of your current billing period."
+        answer: "Yes, you can cancel your subscription at any time. If you cancel, you'll still have access to your plan until the end of your current billing period. Here's how to cancel:\n\nMethod 1 - Through Pricing Page:\n• Click 'Pricing' in the navigation bar\n• Scroll down to your current plan\n• Click 'Manage Subscription'\n• Follow the prompts to cancel\n\nMethod 2 - Through Account Settings:\n• Click the dropdown on your account in the navigation bar\n• Select 'Settings'\n• Scroll down to find the 'Manage Subscription' button\n• Click it and follow the cancellation prompts\n\nAfter cancellation, you'll receive a confirmation email with details about your remaining access period."
       },
       {
         question: "Do unused repair guides roll over to the next month?",

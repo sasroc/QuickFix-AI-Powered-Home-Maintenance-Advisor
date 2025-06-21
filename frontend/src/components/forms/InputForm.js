@@ -7,9 +7,12 @@ const InputForm = ({ onSubmit, isLoading, disabled }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [recognitionError, setRecognitionError] = useState(null);
+  const [timer, setTimer] = useState(0);
+  const [showTimer, setShowTimer] = useState(false);
   const { isDarkMode } = useTheme();
   const fileInputRef = useRef(null);
   const recognitionRef = useRef(null);
+  const timerIntervalRef = useRef(null);
 
   useEffect(() => {
     // Initialize speech recognition
@@ -53,9 +56,42 @@ const InputForm = ({ onSubmit, isLoading, disabled }) => {
     };
   }, []);
 
+  // Timer effect
+  useEffect(() => {
+    if (showTimer && isLoading) {
+      timerIntervalRef.current = setInterval(() => {
+        setTimer(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+      if (!isLoading) {
+        setTimer(0);
+        setShowTimer(false);
+      }
+    }
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
+  }, [showTimer, isLoading]);
+
+  // Format timer display
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const handleTextSubmit = (e) => {
     e.preventDefault();
     if (textInput.trim()) {
+      setShowTimer(true);
+      setTimer(0);
       onSubmit({ text: textInput.trim(), image: selectedImage });
     }
   };
@@ -222,7 +258,16 @@ const InputForm = ({ onSubmit, isLoading, disabled }) => {
               className="submit-button"
               disabled={isLoading || disabled || !textInput.trim()}
             >
-              {isLoading ? 'Processing...' : 'Get Repair Guide'}
+              {isLoading ? (
+                <div className="timer-container">
+                  <span>Processing...</span>
+                  {showTimer && (
+                    <span className="timer-display">{formatTime(timer)}</span>
+                  )}
+                </div>
+              ) : (
+                'Get Repair Guide'
+              )}
             </button>
           </div>
         </form>
