@@ -3,15 +3,16 @@ import { submitFeedback, getFeedback, updateFeedbackStatus, deleteFeedback } fro
 import upload from '../middleware/multer';
 import decodeToken from '../middleware/decodeToken';
 import checkAdmin from '../middleware/checkAdmin';
+import { feedbackRateLimit, adminRateLimit } from '../middleware/rateLimiter';
 
 const router = express.Router();
 
-// Public route for submitting feedback
-router.post('/submit', upload.array('screenshots', 5), submitFeedback);
+// Public route for submitting feedback - with rate limiting to prevent spam
+router.post('/submit', feedbackRateLimit, upload.array('screenshots', 5), submitFeedback);
 
-// Protected admin routes
-router.get('/', decodeToken, checkAdmin, getFeedback);
-router.patch('/:feedbackId/status', decodeToken, checkAdmin, updateFeedbackStatus);
-router.delete('/:feedbackId', decodeToken, checkAdmin, deleteFeedback);
+// Protected admin routes - with admin-specific rate limiting
+router.get('/', adminRateLimit, decodeToken, checkAdmin, getFeedback);
+router.patch('/:feedbackId/status', adminRateLimit, decodeToken, checkAdmin, updateFeedbackStatus);
+router.delete('/:feedbackId', adminRateLimit, decodeToken, checkAdmin, deleteFeedback);
 
 export default router; 

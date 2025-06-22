@@ -3,6 +3,7 @@ import { AppError } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 import OpenAI from 'openai';
 import admin from '../utils/firebaseAdmin';
+import cacheService from '../services/cacheService';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -81,37 +82,75 @@ const MAINTENANCE_RESPONSES: { [key: string]: any } = {
   }
 };
 
+interface RequestWithUser extends Request {
+  user?: {
+    uid: string;
+    email?: string;
+    [key: string]: any;
+  };
+}
+
 export const analyzeIssue = async (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { description, image, uid } = req.body;
+    const { description, image } = req.body;
 
     if (!description && !image) {
       throw new AppError('Either description or image is required', 400);
     }
 
-    if (!uid) {
-      throw new AppError('User ID (uid) is required', 400);
-    }
+    // Get uid from authenticated user or from request body (fallback for compatibility)
+    const uid = req.user?.uid || req.body.uid;
+    
+    let plan = 'starter';
+    let credits = 3; // Default credits for anonymous users
 
-    // Fetch user plan and credits from Firestore
-    const userRef = admin.firestore().collection('users').doc(uid);
-    const userSnap = await userRef.get();
-    if (!userSnap.exists) {
-      throw new AppError('User not found', 404);
-    }
-    const userData = userSnap.data();
-    const plan = userData?.plan || 'starter';
-    let credits = userData?.credits ?? 0;
-    if (credits <= 0) {
-      return res.status(403).json({ message: 'You have no credits remaining. Please upgrade your plan.' });
-    }
+    // If user is authenticated, fetch their plan and credits
+    if (uid) {
+      // Try to get user data from cache first
+      let cachedUserData = cacheService.getUserData(uid);
+      
+      if (cachedUserData) {
+        // Use cached data
+        plan = cachedUserData.plan;
+        credits = cachedUserData.credits;
+        logger.debug('Using cached user data', { uid, plan, credits });
+      } else {
+        // Fetch from Firestore and cache the result
+        const userRef = admin.firestore().collection('users').doc(uid);
+        const userSnap = await userRef.get();
+        if (userSnap.exists) {
+          const userData = userSnap.data();
+          plan = userData?.plan || 'starter';
+          credits = userData?.credits ?? 0;
+          
+          // Cache the user data for future requests
+          cacheService.setUserData(uid, {
+            plan,
+            credits,
+            subscriptionStatus: userData?.subscriptionStatus,
+            lastUpdated: Date.now()
+          });
+          
+          logger.debug('Fetched and cached user data from Firestore', { uid, plan, credits });
+        }
+      }
+      
+      if (credits <= 0) {
+        return res.status(403).json({ message: 'You have no credits remaining. Please upgrade your plan.' });
+      }
 
-    // Deduct a credit
-    await userRef.update({ credits: credits - 1 });
+      // Deduct a credit for authenticated users and invalidate cache
+      const userRef = admin.firestore().collection('users').doc(uid);
+      await userRef.update({ credits: credits - 1 });
+      
+      // Invalidate user cache since credits changed
+      cacheService.invalidateUserData(uid);
+    }
+    // For anonymous users, we don't deduct credits from Firestore
 
     // Select model based on plan
     let model = 'gpt-4.1-nano';
@@ -133,7 +172,18 @@ export const analyzeIssue = async (
     if (description) {
       logger.debug('Processing text input:', description);
       
-      const prompt = `You are a home maintenance expert. Analyze this issue and provide a detailed repair guide.
+      // Check if we have a cached response for similar queries
+      const cachedResponse = cacheService.getAIResponse(description, plan);
+      if (cachedResponse) {
+        logger.info('Using cached AI response', { plan, descriptionLength: description.length });
+        response.steps = cachedResponse.steps;
+        response.tools = cachedResponse.tools;
+        response.materials = cachedResponse.materials;
+        response.estimatedTime = cachedResponse.estimatedTime;
+        response.confidenceScore = cachedResponse.confidenceScore;
+      } else {
+        // Generate new response from AI
+        const prompt = `You are a home maintenance expert. Analyze this issue and provide a detailed repair guide.
 
 Issue: ${description}
 
@@ -219,6 +269,17 @@ CONFIDENCE: [number]`;
           toolsCount: response.tools.length,
           materialsCount: response.materials.length
         });
+
+        // Cache the AI response for future similar queries
+        cacheService.setAIResponse(description, plan, {
+          steps: response.steps,
+          tools: response.tools,
+          materials: response.materials,
+          estimatedTime: response.estimatedTime,
+          confidenceScore: response.confidenceScore,
+          model,
+          timestamp: Date.now()
+        });
       } catch (error) {
         logger.error('Error processing text input:', error);
         if (error instanceof Error) {
@@ -240,6 +301,7 @@ CONFIDENCE: [number]`;
         response.estimatedTime = 60;
         response.confidenceScore = 50;
       }
+      } // End of else block for AI response generation
     }
 
     // Process image if provided

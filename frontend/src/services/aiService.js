@@ -13,7 +13,7 @@ const getBackendUrl = () => {
   return `http://${host}:4000/api/ai/analyze`;
 };
 
-export async function analyzeRepairIssue({ description, image, uid }) {
+export async function analyzeRepairIssue({ description, image, uid, authToken }) {
   try {
     const body = { description };
     if (image) {
@@ -25,15 +25,22 @@ export async function analyzeRepairIssue({ description, image, uid }) {
 
     const API_URL = getBackendUrl();
 
+    // Create headers with optional authentication
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+
     // Create an AbortController for timeout handling
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
     const response = await fetch(API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(body),
       signal: controller.signal,
     });

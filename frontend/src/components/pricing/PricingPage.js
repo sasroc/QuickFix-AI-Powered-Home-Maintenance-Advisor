@@ -48,6 +48,7 @@ const PricingPage = () => {
         setError('Failed to start checkout. Please try again.');
       }
     } catch (err) {
+      console.error('Subscription error:', err);
       setError('Failed to start checkout. Please try again.');
     } finally {
       setLoadingCheckout(false);

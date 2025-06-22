@@ -17,6 +17,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
+import { globalRateLimit } from './middleware/rateLimiter';
 import aiRoutes from './routes/ai.routes';
 import stripeRoutes from './routes/stripe.routes';
 import supportRoutes from './routes/support.routes';
@@ -24,6 +25,7 @@ import subscribeRoutes from './routes/subscribe.routes';
 import webhookRoutes from './routes/webhook.routes';
 import welcomeRoutes from './routes/welcome.routes';
 import feedbackRoutes from './routes/feedback.routes';
+import cacheRoutes from './routes/cache.routes';
 
 const app = express();
 const port = parseInt(process.env.PORT || '4000', 10);
@@ -37,6 +39,9 @@ app.use(cors({
   credentials: true
 }));
 app.use(morgan('dev'));
+
+// Global rate limiting - applies to all routes
+app.use(globalRateLimit);
 // Stripe webhook raw body parser
 app.use('/api/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '50mb' }));
@@ -49,6 +54,7 @@ app.use('/api/subscribe', subscribeRoutes);
 app.use('/api/webhook', express.raw({ type: 'application/json' }), webhookRoutes);
 app.use('/api/welcome', welcomeRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/cache', cacheRoutes);
 
 // Error handling
 app.use(errorHandler);

@@ -122,11 +122,22 @@ function RepairPage() {
         setError(`Note: This repair guide won't be saved to your history as you've reached the maximum number of repair histories (${historyCap}) for your ${plan} plan. You can still view and use this guide now.`);
       }
 
+      // Get auth token for API call
+      let authToken = null;
+      if (currentUser) {
+        try {
+          authToken = await currentUser.getIdToken();
+        } catch (error) {
+          console.warn('Failed to get auth token:', error);
+        }
+      }
+
       // Call the backend AI service
       const aiResponse = await analyzeRepairIssue({
         description: input.text,
         image: input.image,
-        uid: currentUser?.uid
+        uid: currentUser?.uid,
+        authToken
       });
 
       // Track successful repair analysis

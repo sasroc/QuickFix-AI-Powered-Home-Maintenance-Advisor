@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import admin from '../utils/firebaseAdmin';
+import cacheService from '../services/cacheService';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -95,6 +96,9 @@ export const handleWebhook = async (req: Request, res: Response) => {
           },
           { merge: true }
         );
+
+        // Invalidate user cache since plan and credits changed
+        cacheService.invalidateUserData(uid);
         // Fetch user email and name from Firestore
         const userDoc = await admin.firestore().collection('users').doc(uid).get();
         const userData = userDoc.data();
@@ -126,6 +130,9 @@ export const handleWebhook = async (req: Request, res: Response) => {
           },
           { merge: true }
         );
+
+        // Invalidate user cache since subscription status changed
+        cacheService.invalidateUserData(userDoc.id);
 
         // Check if subscription was canceled and send cancellation email
         // Check for both immediate cancellation and end-of-period cancellation
@@ -200,6 +207,9 @@ export const handleWebhook = async (req: Request, res: Response) => {
           },
           { merge: true }
         );
+
+        // Invalidate user cache since subscription status changed
+        cacheService.invalidateUserData(userDoc.id);
 
         // Send cancellation email if user has email
         if (userData && userData.email) {

@@ -66,9 +66,15 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling }) => {
     setLoadingPortal(true);
     setPortalError('');
     try {
+      // Get authentication token
+      const authToken = await currentUser.getIdToken();
+      
       const res = await fetch('/api/stripe/create-portal-session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
         body: JSON.stringify({ uid: currentUser.uid }),
       });
       const data = await res.json();
@@ -78,6 +84,7 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling }) => {
         setPortalError('Failed to open Stripe portal.');
       }
     } catch (err) {
+      console.error('Portal error:', err);
       setPortalError('Failed to open Stripe portal.');
     } finally {
       setLoadingPortal(false);
