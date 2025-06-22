@@ -1,0 +1,36 @@
+.truncated-text-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.truncated-text-toggle {
+  background: none;
+  border: none;
+  color: var(--accent-primary);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0;
+  text-align: left;
+  transition: all 0.3s ease;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  align-self: flex-start;
+}
+
+.truncated-text-toggle:hover {
+  color: var(--accent-secondary);
+  text-decoration: none;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .truncated-text-container {
+    gap: 0.25rem;
+  }
+
+  .truncated-text-toggle {
+    font-size: 0.8rem;
+  }
+} 

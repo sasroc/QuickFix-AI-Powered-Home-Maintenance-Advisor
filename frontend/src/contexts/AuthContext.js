@@ -9,7 +9,7 @@ import {
   signInWithPopup,
   updateProfile
 } from 'firebase/auth';
-import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
+import { getFirestore, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { auth } from '../config/firebase';
 import useAnalytics from '../hooks/useAnalytics';
 
@@ -111,13 +111,19 @@ export function AuthProvider({ children }) {
   async function updateDisplayName(displayName) {
     if (!currentUser) throw new Error('No user logged in');
     try {
-    await updateProfile(currentUser, { displayName });
+      // Update Firebase Auth profile
+      await updateProfile(currentUser, { displayName });
+      
+      // Update Firestore user document
+      const userRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userRef, { displayName });
+      
       trackEvent('profile_update', {
         user_id: currentUser.uid,
         update_type: 'display_name'
       });
-    // Force a refresh of the current user to update the display name
-    setCurrentUser({ ...currentUser, displayName });
+      
+      // Note: Don't manually update currentUser here - let the onSnapshot listener handle it
     } catch (error) {
       trackEvent('profile_update_error', {
         error_code: error.code,
@@ -132,14 +138,34 @@ export function AuthProvider({ children }) {
       if (user) {
         // User is signed in, get their Firestore data
         const userRef = doc(db, 'users', user.uid);
-        const unsubscribeSnapshot = onSnapshot(userRef, (doc) => {
+        const unsubscribeSnapshot = onSnapshot(userRef, async (doc) => {
           if (doc.exists()) {
+            const firestoreData = doc.data();
+            
+            // Check if Firebase Auth email differs from Firestore email
+            // This happens when email is updated via verification
+            if (user.email && firestoreData.email !== user.email) {
+              console.log('Email mismatch detected. Syncing Firestore with Firebase Auth email:', user.email);
+              try {
+                // Update Firestore with the new verified email
+                await updateDoc(userRef, { 
+                  email: user.email,
+                  updatedAt: new Date()
+                });
+                // Update local data to reflect the change
+                firestoreData.email = user.email;
+                firestoreData.updatedAt = new Date();
+              } catch (error) {
+                console.error('Failed to sync email to Firestore:', error);
+              }
+            }
+            
             // Create a new object that inherits from the original user object,
             // then assign the Firestore data to it. This preserves methods
             // like getIdToken() while adding custom profile data.
             const newCurrentUser = Object.assign(
               Object.create(user), 
-              doc.data()
+              firestoreData
             );
             setCurrentUser(newCurrentUser);
           } else {

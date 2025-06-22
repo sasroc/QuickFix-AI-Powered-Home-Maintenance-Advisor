@@ -59,12 +59,28 @@ export const submitFeedback = async (req: Request, res: Response) => {
     // Process screenshots if any
     const screenshots: string[] = [];
     if (req.files && Array.isArray(req.files)) {
-      for (const file of req.files) {
+      // Limit to 3 screenshots to prevent document size issues
+      const limitedFiles = req.files.slice(0, 3);
+      
+      for (const file of limitedFiles) {
         try {
+          // Skip files larger than 1MB to prevent document size issues
+          if (file.size > 1024 * 1024) {
+            logger.warn(`Screenshot file too large (${file.size} bytes), skipping`);
+            continue;
+          }
+
           // Convert buffer to base64
           const base64 = file.buffer.toString('base64');
           const mimeType = file.mimetype;
           const dataUrl = `data:${mimeType};base64,${base64}`;
+          
+          // Double-check the final size
+          if (dataUrl.length > 600 * 1024) { // ~600KB limit for base64
+            logger.warn(`Screenshot base64 too large (${dataUrl.length} chars), skipping`);
+            continue;
+          }
+          
           screenshots.push(dataUrl);
         } catch (error) {
           logger.error('Error processing screenshot:', error);
@@ -75,26 +91,32 @@ export const submitFeedback = async (req: Request, res: Response) => {
     // Create feedback document
     const feedbackData = {
       type,
-      title,
-      description,
+      title: title.substring(0, 200), // Limit title length
+      description: description.substring(0, 5000), // Limit description length
       email,
       priority: priority || 'medium',
       category: category || '',
       userId: userId || 'anonymous',
-      userAgent,
-      url,
+      userAgent: userAgent ? userAgent.substring(0, 500) : '', // Limit user agent
+      url: url ? url.substring(0, 500) : '', // Limit URL
       timestamp: timestamp || new Date().toISOString(),
       status: 'new',
       screenshots,
       // Type-specific fields
       ...(type === 'bug' && {
-        steps: steps || '',
-        expected: expected || '',
-        actual: actual || ''
+        steps: steps ? steps.substring(0, 2000) : '', // Limit steps
+        expected: expected ? expected.substring(0, 1000) : '', // Limit expected
+        actual: actual ? actual.substring(0, 1000) : '' // Limit actual
       }),
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     };
+
+    // Estimate document size (rough calculation)
+    const estimatedSize = JSON.stringify(feedbackData).length;
+    if (estimatedSize > 800 * 1024) { // 800KB limit (leaving room for Firestore overhead)
+      throw new AppError('Feedback data too large. Please reduce screenshot sizes or count.', 413);
+    }
 
     // Save to Firestore
     const feedbackRef = await admin.firestore().collection('feedback').add(feedbackData);

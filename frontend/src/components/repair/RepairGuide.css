@@ -23,7 +23,8 @@
   transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-.repair-guide-header h2 {
+.repair-guide-header h2,
+.repair-guide-header .repair-guide-title {
   color: var(--text-primary);
   font-size: 1.75rem;
   font-weight: 700;
@@ -37,7 +38,8 @@
 }
 
 /* Override gradient text for header in dark mode */
-.dark .repair-guide-header h2 {
+.dark .repair-guide-header h2,
+.dark .repair-guide-header .repair-guide-title {
   background: none;
   -webkit-background-clip: unset;
   -webkit-text-fill-color: unset;
@@ -51,6 +53,8 @@
   width: 100%;
   margin-bottom: 0.5rem;
 }
+
+
 
 .back-button {
   background: var(--card-bg);
@@ -570,7 +574,10 @@
     text-align: center;
     width: 100%;
     margin: 0;
+    font-size: 1.4rem;
   }
+
+
 
   .progress-row {
     justify-content: center;

@@ -136,6 +136,29 @@
   font-weight: 500;
 }
 
+.info-message {
+  color: #6b7280;
+  margin-top: 8px;
+  font-weight: 400;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.dark .info-message {
+  color: #9ca3af;
+}
+
+.auth-provider-note {
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-style: italic;
+  margin-left: 8px;
+}
+
+.dark .auth-provider-note {
+  color: #9ca3af;
+}
+
 .danger-zone {
   border: 1.5px solid #f87171;
   background: rgba(239, 68, 68, 0.05);

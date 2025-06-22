@@ -112,7 +112,7 @@ function Navbar() {
             </button>
 
             {/* Feedback Button */}
-            {currentUser && <FeedbackButton />}
+            <FeedbackButton />
 
             {currentUser ? (
               <div className="user-menu" ref={dropdownRef}>

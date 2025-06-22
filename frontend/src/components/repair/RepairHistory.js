@@ -4,6 +4,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { getFirestore, collection, query, where, orderBy, getDocs, deleteDoc, doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { PLAN_HISTORY_CAPS } from '../../constants/plans';
+import TruncatedText from '../common/TruncatedText';
 import './RepairHistory.css';
 
 function RepairHistory() {
@@ -137,6 +138,18 @@ function RepairHistory() {
   return (
     <div className={`repair-history-container ${isDarkMode ? 'dark' : ''}`}>
       <div className="repair-history-header">
+        <div className="header-top-row">
+          <button 
+            className="back-button"
+            onClick={() => navigate('/repair')}
+            aria-label="Back to repair page"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Repair
+          </button>
+        </div>
         <h1>Repair History</h1>
         <p>View and manage your past repairs</p>
         <div className="history-stats">
@@ -170,7 +183,12 @@ function RepairHistory() {
               tabIndex={0}
             >
               <div className="repair-history-card-header">
-                <h3>{repair.title}</h3>
+                <TruncatedText 
+                  text={repair.title}
+                  maxLength={120}
+                  element="h3"
+                  className="repair-title"
+                />
                 <p className="repair-date">
                   {repair.timestamp?.toDate().toLocaleDateString() || 'Date not available'}
                 </p>

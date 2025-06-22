@@ -70,14 +70,136 @@ const FeedbackModal = ({ type, onClose, isDarkMode }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleScreenshotUpload = (e) => {
+  const compressImage = (file, maxSizeKB = 800) => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Calculate new dimensions (max 1200px width/height)
+        let { width, height } = img;
+        const maxDimension = 1200;
+        
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = (height * maxDimension) / width;
+            width = maxDimension;
+          } else {
+            width = (width * maxDimension) / height;
+            height = maxDimension;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Try different quality levels until we get under the size limit
+        let quality = 0.8;
+        let compressedFile = null;
+        
+        const tryCompress = () => {
+          canvas.toBlob((blob) => {
+            if (blob && blob.size <= maxSizeKB * 1024) {
+              // Create a new File object from the blob
+              compressedFile = new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now()
+              });
+              resolve(compressedFile);
+            } else if (quality > 0.1) {
+              quality -= 0.1;
+              tryCompress();
+            } else {
+              // If we can't compress enough, return original file
+              resolve(file);
+            }
+          }, 'image/jpeg', quality);
+        };
+        
+        tryCompress();
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleScreenshotUpload = async (e) => {
     const files = Array.from(e.target.files);
-    const newScreenshots = files.map(file => ({
-      file,
-      id: Date.now() + Math.random(),
-      preview: URL.createObjectURL(file)
-    }));
-    setScreenshots(prev => [...prev, ...newScreenshots]);
+    const maxFiles = 3;
+    const maxFileSize = 5 * 1024 * 1024; // 5MB original file limit
+    
+    // Clear any previous errors
+    setError('');
+    
+    // Check current screenshot count
+    if (screenshots.length >= maxFiles) {
+      setError(`Maximum ${maxFiles} screenshots allowed.`);
+      return;
+    }
+    
+    // Filter and process files
+    const validFiles = [];
+    const errors = [];
+    
+    for (const file of files) {
+      if (file.size > maxFileSize) {
+        errors.push(`"${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Maximum size is 5MB.`);
+        continue;
+      }
+      
+      if (!file.type.startsWith('image/')) {
+        errors.push(`"${file.name}" is not an image file.`);
+        continue;
+      }
+      
+      validFiles.push(file);
+    }
+    
+    // Show errors if any
+    if (errors.length > 0) {
+      setError(errors.join(' '));
+    }
+    
+    // Limit total screenshots
+    const remainingSlots = maxFiles - screenshots.length;
+    const filesToProcess = validFiles.slice(0, remainingSlots);
+    
+    if (filesToProcess.length < validFiles.length) {
+      setError(prev => prev + ` Only ${filesToProcess.length} screenshots added. Maximum ${maxFiles} total allowed.`);
+    }
+    
+    // Process files (compress if needed)
+    const processedScreenshots = [];
+    for (const file of filesToProcess) {
+      try {
+        const compressedFile = await compressImage(file);
+        processedScreenshots.push({
+          file: compressedFile,
+          id: Date.now() + Math.random(),
+          preview: URL.createObjectURL(compressedFile),
+          originalSize: file.size,
+          compressedSize: compressedFile.size
+        });
+      } catch (error) {
+        console.error('Error processing image:', error);
+        errors.push(`Failed to process "${file.name}".`);
+      }
+    }
+    
+    if (processedScreenshots.length > 0) {
+      setScreenshots(prev => [...prev, ...processedScreenshots]);
+      
+      // Show compression info if files were compressed
+      const compressedFiles = processedScreenshots.filter(s => s.compressedSize < s.originalSize);
+      if (compressedFiles.length > 0) {
+        const savedSpace = compressedFiles.reduce((total, s) => total + (s.originalSize - s.compressedSize), 0);
+        console.log(`Compressed ${compressedFiles.length} images, saved ${(savedSpace / 1024 / 1024).toFixed(1)}MB`);
+      }
+    }
   };
 
   const removeScreenshot = (id) => {
@@ -91,7 +213,10 @@ const FeedbackModal = ({ type, onClose, isDarkMode }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setError('');
+    // Only clear error if it's not a file upload error
+    if (!error.includes('screenshot') && !error.includes('image') && !error.includes('file')) {
+      setError('');
+    }
 
     try {
       // Track feedback submission
@@ -388,7 +513,7 @@ const FeedbackModal = ({ type, onClose, isDarkMode }) => {
                   onChange={handleScreenshotUpload}
                   style={{ display: 'none' }}
                 />
-                <p className="upload-hint">Upload images to help us understand the issue better</p>
+                <p className="upload-hint">Upload images to help us understand the issue better (Max 3 files, up to 5MB each - images will be automatically compressed)</p>
               </div>
               
               {screenshots.length > 0 && (

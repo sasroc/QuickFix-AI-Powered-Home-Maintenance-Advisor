@@ -1,0 +1,288 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions for authentication and authorization
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    function hasActiveSubscription() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.subscriptionStatus == 'active';
+    }
+    
+    function isValidEmail(email) {
+      return email.matches('.*@.*\\..*');
+    }
+    
+    function isValidSubscriptionStatus(status) {
+      return status in ['active', 'inactive', 'canceled', 'past_due', 'trialing'];
+    }
+    
+    function isValidPlan(plan) {
+      return plan in ['starter', 'pro', 'premium'];
+    }
+    
+    function isValidFeedbackType(type) {
+      return type in ['bug', 'feature', 'general'];
+    }
+    
+    function isValidFeedbackStatus(status) {
+      return status in ['new', 'in_progress', 'resolved', 'closed'];
+    }
+    
+    function isValidPriority(priority) {
+      return priority in ['low', 'medium', 'high', 'critical'];
+    }
+
+    // Users collection - core user data
+    match /users/{userId} {
+      // Users can read and write their own data
+      allow read, write: if isOwner(userId);
+      
+      // Admins can read all user data (for admin dashboard)
+      allow read: if isAdmin();
+      
+      // Validate user data structure on writes
+      allow write: if isOwner(userId) && 
+        validateUserData(request.resource.data);
+      
+      function validateUserData(data) {
+        return data.keys().hasAll(['email', 'displayName', 'subscriptionStatus', 'credits', 'isAdmin']) &&
+               isValidEmail(data.email) &&
+               data.displayName is string &&
+               data.displayName.size() <= 100 &&
+               isValidSubscriptionStatus(data.subscriptionStatus) &&
+               data.credits is int &&
+               data.credits >= 0 &&
+               data.credits <= 10000 &&
+               data.isAdmin is bool &&
+               // Optional fields validation
+               (!('plan' in data) || isValidPlan(data.plan)) &&
+               (!('billingInterval' in data) || data.billingInterval in ['monthly', 'annual']) &&
+               (!('stripeCustomerId' in data) || data.stripeCustomerId is string) &&
+               (!('stripeSubscriptionId' in data) || data.stripeSubscriptionId is string) &&
+               (!('createdAt' in data) || data.createdAt != null) &&
+               (!('updatedAt' in data) || data.updatedAt != null);
+      }
+    }
+
+    // Repairs collection - user repair history
+    match /repairs/{repairId} {
+      // Users can only access their own repairs
+      allow read, write: if isAuthenticated() && 
+        resource.data.userId == request.auth.uid;
+      
+      // Allow creating new repairs with proper validation
+      allow create: if isAuthenticated() && 
+        validateRepairData(request.resource.data) &&
+        request.resource.data.userId == request.auth.uid;
+      
+      // Allow updating own repairs (for marking steps complete, etc.)
+      allow update: if isAuthenticated() && 
+        resource.data.userId == request.auth.uid &&
+        request.resource.data.userId == request.auth.uid;
+      
+      // Allow deleting own repairs
+      allow delete: if isAuthenticated() && 
+        resource.data.userId == request.auth.uid;
+      
+      function validateRepairData(data) {
+        return data.keys().hasAll(['userId', 'title', 'steps', 'tools', 'materials', 'timestamp']) &&
+               data.userId == request.auth.uid &&
+               data.title is string &&
+               data.title.size() > 0 &&
+               data.title.size() <= 2000 &&
+               data.steps is list &&
+               data.steps.size() <= 50 &&
+               validateStepsArray(data.steps) &&
+               data.tools is list &&
+               data.tools.size() <= 100 &&
+               validateStringArray(data.tools) &&
+               data.materials is list &&
+               data.materials.size() <= 100 &&
+               validateStringArray(data.materials) &&
+               data.timestamp != null &&
+               // Optional fields
+               (!('estimatedTime' in data) || (data.estimatedTime is string && data.estimatedTime.size() <= 100)) &&
+               (!('imageAnalysis' in data) || data.imageAnalysis == null || (data.imageAnalysis is string && data.imageAnalysis.size() <= 1048576)) &&
+               (!('confidenceScore' in data) || data.confidenceScore == null || (data.confidenceScore is number && data.confidenceScore >= 0 && data.confidenceScore <= 100));
+      }
+      
+      function validateStepsArray(steps) {
+        return steps.size() == 0 || validateStepObject(steps[0]);
+      }
+      
+      function validateStepObject(step) {
+        return step is map &&
+               step.keys().hasAll(['description']) &&
+               step.description is string &&
+               step.description.size() > 0 &&
+               step.description.size() <= 1000 &&
+               (!('image' in step) || step.image == null || step.image is string);
+      }
+      
+      function validateStringArray(arr) {
+        return arr.size() == 0 || arr[0] is string;
+      }
+    }
+
+    // Community posts collection - shared repair success stories
+    match /community_posts/{postId} {
+      // Anyone can read community posts
+      allow read: if true;
+      
+      // Only subscribed users can create posts
+      allow create: if hasActiveSubscription() && 
+        validateCommunityPostData(request.resource.data) &&
+        request.resource.data.authorId == request.auth.uid;
+      
+      // Users can update their own posts (all fields)
+      allow update: if isAuthenticated() && 
+        resource.data.authorId == request.auth.uid &&
+        request.resource.data.authorId == request.auth.uid;
+      
+      // Any authenticated user can update like-related fields
+      allow update: if isAuthenticated() && 
+        validateLikeUpdate(request.resource.data, resource.data);
+      
+      // Users can delete their own posts, admins can delete any post
+      allow delete: if isAuthenticated() && 
+        (resource.data.authorId == request.auth.uid || isAdmin());
+      
+      function validateCommunityPostData(data) {
+        return data.keys().hasAll(['title', 'category', 'description', 'author', 'authorId', 'timestamp']) &&
+               data.title is string &&
+               data.title.size() > 0 &&
+               data.title.size() <= 200 &&
+               data.category is string &&
+               data.category in ['plumbing', 'electrical', 'hvac', 'carpentry', 'painting', 'general', 'appliances', 'flooring', 'roofing', 'landscaping'] &&
+               data.description is string &&
+               data.description.size() > 0 &&
+               data.description.size() <= 2000 &&
+               data.author is string &&
+               data.author.size() <= 100 &&
+               data.authorId == request.auth.uid &&
+               data.timestamp != null &&
+               // Optional fields
+               (!('beforeImage' in data) || data.beforeImage is string) &&
+               (!('afterImage' in data) || data.afterImage is string) &&
+               (!('tags' in data) || (data.tags is list && data.tags.size() <= 10)) &&
+               (!('likes' in data) || data.likes is int) &&
+               (!('likedBy' in data) || data.likedBy is list);
+      }
+      
+      function validateLikeUpdate(newData, oldData) {
+        // Only allow updates to likes and likedBy fields
+        return newData.diff(oldData).affectedKeys().hasOnly(['likes', 'likedBy']) &&
+               // Ensure likes is an integer and likedBy is a list
+               newData.likes is int &&
+               newData.likes >= 0 &&
+               newData.likedBy is list &&
+               newData.likedBy.size() <= 1000 && // Reasonable limit
+               // Ensure other fields remain unchanged
+               newData.title == oldData.title &&
+               newData.category == oldData.category &&
+               newData.description == oldData.description &&
+               newData.author == oldData.author &&
+               newData.authorId == oldData.authorId &&
+               newData.timestamp == oldData.timestamp;
+      }
+    }
+
+    // Feedback collection - user feedback and bug reports
+    match /feedback/{feedbackId} {
+      // Users can read their own feedback
+      allow read: if isAuthenticated() && 
+        (resource.data.userId == request.auth.uid || resource.data.email == request.auth.token.email);
+      
+      // Admins can read all feedback
+      allow read: if isAdmin();
+      
+      // Anyone can create feedback (including anonymous users)
+      allow create: if validateFeedbackData(request.resource.data);
+      
+      // Only admins can update feedback (for status changes, responses)
+      allow update: if isAdmin() && 
+        validateFeedbackUpdateData(request.resource.data);
+      
+      // Only admins can delete feedback
+      allow delete: if isAdmin();
+      
+      function validateFeedbackData(data) {
+        return data.keys().hasAll(['type', 'title', 'description', 'email', 'timestamp', 'status']) &&
+               isValidFeedbackType(data.type) &&
+               data.title is string &&
+               data.title.size() > 0 &&
+               data.title.size() <= 200 &&
+               data.description is string &&
+               data.description.size() > 0 &&
+               data.description.size() <= 5000 &&
+               isValidEmail(data.email) &&
+               data.timestamp != null &&
+               isValidFeedbackStatus(data.status) &&
+               // Optional fields
+               (!('priority' in data) || isValidPriority(data.priority)) &&
+               (!('category' in data) || data.category is string) &&
+               (!('userId' in data) || data.userId is string) &&
+               (!('userAgent' in data) || data.userAgent is string) &&
+               (!('url' in data) || data.url is string) &&
+               (!('screenshots' in data) || (data.screenshots is list && data.screenshots.size() <= 5)) &&
+               (!('steps' in data) || data.steps is string) &&
+               (!('expected' in data) || data.expected is string) &&
+               (!('actual' in data) || data.actual is string) &&
+               (!('response' in data) || data.response is string) &&
+               (!('createdAt' in data) || data.createdAt != null) &&
+               (!('updatedAt' in data) || data.updatedAt != null) &&
+               (!('respondedAt' in data) || data.respondedAt != null);
+      }
+      
+      function validateFeedbackUpdateData(data) {
+        // Admins can only update certain fields
+        return data.diff(resource.data).affectedKeys().hasOnly(['status', 'response', 'updatedAt', 'respondedAt']) &&
+               (!data.diff(resource.data).affectedKeys().hasAny(['status']) || isValidFeedbackStatus(data.status)) &&
+               (!data.diff(resource.data).affectedKeys().hasAny(['response']) || data.response is string) &&
+               (!data.diff(resource.data).affectedKeys().hasAny(['updatedAt']) || data.updatedAt != null) &&
+               (!data.diff(resource.data).affectedKeys().hasAny(['respondedAt']) || data.respondedAt != null);
+      }
+    }
+
+    // Admin-only collections and special rules
+    match /admin/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // Analytics and logs - read-only for admins
+    match /analytics/{document=**} {
+      allow read: if isAdmin();
+      allow write: if false; // Prevent direct writes, use server-side only
+    }
+
+    // Rate limiting collection (if implemented)
+    match /rate_limits/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // System configuration - admin only
+    match /config/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // Deny all other collections by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+} 

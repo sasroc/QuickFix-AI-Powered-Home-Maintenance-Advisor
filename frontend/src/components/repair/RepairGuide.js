@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
+import TruncatedText from '../common/TruncatedText';
 import './RepairGuide.css';
 
-const RepairGuide = ({ repairData, onBack }) => {
+const RepairGuide = ({ repairData, onBack, isHistorical = false }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
   const [completedTools, setCompletedTools] = useState([]);
@@ -56,17 +57,24 @@ const RepairGuide = ({ repairData, onBack }) => {
         <div className="left-content">
           <div className="repair-guide-header">
             <div className="header-top-row">
-              <button 
-                className="back-button"
-                onClick={onBack}
-                aria-label="Back to input form"
-              >
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none">
-                  <path d="M19 12H5M12 19l-7-7 7-7"/>
-                </svg>
-                Back
-              </button>
-              <h2>{repairData.title}</h2>
+              {!isHistorical && (
+                <button 
+                  className="back-button"
+                  onClick={onBack}
+                  aria-label="Back to input form"
+                >
+                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                  </svg>
+                  Back
+                </button>
+              )}
+              <TruncatedText 
+                text={repairData.title}
+                maxLength={150}
+                element="h2"
+                className="repair-guide-title"
+              />
             </div>
             <div className="progress-row">
               <div className="progress-bar">
