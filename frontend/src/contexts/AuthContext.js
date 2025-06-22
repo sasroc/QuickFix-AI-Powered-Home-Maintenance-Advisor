@@ -12,6 +12,7 @@ import {
 import { getFirestore, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { auth } from '../config/firebase';
 import useAnalytics from '../hooks/useAnalytics';
+import { setUserContext, captureException } from '../utils/sentry';
 
 const AuthContext = createContext();
 
@@ -39,6 +40,11 @@ export function AuthProvider({ children }) {
         error_code: error.code,
         error_message: error.message
       });
+      captureException(error, {
+        context: 'signup',
+        method: 'email',
+        errorCode: error.code
+      });
       throw error;
     }
   }
@@ -55,6 +61,11 @@ export function AuthProvider({ children }) {
       trackEvent('login_error', {
         error_code: error.code,
         error_message: error.message
+      });
+      captureException(error, {
+        context: 'login',
+        method: 'email',
+        errorCode: error.code
       });
       throw error;
     }
@@ -168,6 +179,14 @@ export function AuthProvider({ children }) {
               firestoreData
             );
             setCurrentUser(newCurrentUser);
+            
+            // Set Sentry user context
+            setUserContext({
+              uid: user.uid,
+              email: user.email,
+              displayName: firestoreData.displayName,
+              plan: firestoreData.plan
+            });
           } else {
             // This can happen if the user document is not yet created
             setCurrentUser(user);
@@ -188,6 +207,13 @@ export function AuthProvider({ children }) {
         trackEvent('auth_state_change', {
           type: 'logout'
         });
+        
+        // Clear Sentry user context
+        try {
+          setUserContext(null);
+        } catch (error) {
+          console.warn('Error clearing Sentry user context:', error);
+        }
       }
     });
 

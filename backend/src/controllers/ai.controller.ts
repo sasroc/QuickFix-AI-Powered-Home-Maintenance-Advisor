@@ -4,6 +4,7 @@ import { logger } from '../utils/logger';
 import OpenAI from 'openai';
 import admin from '../utils/firebaseAdmin';
 import cacheService from '../services/cacheService';
+import { addBreadcrumb, captureException } from '../utils/sentry';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -158,6 +159,15 @@ export const analyzeIssue = async (
     else if (plan === 'premium') model = 'gpt-4o';
 
     logger.info('Processing repair request:', { hasDescription: !!description, hasImage: !!image, plan, model });
+    
+    // Add Sentry breadcrumb for AI request
+    addBreadcrumb('AI Analysis Started', 'ai', {
+      hasDescription: !!description,
+      hasImage: !!image,
+      plan,
+      model,
+      uid: uid || 'anonymous'
+    });
 
     // Initialize response object
     const response: any = {
@@ -176,6 +186,7 @@ export const analyzeIssue = async (
       const cachedResponse = cacheService.getAIResponse(description, plan);
       if (cachedResponse) {
         logger.info('Using cached AI response', { plan, descriptionLength: description.length });
+        addBreadcrumb('AI Cache Hit', 'cache', { plan, descriptionLength: description.length });
         response.steps = cachedResponse.steps;
         response.tools = cachedResponse.tools;
         response.materials = cachedResponse.materials;
