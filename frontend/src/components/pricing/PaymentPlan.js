@@ -52,7 +52,7 @@ const plans = [
 const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling }) => {
   const { currentUser } = useAuth();
   const { isDarkMode } = useTheme();
-  const [billing, setBilling] = useState(currentBilling || 'monthly'); // 'monthly' or 'annual'
+  const [billing, setBilling] = useState(currentBilling || 'annual'); // 'monthly' or 'annual'
   const [loadingPortal, setLoadingPortal] = useState(false);
   const [portalError, setPortalError] = useState('');
 
@@ -109,7 +109,7 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling }) => {
           className={`billing-button ${billing === 'annual' ? 'active' : ''}`}
           onClick={() => setBilling('annual')}
         >
-          Yearly
+          Yearly <span className="save-badge">Save 53%</span>
         </button>
       </div>
       <div className="payment-plans-grid">

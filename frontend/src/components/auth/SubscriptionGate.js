@@ -25,7 +25,7 @@ const SubscriptionGate = ({ children }) => {
         const data = snap.data();
         setStatus(data.subscriptionStatus || 'inactive');
         setCurrentPlan(data.plan || null);
-        setCurrentBilling(data.billingInterval || 'monthly');
+        setCurrentBilling(data.billingInterval || null);
       }
     });
     return unsub;
