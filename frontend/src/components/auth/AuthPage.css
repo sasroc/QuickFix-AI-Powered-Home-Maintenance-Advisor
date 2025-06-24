@@ -1,11 +1,15 @@
 .auth-container {
   min-height: 100vh;
+  width: 100vw;
+  max-width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
   padding: 2rem;
   transition: background 0.3s ease;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .auth-card {
@@ -221,6 +225,11 @@
   border-radius: 8px;
   margin-bottom: 1rem;
   font-size: 0.9rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .dark .error-message {
@@ -370,6 +379,11 @@
 
 .terms-text {
   white-space: normal;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .terms-link {
@@ -388,10 +402,21 @@
   color: #60a5fa;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 1rem;
+    width: 100vw;
+    max-width: 100vw;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
   .auth-card {
-    padding: 2rem;
-    margin: 1rem;
+    padding: 1.5rem;
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .auth-header h2 {
@@ -406,5 +431,61 @@
   .terms-checkbox {
     width: 16px;
     height: 16px;
+  }
+
+  .form-group {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .form-group input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .password-input-container,
+  .password-confirm-container {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .auth-button,
+  .google-button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .error-message {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .terms-text {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .terms-checkbox-label {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .auth-form {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .divider {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 } 

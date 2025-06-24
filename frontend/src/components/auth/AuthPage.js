@@ -77,10 +77,27 @@ function AuthPage() {
     }
   }
 
+  // Don't render anything if user is already authenticated
+  if (currentUser) {
+    return <div style={{ textAlign: 'center', marginTop: '4rem' }}>Redirecting...</div>;
+  }
+
   return (
-    <div className="auth-container" style={{ position: 'relative', overflow: 'hidden' }}>
+    <div className="auth-container" style={{ 
+      position: 'relative', 
+      overflow: 'hidden',
+      width: '100vw',
+      maxWidth: '100vw',
+      boxSizing: 'border-box'
+    }}>
       <div className="quickfix-gradient-bg" />
-      <div className="auth-card" style={{ position: 'relative', zIndex: 1 }}>
+      <div className="auth-card" style={{ 
+        position: 'relative', 
+        zIndex: 1,
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box'
+      }}>
         <div className="auth-header">
           <h1 className="app-title">
             <span className="title-quick">Quick</span>

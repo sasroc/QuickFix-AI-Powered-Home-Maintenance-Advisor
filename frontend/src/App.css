@@ -1,18 +1,63 @@
+/* CSS Variables for theming */
+:root {
+  --bg-primary: #f3f4f6;
+  --bg-secondary: #e5e7eb;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-light: #9ca3af;
+  --accent-primary: #3b82f6;
+  --accent-secondary: #10b981;
+  --card-bg: #ffffff;
+  --card-border: rgba(59, 130, 246, 0.1);
+  --shadow-light: rgba(0, 0, 0, 0.05);
+  --shadow-medium: rgba(0, 0, 0, 0.1);
+  --navbar-bg: rgba(255, 255, 255, 0.1);
+  --navbar-border: rgba(255, 255, 255, 0.2);
+}
+
+/* Dark mode variables */
+.dark {
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-light: #9ca3af;
+  --accent-primary: #60a5fa;
+  --accent-secondary: #34d399;
+  --card-bg: #1f2937;
+  --card-border: rgba(96, 165, 250, 0.2);
+  --shadow-light: rgba(0, 0, 0, 0.3);
+  --shadow-medium: rgba(0, 0, 0, 0.5);
+  --navbar-bg: rgba(0, 0, 0, 0.2);
+  --navbar-border: rgba(255, 255, 255, 0.1);
+}
+
 .App {
   text-align: center;
   min-height: 100vh;
-  background-color: #f3f4f6;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: var(--bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 .main-content {
   flex: 1;
-  padding-top: 1rem;
+  width: 100%;
+  max-width: 100vw;
+  margin: 0 auto;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: var(--bg-primary);
+  transition: background-color 0.3s ease;
+  box-sizing: border-box;
 }
 
 /* Landing Page Styles */
@@ -22,7 +67,8 @@
   flex-direction: column;
   align-items: center;
   padding: 2rem;
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  transition: background 0.3s ease;
 }
 
 .hero-section {
@@ -43,28 +89,28 @@
 }
 
 .title-quick {
-  color: #3b82f6;
+  color: var(--accent-primary);
 }
 
 .title-fix {
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .title-ai {
-  color: #10b981;
+  color: var(--accent-secondary);
   font-size: 3rem;
   vertical-align: super;
 }
 
 .hero-subtitle {
   font-size: 1.5rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin: 0;
   animation: fadeInUp 1s ease-out 0.5s both;
 }
 
 .start-button {
-  background: #3b82f6;
+  background: var(--accent-primary);
   color: white;
   border: none;
   padding: 1rem 3rem;
@@ -94,23 +140,25 @@
 
 .step-card {
   flex: 1;
-  background: white;
+  background: var(--card-bg);
   padding: 2rem;
   border-radius: 16px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
+  box-shadow: 0 4px 6px var(--shadow-light);
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
+  border: 1px solid var(--card-border);
 }
 
 .step-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 8px 15px var(--shadow-medium);
 }
 
 .step-number {
   width: 40px;
   height: 40px;
-  background: #3b82f6;
+  background: var(--accent-primary);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -121,13 +169,13 @@
 }
 
 .step-card h3 {
-  color: #1f2937;
+  color: var(--text-primary);
   margin: 0 0 1rem;
   font-size: 1.5rem;
 }
 
 .step-card p {
-  color: #6b7280;
+  color: var(--text-secondary);
   margin: 0;
   line-height: 1.6;
 }
@@ -212,6 +260,8 @@ main {
   max-width: 100vw !important;
   margin: 0 !important;
   padding: 0 !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
 }
 
 .repair-guide {
@@ -328,4 +378,17 @@ main {
   .hero-subtitle {
     font-size: 1.25rem;
   }
+}
+
+/* Hide any decorative blue/green line globally */
+*[style*="linear-gradient(90deg, #3b82f6 0%, #10b981 100%)"],
+*[style*="linear-gradient(135deg, #3b82f6 0%, #10b981 100%)"],
+*[style*="#3b82f6" i][style*="#10b981" i] {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
