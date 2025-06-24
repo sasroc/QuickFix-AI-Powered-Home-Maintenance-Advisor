@@ -1,17 +1,4 @@
-// Get the backend URL from environment variable or use the current host
-const getBackendUrl = () => {
-  if (process.env.REACT_APP_API_URL) {
-    return process.env.REACT_APP_API_URL;
-  }
-  // If running locally, use the current host
-  const host = window.location.hostname;
-  // If we're on the same machine as the backend, use localhost
-  if (host === 'localhost' || host === '127.0.0.1') {
-    return 'http://localhost:4000/api/ai/analyze';
-  }
-  // Otherwise, use the host machine's IP address
-  return `http://${host}:4000/api/ai/analyze`;
-};
+import { getApiUrl } from './apiConfig';
 
 export async function analyzeRepairIssue({ description, image, uid, authToken }) {
   try {
@@ -23,7 +10,7 @@ export async function analyzeRepairIssue({ description, image, uid, authToken })
       body.uid = uid;
     }
 
-    const API_URL = getBackendUrl();
+    const API_URL = getApiUrl('api/ai/analyze');
 
     // Create headers with optional authentication
     const headers = {

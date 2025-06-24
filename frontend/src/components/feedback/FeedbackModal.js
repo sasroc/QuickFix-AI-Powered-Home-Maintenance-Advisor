@@ -1,9 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { motion } from 'framer-motion';
 import { FaBug, FaLightbulb, FaComments, FaTimes, FaUpload, FaCheck } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import useAnalytics from '../../hooks/useAnalytics';
+import { apiRequest } from '../../services/apiConfig';
 import './FeedbackModal.css';
 
 const FeedbackModal = ({ type, onClose, isDarkMode }) => {
@@ -26,7 +27,7 @@ const FeedbackModal = ({ type, onClose, isDarkMode }) => {
   const fileInputRef = useRef(null);
 
   // Set default email if user is logged in
-  React.useEffect(() => {
+  useEffect(() => {
     if (currentUser?.email) {
       setFormData(prev => ({ ...prev, email: currentUser.email }));
     }
@@ -252,7 +253,7 @@ const FeedbackModal = ({ type, onClose, isDarkMode }) => {
       });
 
       // Submit to backend
-      const response = await fetch('/api/feedback/submit', {
+      const response = await apiRequest('/api/feedback/submit', {
         method: 'POST',
         body: feedbackData
       });

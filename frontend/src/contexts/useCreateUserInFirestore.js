@@ -1,39 +1,50 @@
 import { useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { auth } from '../config/firebase';
+import { useAuth } from './AuthContext';
+import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import { apiRequest } from '../services/apiConfig';
 
 const db = getFirestore();
 
-function useCreateUserInFirestore() {
+export default function useCreateUserInFirestore() {
+  const { currentUser } = useAuth();
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const userRef = doc(db, 'users', user.uid);
-        const userSnap = await getDoc(userRef);
-        if (!userSnap.exists()) {
-          await setDoc(userRef, {
-            email: user.email,
-            displayName: user.displayName || user.email.split('@')[0],
-            subscriptionStatus: 'inactive',
-            credits: 0,
-            isAdmin: false,
-            createdAt: serverTimestamp(),
-          });
-          // Trigger welcome email
-          fetch('/api/welcome', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: user.email,
-              name: user.displayName || user.email.split('@')[0],
-            }),
-          });
+    const createUser = async () => {
+      if (currentUser) {
+        try {
+          const userRef = doc(db, 'users', currentUser.uid);
+          const userSnap = await getDoc(userRef);
+          
+          if (!userSnap.exists()) {
+            await setDoc(userRef, {
+              email: currentUser.email,
+              displayName: currentUser.displayName || '',
+              plan: 'starter',
+              credits: 3,
+              createdAt: new Date(),
+              subscriptionStatus: 'inactive'
+            });
+
+            // Send welcome email
+            try {
+              await apiRequest('api/welcome', {
+                method: 'POST',
+                body: JSON.stringify({
+                  email: currentUser.email,
+                  name: currentUser.displayName || currentUser.email.split('@')[0]
+                }),
+              });
+            } catch (emailError) {
+              console.error('Failed to send welcome email:', emailError);
+              // Don't throw error - user creation should still succeed
+            }
+          }
+        } catch (error) {
+          console.error('Error creating user in Firestore:', error);
         }
       }
-    });
-    return unsubscribe;
-  }, []);
-}
+    };
 
-export default useCreateUserInFirestore; 
+    createUser();
+  }, [currentUser]);
+} 

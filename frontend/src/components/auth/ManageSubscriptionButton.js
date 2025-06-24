@@ -1,27 +1,28 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { apiRequest } from '../../services/apiConfig';
 
-const ManageSubscriptionButton = () => {
+export default function ManageSubscriptionButton({ className }) {
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleManage = async () => {
+  const handleManageSubscription = async () => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/stripe/create-portal-session', {
+      const response = await apiRequest('api/stripe/create-portal-session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid: currentUser.uid }),
       });
-      const data = await res.json();
+      const data = await response.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
         setError('Failed to open Stripe portal.');
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Error creating portal session:', error);
       setError('Failed to open Stripe portal.');
     } finally {
       setLoading(false);
@@ -31,7 +32,7 @@ const ManageSubscriptionButton = () => {
   return (
     <div style={{ textAlign: 'center', margin: '2rem 0' }}>
       <button
-        onClick={handleManage}
+        onClick={handleManageSubscription}
         disabled={loading}
         style={{
           background: '#ff5630',
@@ -49,6 +50,4 @@ const ManageSubscriptionButton = () => {
       {error && <div style={{ color: 'red', marginTop: 12 }}>{error}</div>}
     </div>
   );
-};
-
-export default ManageSubscriptionButton; 
+} 

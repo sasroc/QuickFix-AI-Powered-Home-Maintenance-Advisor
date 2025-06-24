@@ -1,13 +1,24 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 
 // Load environment variables first, before any other imports
+// In production/Railway, environment variables are provided directly
+// Only try to load .env file if it exists and we're likely in development
 const envPath = path.resolve(__dirname, '../.env');
-const result = dotenv.config({ path: envPath });
+const isProduction = process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT;
+const envFileExists = fs.existsSync(envPath);
 
-if (result.error) {
-  console.error('Error loading .env file:', result.error);
-  process.exit(1);
+if (!isProduction && envFileExists) {
+  const result = dotenv.config({ path: envPath });
+  
+  if (result.error) {
+    console.error('Error loading .env file:', result.error);
+  } else {
+    console.log('Loaded environment variables from .env file');
+  }
+} else {
+  console.log('Using environment variables from system (production mode)');
 }
 
 // Initialize Sentry as early as possible
@@ -36,15 +47,39 @@ import testRoutes from './routes/test.routes';
 const app = express();
 const port = parseInt(process.env.PORT || '4000', 10);
 
+// Determine allowed origins based on environment
+const getAllowedOrigins = () => {
+  const origins = [];
+  
+  // Always allow localhost for development and testing
+  origins.push('http://localhost:3000', 'http://127.0.0.1:3000');
+  
+  // Also allow the production frontend URL if specified
+  if (process.env.FRONTEND_URL) {
+    origins.push(process.env.FRONTEND_URL);
+  }
+  
+  // In development, be more permissive
+  if (process.env.NODE_ENV !== 'production') {
+    origins.push('*');
+  }
+  
+  return origins;
+};
+
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginEmbedderPolicy: false,
+}));
+
 app.use(cors({
-  origin: '*', // Allow all origins for development
-  methods: ['GET', 'POST'],
+  origin: getAllowedOrigins(),
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
-app.use(morgan('dev'));
+
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // Sentry middleware (before routes but after basic middleware)
 app.use(sentryRequestBreadcrumb);

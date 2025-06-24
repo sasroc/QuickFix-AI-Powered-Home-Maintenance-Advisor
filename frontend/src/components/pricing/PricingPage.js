@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
 import PaymentPlan from './PaymentPlan';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { apiRequest } from '../../services/apiConfig';
 
 const db = getFirestore();
 
@@ -45,12 +46,11 @@ const PricingPage = () => {
     setLoadingCheckout(true);
     setError('');
     try {
-      const res = await fetch('/api/subscribe', {
+      const response = await apiRequest('api/subscribe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid: currentUser.uid, plan, billing }),
       });
-      const data = await res.json();
+      const data = await response.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
