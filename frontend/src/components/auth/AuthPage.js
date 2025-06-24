@@ -95,7 +95,6 @@ function AuthPage() {
         position: 'relative', 
         zIndex: 1,
         width: '100%',
-        maxWidth: '100%',
         boxSizing: 'border-box'
       }}>
         <div className="auth-header">
