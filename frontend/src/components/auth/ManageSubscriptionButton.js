@@ -11,8 +11,14 @@ export default function ManageSubscriptionButton({ className }) {
     setLoading(true);
     setError('');
     try {
+      // Get Firebase auth token
+      const authToken = await currentUser.getIdToken();
+      
       const response = await apiRequest('api/stripe/create-portal-session', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
         body: JSON.stringify({ uid: currentUser.uid }),
       });
       const data = await response.json();

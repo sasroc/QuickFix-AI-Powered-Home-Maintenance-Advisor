@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
 import PaymentPlan from '../pricing/PaymentPlan';
+import { apiRequest } from '../../services/apiConfig';
 
 const db = getFirestore();
 
@@ -35,18 +36,18 @@ const SubscriptionGate = ({ children }) => {
     setLoadingCheckout(true);
     setError('');
     try {
-      const res = await fetch('/api/subscribe', {
+      const response = await apiRequest('api/subscribe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid: currentUser.uid, plan, billing }),
       });
-      const data = await res.json();
+      const data = await response.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
         setError('Failed to start checkout. Please try again.');
       }
     } catch (err) {
+      console.error('Subscription error:', err);
       setError('Failed to start checkout. Please try again.');
     } finally {
       setLoadingCheckout(false);

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { apiRequest } from '../../services/apiConfig';
 import './PaymentPlan.css';
 
 const plans = [
@@ -69,15 +70,14 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling }) => {
       // Get authentication token
       const authToken = await currentUser.getIdToken();
       
-      const res = await fetch('/api/stripe/create-portal-session', {
+      const response = await apiRequest('api/stripe/create-portal-session', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
+        headers: {
           'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify({ uid: currentUser.uid }),
       });
-      const data = await res.json();
+      const data = await response.json();
       if (data.url) {
         window.location.href = data.url;
       } else {

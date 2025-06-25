@@ -1,37 +1,36 @@
 import { useEffect } from 'react';
-import { useAuth } from './AuthContext';
-import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth } from '../config/firebase';
 import { apiRequest } from '../services/apiConfig';
 
 const db = getFirestore();
 
-export default function useCreateUserInFirestore() {
-  const { currentUser } = useAuth();
-
+function useCreateUserInFirestore() {
   useEffect(() => {
-    const createUser = async () => {
-      if (currentUser) {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
         try {
-          const userRef = doc(db, 'users', currentUser.uid);
+          const userRef = doc(db, 'users', user.uid);
           const userSnap = await getDoc(userRef);
-          
           if (!userSnap.exists()) {
             await setDoc(userRef, {
-              email: currentUser.email,
-              displayName: currentUser.displayName || '',
-              plan: 'starter',
+              email: user.email,
+              displayName: user.displayName || user.email.split('@')[0],
+              subscriptionStatus: 'inactive',
               credits: 3,
-              createdAt: new Date(),
-              subscriptionStatus: 'inactive'
+              plan: 'starter',
+              isAdmin: false,
+              createdAt: serverTimestamp(),
             });
-
-            // Send welcome email
+            
+            // Trigger welcome email
             try {
               await apiRequest('api/welcome', {
                 method: 'POST',
                 body: JSON.stringify({
-                  email: currentUser.email,
-                  name: currentUser.displayName || currentUser.email.split('@')[0]
+                  email: user.email,
+                  name: user.displayName || user.email.split('@')[0],
                 }),
               });
             } catch (emailError) {
@@ -43,8 +42,9 @@ export default function useCreateUserInFirestore() {
           console.error('Error creating user in Firestore:', error);
         }
       }
-    };
+    });
+    return unsubscribe;
+  }, []);
+}
 
-    createUser();
-  }, [currentUser]);
-} 
+export default useCreateUserInFirestore; 
