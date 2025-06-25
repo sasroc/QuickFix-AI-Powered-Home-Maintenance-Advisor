@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { FaBug, FaLightbulb, FaComments, FaEye, FaCheck, FaTimes, FaTrash } from 'react-icons/fa';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { apiRequest } from '../../services/apiConfig';
 import './FeedbackDashboard.css';
 
 const FeedbackDashboard = () => {
@@ -31,12 +32,11 @@ const FeedbackDashboard = () => {
       if (filters.type) params.append('type', filters.type);
       if (filters.priority) params.append('priority', filters.priority);
 
-      const response = await fetch(`/api/feedback?${params.toString()}`, {
+      const response = await apiRequest(`api/feedback?${params.toString()}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      if (!response.ok) throw new Error('Failed to fetch feedback');
 
       const data = await response.json();
       setFeedback(data.feedback);
@@ -57,16 +57,13 @@ const FeedbackDashboard = () => {
 
     try {
       const token = await currentUser.getIdToken();
-      const response = await fetch(`/api/feedback/${feedbackId}/status`, {
+      await apiRequest(`api/feedback/${feedbackId}/status`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ status, response: responseText })
       });
-
-      if (!response.ok) throw new Error('Failed to update status');
 
       // Update the local state to reflect the change immediately
       setFeedback(prevFeedback => 
@@ -96,16 +93,12 @@ const FeedbackDashboard = () => {
 
     try {
       const token = await currentUser.getIdToken();
-      const response = await fetch(`/api/feedback/${feedbackId}`, {
+      await apiRequest(`api/feedback/${feedbackId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete feedback');
-      }
 
       // Update UI
       setFeedback(prev => prev.filter(item => item.id !== feedbackId));
