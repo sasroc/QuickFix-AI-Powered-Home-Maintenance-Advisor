@@ -268,39 +268,31 @@ export const handleWebhook = async (req: Request, res: Response) => {
 
 export const createPortalSession = async (req: Request, res: Response) => {
   try {
-    console.log('Portal session request body:', req.body);
     const { uid } = req.body;
     
     if (!uid) {
-      console.log('Error: Missing uid in request');
       return res.status(400).json({ message: 'Missing uid' });
     }
     
-    console.log('Looking up user:', uid);
     // Get the user's Stripe customer ID from Firestore
     const userDoc = await admin.firestore().collection('users').doc(uid).get();
     if (!userDoc.exists) {
-      console.log('Error: User not found in Firestore');
       return res.status(404).json({ message: 'User not found' });
     }
     
     const userData = userDoc.data();
     const stripeCustomerId = userData?.stripeCustomerId;
-    console.log('Found stripeCustomerId:', stripeCustomerId);
     
     if (!stripeCustomerId) {
-      console.log('Error: No Stripe customer ID found for user');
       return res.status(400).json({ message: 'No Stripe customer ID found for user' });
     }
     
-    console.log('Creating Stripe portal session for customer:', stripeCustomerId);
     // Create a Stripe Customer Portal session
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: stripeCustomerId,
       return_url: process.env.FRONTEND_URL || 'http://localhost:3000/account',
     });
     
-    console.log('Portal session created successfully:', portalSession.url);
     return res.json({ url: portalSession.url });
   } catch (error) {
     console.error('Stripe portal error:', error);

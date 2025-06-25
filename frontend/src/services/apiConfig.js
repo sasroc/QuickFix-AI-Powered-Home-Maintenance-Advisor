@@ -29,14 +29,20 @@ export const getApiUrl = (endpoint) => {
 export const apiRequest = async (endpoint, options = {}) => {
   const url = getApiUrl(endpoint);
   
-  const defaultOptions = {
+  // Check if body is FormData (for file uploads)
+  const isFormData = options.body instanceof FormData;
+  
+  // Properly merge headers, but don't set Content-Type for FormData
+  const mergedOptions = {
+    ...options,
     headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
+      // Only set Content-Type for JSON, let browser set it for FormData
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+      ...options.headers, // Custom headers override defaults
     },
   };
 
-  const response = await fetch(url, { ...defaultOptions, ...options });
+  const response = await fetch(url, mergedOptions);
   
   if (!response.ok) {
     throw new Error(`API request failed: ${response.statusText}`);

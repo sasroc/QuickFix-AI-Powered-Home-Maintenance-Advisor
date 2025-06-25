@@ -89,7 +89,16 @@ app.use(sentryPerformanceMiddleware);
 app.use(globalRateLimit);
 // Stripe webhook raw body parser
 app.use('/api/webhook', express.raw({ type: 'application/json' }));
-app.use(express.json({ limit: '50mb' }));
+
+// JSON body parser - skip for routes that handle multipart form data
+app.use((req, res, next) => {
+  // Skip JSON parsing for feedback submit route (uses multer for multipart form data)
+  if (req.path === '/api/feedback/submit') {
+    return next();
+  }
+  // Apply JSON parsing for all other routes
+  express.json({ limit: '50mb' })(req, res, next);
+});
 
 // Health check endpoint for uptime monitoring
 app.get('/health', (req, res) => {
