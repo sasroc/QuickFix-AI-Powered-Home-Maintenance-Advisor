@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaQuestionCircle } from 'react-icons/fa';
 import { useTheme } from '../../contexts/ThemeContext';
-import ContactForm from '../contact/ContactForm';
+import ContactForm from '../support/ContactForm';
 import './HelpButton.css';
 
 const HelpButton = () => {
@@ -42,8 +42,6 @@ const HelpButton = () => {
                 </div>
                 
                 <div className="help-option">
-                  <h3>Contact Support</h3>
-                  <p>Need more help? Send us a message and we'll get back to you.</p>
                   <ContactForm />
                 </div>
               </div>

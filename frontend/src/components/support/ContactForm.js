@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { apiRequest } from '../../services/apiConfig';
 import './ContactForm.css';
 
 function ContactForm() {
@@ -25,7 +25,10 @@ function ContactForm() {
     setStatus({ type: '', message: '' });
 
     try {
-      await axios.post('/api/support/contact', formData);
+      await apiRequest('api/support/contact', {
+        method: 'POST',
+        body: JSON.stringify(formData)
+      });
       setStatus({
         type: 'success',
         message: 'Your message has been sent successfully! We\'ll get back to you soon.'
@@ -34,7 +37,7 @@ function ContactForm() {
     } catch (error) {
       setStatus({
         type: 'error',
-        message: error.response?.data?.message || 'Failed to send message. Please try again.'
+        message: 'Failed to send message. Please try again.'
       });
     } finally {
       setLoading(false);
