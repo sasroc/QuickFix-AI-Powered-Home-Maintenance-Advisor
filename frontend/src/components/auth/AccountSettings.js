@@ -4,6 +4,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { getFirestore, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { verifyBeforeUpdateEmail } from 'firebase/auth';
 import ManageSubscriptionButton from './ManageSubscriptionButton';
+import RefundButton from './RefundButton';
 import './AccountSettings.css';
 
 const db = getFirestore();
@@ -202,6 +203,7 @@ const AccountSettings = () => {
               <strong>Plan:</strong> {userData?.plan ? userData.plan.charAt(0).toUpperCase() + userData.plan.slice(1) : 'None'}
             </div>
             <ManageSubscriptionButton />
+            <RefundButton />
           </section>
 
           {/* Password Reset Section */}

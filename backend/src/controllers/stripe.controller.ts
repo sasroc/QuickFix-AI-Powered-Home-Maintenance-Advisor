@@ -269,33 +269,213 @@ export const handleWebhook = async (req: Request, res: Response) => {
 export const createPortalSession = async (req: Request, res: Response) => {
   try {
     const { uid } = req.body;
-    
     if (!uid) {
       return res.status(400).json({ message: 'Missing uid' });
     }
-    
-    // Get the user's Stripe customer ID from Firestore
+
+    // Get user data to find customer ID
     const userDoc = await admin.firestore().collection('users').doc(uid).get();
-    if (!userDoc.exists) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    
     const userData = userDoc.data();
-    const stripeCustomerId = userData?.stripeCustomerId;
-    
-    if (!stripeCustomerId) {
-      return res.status(400).json({ message: 'No Stripe customer ID found for user' });
+
+    if (!userData || !userData.stripeCustomerId) {
+      return res.status(404).json({ message: 'No subscription found' });
     }
-    
-    // Create a Stripe Customer Portal session
-    const portalSession = await stripe.billingPortal.sessions.create({
-      customer: stripeCustomerId,
-      return_url: process.env.FRONTEND_URL || 'http://localhost:3000/account',
+
+    const session = await stripe.billingPortal.sessions.create({
+      customer: userData.stripeCustomerId,
+      return_url: `${process.env.FRONTEND_URL}/settings`,
     });
-    
-    return res.json({ url: portalSession.url });
+
+    return res.json({ url: session.url });
   } catch (error) {
     console.error('Stripe portal error:', error);
     return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const processRefund = async (req: Request, res: Response) => {
+  try {
+    const { uid } = req.body;
+    if (!uid) {
+      return res.status(400).json({ message: 'Missing uid' });
+    }
+
+    // Get user data
+    const userDoc = await admin.firestore().collection('users').doc(uid).get();
+    const userData = userDoc.data();
+
+    if (!userData || !userData.stripeCustomerId || !userData.stripeSubscriptionId) {
+      return res.status(404).json({ message: 'No active subscription found' });
+    }
+
+    // Check refund eligibility
+    const eligibility = await checkRefundEligibility(uid, userData);
+    if (!eligibility.eligible) {
+      return res.status(400).json({ 
+        message: eligibility.reason,
+        details: eligibility
+      });
+    }
+
+    // Get the subscription to find the latest invoice
+    const subscription = await stripe.subscriptions.retrieve(userData.stripeSubscriptionId);
+    
+    if (!subscription.latest_invoice) {
+      return res.status(400).json({ message: 'No invoice found for this subscription' });
+    }
+
+    // Get the invoice to find the payment intent
+    const invoice = await stripe.invoices.retrieve(subscription.latest_invoice as string);
+    
+    if (!invoice.payment_intent) {
+      return res.status(400).json({ message: 'No payment found for this subscription' });
+    }
+
+    // Process the refund
+    const refund = await stripe.refunds.create({
+      payment_intent: invoice.payment_intent as string,
+      reason: 'requested_by_customer',
+      metadata: {
+        uid,
+        reason: 'no_credits_used_within_24h'
+      }
+    });
+
+    // Cancel the subscription
+    await stripe.subscriptions.cancel(userData.stripeSubscriptionId);
+
+    // Update user data in Firestore
+    await admin.firestore().collection('users').doc(uid).update({
+      subscriptionStatus: 'canceled',
+      refundProcessed: true,
+      refundDate: admin.firestore.FieldValue.serverTimestamp(),
+      refundAmount: refund.amount,
+      stripeRefundId: refund.id
+    });
+
+    // Invalidate user cache
+    cacheService.invalidateUserData(uid);
+
+    // Send refund confirmation email
+    if (userData.email) {
+      try {
+        const name = userData.displayName || userData.email.split('@')[0];
+        const EmailService = (await import('../services/email.service')).default;
+        await EmailService.getInstance().sendRefundConfirmation(
+          userData.email,
+          name,
+          refund.amount / 100, // Convert cents to dollars
+          userData.plan || 'starter'
+        );
+      } catch (emailError) {
+        console.error('Failed to send refund confirmation email:', emailError);
+      }
+    }
+
+    return res.json({
+      success: true,
+      refundId: refund.id,
+      amount: refund.amount / 100,
+      message: 'Refund processed successfully'
+    });
+
+  } catch (error) {
+    console.error('Refund processing error:', error);
+    return res.status(500).json({ message: 'Failed to process refund' });
+  }
+};
+
+export const getRefundEligibility = async (req: Request, res: Response) => {
+  try {
+    const { uid } = req.params;
+    if (!uid) {
+      return res.status(400).json({ message: 'Missing uid' });
+    }
+
+    // Get user data
+    const userDoc = await admin.firestore().collection('users').doc(uid).get();
+    const userData = userDoc.data();
+
+    if (!userData || !userData.stripeSubscriptionId) {
+      return res.status(404).json({ message: 'No active subscription found' });
+    }
+
+    const eligibility = await checkRefundEligibility(uid, userData);
+    return res.json(eligibility);
+
+  } catch (error) {
+    console.error('Error checking refund eligibility:', error);
+    return res.status(500).json({ message: 'Failed to check refund eligibility' });
+  }
+};
+
+const checkRefundEligibility = async (uid: string, userData: any) => {
+  try {
+    // Check if user has already processed a refund
+    if (userData.refundProcessed) {
+      return {
+        eligible: false,
+        reason: 'Refund has already been processed for this subscription'
+      };
+    }
+
+    // Check if subscription is active
+    if (userData.subscriptionStatus !== 'active') {
+      return {
+        eligible: false,
+        reason: 'Subscription is not active'
+      };
+    }
+
+    // Get subscription creation time from Stripe
+    const subscription = await stripe.subscriptions.retrieve(userData.stripeSubscriptionId);
+    const subscriptionCreated = new Date(subscription.created * 1000);
+    const now = new Date();
+    const hoursSinceCreation = (now.getTime() - subscriptionCreated.getTime()) / (1000 * 60 * 60);
+
+    // Check if within 24 hours
+    if (hoursSinceCreation > 24) {
+      return {
+        eligible: false,
+        reason: 'Refund period has expired (more than 24 hours since subscription)',
+        hoursSinceCreation: Math.round(hoursSinceCreation * 10) / 10
+      };
+    }
+
+    // Get initial credits based on plan
+    let initialCredits = 0;
+    if (userData.plan === 'starter') initialCredits = 25;
+    else if (userData.plan === 'pro') initialCredits = 100;
+    else if (userData.plan === 'premium') initialCredits = 500;
+
+    // Check if credits have been used
+    const currentCredits = userData.credits || 0;
+    const creditsUsed = initialCredits - currentCredits;
+
+    if (creditsUsed > 0) {
+      return {
+        eligible: false,
+        reason: 'Credits have been used',
+        creditsUsed,
+        remainingCredits: currentCredits
+      };
+    }
+
+    // User is eligible for refund
+    return {
+      eligible: true,
+      reason: 'Eligible for refund',
+      hoursSinceCreation: Math.round(hoursSinceCreation * 10) / 10,
+      remainingHours: Math.round((24 - hoursSinceCreation) * 10) / 10,
+      creditsUsed: 0,
+      remainingCredits: currentCredits
+    };
+
+  } catch (error) {
+    console.error('Error checking refund eligibility:', error);
+    return {
+      eligible: false,
+      reason: 'Error checking eligibility'
+    };
   }
 }; 

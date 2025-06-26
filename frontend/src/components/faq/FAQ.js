@@ -46,6 +46,10 @@ const faqCategories = [
     icon: "💳",
     questions: [
       {
+        question: "What is your refund policy?",
+        answer: "We offer a 24-hour no-questions-asked refund policy for new subscribers. If you subscribe to any plan and haven't used any credits within 24 hours of your subscription, you're eligible for a full refund. Here's how it works:\n\n• You have 24 hours from the time of subscription to request a refund\n• You must not have used any of your repair guide credits\n• The refund will be processed back to your original payment method within 3-5 business days\n• Your subscription will be cancelled and your account will be downgraded to the free tier\n\nTo request a refund, go to your account settings and look for the refund option if you're eligible, or contact our support team."
+      },
+      {
         question: "Can I cancel my subscription anytime?",
         answer: "Yes, you can cancel your subscription at any time. If you cancel, you'll still have access to your plan until the end of your current billing period. Here's how to cancel:\n\nMethod 1 - Through Pricing Page:\n• Click 'Pricing' in the navigation bar\n• Scroll down to your current plan\n• Click 'Manage Subscription'\n• Follow the prompts to cancel\n\nMethod 2 - Through Account Settings:\n• Click the dropdown on your account in the navigation bar\n• Select 'Settings'\n• Scroll down to find the 'Manage Subscription' button\n• Click it and follow the cancellation prompts\n\nAfter cancellation, you'll receive a confirmation email with details about your remaining access period."
       },

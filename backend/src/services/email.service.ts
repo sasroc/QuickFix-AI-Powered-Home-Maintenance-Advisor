@@ -305,6 +305,83 @@ class EmailService {
       });
     }
   }
+
+  public async sendRefundConfirmation(
+    to: string,
+    name: string,
+    refundAmount: number,
+    plan: string
+  ): Promise<void> {
+    const planLabels = {
+      starter: 'Starter',
+      pro: 'Pro',
+      premium: 'Premium'
+    };
+
+    await this.sendEmail({
+      to,
+      subject: 'Refund Processed - QuickFixAI',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #28a745; margin-bottom: 10px;">✅ Refund Processed</h1>
+            <p style="color: #666; font-size: 16px;">Hi ${name},</p>
+          </div>
+          
+          <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #28a745;">
+            <h2 style="color: #155724; margin-top: 0;">Your refund has been processed successfully!</h2>
+            <p style="color: #155724; line-height: 1.6;">
+              We've processed a full refund of <strong>$${refundAmount.toFixed(2)}</strong> for your ${planLabels[plan as keyof typeof planLabels]} subscription.
+            </p>
+          </div>
+
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="color: #333; margin-top: 0;">📋 Refund Details</h3>
+            <ul style="color: #555; line-height: 1.6;">
+              <li><strong>Refund Amount:</strong> $${refundAmount.toFixed(2)}</li>
+              <li><strong>Plan:</strong> ${planLabels[plan as keyof typeof planLabels]}</li>
+              <li><strong>Reason:</strong> No credits used within 24-hour refund period</li>
+              <li><strong>Processing Time:</strong> 3-5 business days (may vary by payment method)</li>
+            </ul>
+          </div>
+
+          <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="color: #155724; margin-top: 0;">✅ What Happens Next</h3>
+            <p style="color: #155724; line-height: 1.6;">
+              • Your subscription has been cancelled<br>
+              • The refund will appear on your original payment method within 3-5 business days<br>
+              • Your account has been downgraded to the free tier<br>
+              • You can still access limited features with our free plan
+            </p>
+          </div>
+
+          <div style="background: #d1ecf1; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #17a2b8;">
+            <h3 style="color: #0c5460; margin-top: 0;">💡 Want to Try Again?</h3>
+            <p style="color: #0c5460; line-height: 1.6;">
+              If you'd like to give QuickFixAI another try in the future, you can always subscribe again. 
+              We're constantly improving our service and would love to have you back!
+            </p>
+          </div>
+
+          <div style="text-align: center; margin-top: 30px;">
+            <a href="${process.env.FRONTEND_URL}/pricing" 
+               style="background: #17a2b8; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 0 10px;">
+              View Our Plans
+            </a>
+          </div>
+
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
+            <p style="color: #666; font-size: 14px;">
+              Thank you for giving QuickFixAI a try. We appreciate your feedback and hope to serve you better in the future.
+            </p>
+            <p style="color: #666; font-size: 14px;">
+              If you have any questions about your refund, please contact us at <a href="mailto:${this.supportEmail}" style="color: #007bff;">${this.supportEmail}</a>
+            </p>
+          </div>
+        </div>
+      `,
+    });
+  }
 }
 
 export default EmailService; 
