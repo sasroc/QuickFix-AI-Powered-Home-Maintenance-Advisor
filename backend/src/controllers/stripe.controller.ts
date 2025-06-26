@@ -419,13 +419,15 @@ export const processRefund = async (req: Request, res: Response) => {
     // Cancel the subscription
     await stripe.subscriptions.cancel(userData.stripeSubscriptionId);
 
-    // Update user data in Firestore
+    // Update user data in Firestore - reset to free tier
     await admin.firestore().collection('users').doc(uid).update({
       subscriptionStatus: 'canceled',
       refundProcessed: true,
       refundDate: admin.firestore.FieldValue.serverTimestamp(),
       refundAmount: refund.amount,
-      stripeRefundId: refund.id
+      stripeRefundId: refund.id,
+      credits: 0,
+      plan: admin.firestore.FieldValue.delete() // Remove plan field entirely
     });
 
     // Invalidate user cache
