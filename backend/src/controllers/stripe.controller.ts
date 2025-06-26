@@ -324,8 +324,8 @@ export const processRefund = async (req: Request, res: Response) => {
       id: subscription.id,
       status: subscription.status,
       latest_invoice: subscription.latest_invoice,
-      current_period_start: subscription.current_period_start,
-      current_period_end: subscription.current_period_end
+      current_period_start: (subscription as any).current_period_start,
+      current_period_end: (subscription as any).current_period_end
     });
     
     if (!subscription.latest_invoice) {
@@ -338,8 +338,8 @@ export const processRefund = async (req: Request, res: Response) => {
     console.log('Invoice details:', {
       id: invoice.id,
       status: invoice.status,
-      paid: invoice.paid,
-      amount_paid: invoice.amount_paid,
+      paid: (invoice as any).paid,
+      amount_paid: (invoice as any).amount_paid,
       payment_intent: (invoice as any).payment_intent,
       charge: (invoice as any).charge
     });
@@ -368,7 +368,7 @@ export const processRefund = async (req: Request, res: Response) => {
         hasPaymentIntent: !!invoiceAny.payment_intent,
         hasCharge: !!invoiceAny.charge,
         invoiceStatus: invoice.status,
-        invoicePaid: invoice.paid
+        invoicePaid: (invoice as any).paid
       });
       return res.status(400).json({ 
         message: 'No payment found for this subscription',
@@ -394,8 +394,8 @@ export const processRefund = async (req: Request, res: Response) => {
         }
       });
       console.log('Refund created via payment_intent:', refund.id);
-    } catch (paymentIntentError) {
-      console.log('Payment intent refund failed, trying charge refund:', paymentIntentError.message);
+    } catch (paymentIntentError: any) {
+      console.log('Payment intent refund failed, trying charge refund:', paymentIntentError?.message || paymentIntentError);
       
       // If payment_intent refund fails, try to refund via charge
       const invoiceAny = invoice as any;
