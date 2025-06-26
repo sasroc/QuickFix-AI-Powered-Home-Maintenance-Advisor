@@ -333,7 +333,9 @@ export const processRefund = async (req: Request, res: Response) => {
     }
 
     // Get the invoice to find the payment intent
-    const invoice = await stripe.invoices.retrieve(subscription.latest_invoice as string);
+    const invoice = await stripe.invoices.retrieve(subscription.latest_invoice as string, {
+      expand: ['payment_intent', 'charge']
+    });
     
     console.log('Invoice details:', {
       id: invoice.id,
@@ -341,7 +343,9 @@ export const processRefund = async (req: Request, res: Response) => {
       paid: (invoice as any).paid,
       amount_paid: (invoice as any).amount_paid,
       payment_intent: (invoice as any).payment_intent,
-      charge: (invoice as any).charge
+      charge: (invoice as any).charge,
+      // Log the entire invoice object to see what's available
+      full_invoice_keys: Object.keys(invoice)
     });
     
     // Type assertion to access payment_intent (exists in runtime but may not be typed)
@@ -359,7 +363,63 @@ export const processRefund = async (req: Request, res: Response) => {
       const charge = await stripe.charges.retrieve(chargeId);
       paymentIntentId = charge.payment_intent;
       console.log('Found payment_intent via charge:', { chargeId, paymentIntentId });
-    }
+    } else {
+      // Last resort: try to find recent payment intents for this customer
+      console.log('Searching for recent payment intents for customer:', userData.stripeCustomerId);
+      const paymentIntents = await stripe.paymentIntents.list({
+        customer: userData.stripeCustomerId,
+        limit: 10
+      });
+      
+      console.log('Recent payment intents:', paymentIntents.data.map(pi => ({
+        id: pi.id,
+        amount: pi.amount,
+        status: pi.status,
+        created: pi.created
+      })));
+      
+      // Find the most recent successful payment intent with matching amount
+      const matchingPaymentIntent = paymentIntents.data.find(pi => 
+        pi.status === 'succeeded' && 
+        pi.amount === (invoice as any).amount_paid &&
+        pi.created >= subscription.created
+      );
+      
+             if (matchingPaymentIntent) {
+         paymentIntentId = matchingPaymentIntent.id;
+         console.log('Found matching payment intent:', { id: paymentIntentId, amount: matchingPaymentIntent.amount });
+       } else {
+         // If no payment intent found, try to find charges directly
+         console.log('Searching for recent charges for customer:', userData.stripeCustomerId);
+         const charges = await stripe.charges.list({
+           customer: userData.stripeCustomerId,
+           limit: 10
+         });
+         
+         console.log('Recent charges:', charges.data.map(charge => ({
+           id: charge.id,
+           amount: charge.amount,
+           status: charge.status,
+           paid: charge.paid,
+           payment_intent: charge.payment_intent
+         })));
+         
+         // Find a charge that matches the invoice amount and is paid
+         const matchingCharge = charges.data.find(charge => 
+           charge.paid && 
+           charge.amount === (invoice as any).amount_paid &&
+           charge.created >= subscription.created
+         );
+         
+         if (matchingCharge && matchingCharge.payment_intent) {
+           paymentIntentId = matchingCharge.payment_intent;
+           console.log('Found payment intent via matching charge:', { 
+             chargeId: matchingCharge.id, 
+             paymentIntentId 
+           });
+         }
+       }
+     }
     
     console.log('Final paymentIntentId:', paymentIntentId);
     
