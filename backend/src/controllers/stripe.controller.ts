@@ -40,6 +40,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       ],
       success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL}/payment-cancelled`,
+      allow_promotion_codes: true,
       metadata: {
         uid,
         plan,
