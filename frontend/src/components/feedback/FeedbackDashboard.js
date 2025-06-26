@@ -330,7 +330,11 @@ const FeedbackDashboard = () => {
       {/* Feedback Detail Modal */}
       {selectedFeedback && (
         <div className="modal-overlay" onClick={() => setSelectedFeedback(null)}>
-          <div className="feedback-detail-modal" onClick={(e) => e.stopPropagation()}>
+          <div 
+            className={`feedback-detail-modal ${isDarkMode ? 'dark' : ''}`} 
+            onClick={(e) => e.stopPropagation()}
+            style={isDarkMode ? { backgroundColor: '#374151', color: 'white' } : {}}
+          >
             <div className="modal-header">
               <h2>{selectedFeedback.title}</h2>
               <button
@@ -464,6 +468,7 @@ const FeedbackDashboard = () => {
           <motion.div 
             className={`feedback-detail-modal ${isDarkMode ? 'dark' : ''}`} 
             onClick={(e) => e.stopPropagation()}
+            style={isDarkMode ? { backgroundColor: '#374151', color: 'white' } : {}}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, updateDoc, increment, getDoc } from 'firebase/firestore';
 import './Community.css';
 
@@ -23,6 +24,7 @@ function Community() {
   });
   const [tagInput, setTagInput] = useState('');
   const { currentUser } = useAuth();
+  const { isDarkMode } = useTheme();
   const db = getFirestore();
 
   useEffect(() => {
@@ -240,7 +242,7 @@ function Community() {
     });
 
   return (
-    <div className="community-container">
+    <div className={`community-container ${isDarkMode ? 'dark' : ''}`}>
       <div className="community-header">
         <h2>Community Success Stories</h2>
         <p>Share your repair victories and learn from others</p>
@@ -273,7 +275,7 @@ function Community() {
 
       {isCreatingPost && currentUser && isSubscribed && (
         <div className="create-post-modal">
-          <div className="create-post-content">
+          <div className={`create-post-content ${isDarkMode ? 'dark' : ''}`}>
             <h3>Create New Post</h3>
             <form onSubmit={handleCreatePost}>
               <div className="form-group">
@@ -390,7 +392,7 @@ function Community() {
 
       {deleteConfirmation && currentUser && (
         <div className="delete-confirmation-modal">
-          <div className="delete-confirmation-content">
+          <div className={`delete-confirmation-content ${isDarkMode ? 'dark' : ''}`}>
             <h3>Delete Post</h3>
             <p>Are you sure you want to delete "{deleteConfirmation.postTitle}"? This action cannot be undone.</p>
             <div className="delete-confirmation-actions">

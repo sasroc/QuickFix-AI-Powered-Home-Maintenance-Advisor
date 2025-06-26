@@ -72,7 +72,7 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling }) => {
       
       const response = await apiRequest('api/stripe/create-portal-session', {
         method: 'POST',
-        headers: {
+        headers: { 
           'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify({ uid: currentUser.uid }),

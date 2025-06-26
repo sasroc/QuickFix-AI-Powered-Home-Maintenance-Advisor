@@ -325,9 +325,9 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
-.dark .feedback-detail-modal {
-  background: #374151;
-  color: white;
+.feedback-detail-modal.dark {
+  background: #374151 !important;
+  color: white !important;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
@@ -339,7 +339,7 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-.dark .modal-header {
+.feedback-detail-modal.dark .modal-header {
   border-bottom-color: #4b5563;
 }
 
@@ -347,6 +347,11 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
+  color: #1f2937;
+}
+
+.feedback-detail-modal.dark .modal-header h2 {
+  color: #f9fafb !important;
 }
 
 .close-button {
@@ -365,17 +370,31 @@
   color: #374151;
 }
 
-.dark .close-button {
+.feedback-detail-modal.dark .close-button {
   color: #9ca3af;
 }
 
-.dark .close-button:hover {
+.feedback-detail-modal.dark .close-button:hover {
   background: #4b5563;
   color: #d1d5db;
 }
 
 .modal-content {
   padding: 1.5rem;
+}
+
+.modal-content p {
+  color: #1f2937;
+  line-height: 1.6;
+}
+
+.feedback-detail-modal.dark .modal-content p {
+  color: #d1d5db !important;
+}
+
+.feedback-detail-modal.dark .modal-content {
+  background: transparent !important;
+  color: #d1d5db !important;
 }
 
 .detail-section {
@@ -388,8 +407,8 @@
   color: #374151;
 }
 
-.dark .detail-section h3 {
-  color: #d1d5db;
+.feedback-detail-modal.dark .detail-section h3 {
+  color: #d1d5db !important;
 }
 
 .detail-grid {
@@ -412,8 +431,8 @@
   letter-spacing: 0.05em;
 }
 
-.dark .detail-item label {
-  color: #9ca3af;
+.feedback-detail-modal.dark .detail-item label {
+  color: #9ca3af !important;
 }
 
 .detail-item span {
@@ -422,8 +441,8 @@
   font-weight: 500;
 }
 
-.dark .detail-item span {
-  color: #d1d5db;
+.feedback-detail-modal.dark .detail-item span {
+  color: #d1d5db !important;
 }
 
 .screenshots-grid {
@@ -440,7 +459,7 @@
   border: 1px solid #e5e7eb;
 }
 
-.dark .screenshot {
+.feedback-detail-modal.dark .screenshot {
   border-color: #4b5563;
 }
 
@@ -452,7 +471,7 @@
   border-top: 1px solid #e5e7eb;
 }
 
-.dark .modal-actions {
+.feedback-detail-modal.dark .modal-actions {
   border-top-color: #4b5563;
 }
 
@@ -468,7 +487,7 @@
   transition: all 0.2s ease;
 }
 
-.dark .cancel-button {
+.feedback-detail-modal.dark .cancel-button {
   background: #4b5563;
   border-color: #6b7280;
   color: #d1d5db;
@@ -479,7 +498,7 @@
   border-color: #9ca3af;
 }
 
-.dark .cancel-button:hover {
+.feedback-detail-modal.dark .cancel-button:hover {
   background: #6b7280;
   border-color: #9ca3af;
 }
@@ -505,12 +524,27 @@
 }
 
 .modal-actions .delete-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
   background-color: #ef4444;
   color: white;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .modal-actions .delete-button:hover {
   background-color: #dc2626;
+}
+
+.feedback-detail-modal.dark .modal-actions .delete-button {
+  background-color: #dc2626;
+}
+
+.feedback-detail-modal.dark .modal-actions .delete-button:hover {
+  background-color: #b91c1c;
 }
 
 /* Loading and Empty States */
@@ -595,13 +629,13 @@
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
-.dark .response-textarea {
+.feedback-detail-modal.dark .response-textarea {
   background-color: #374151;
   border-color: #4b5563;
   color: #d1d5db;
 }
 
-.dark .response-textarea:focus {
+.feedback-detail-modal.dark .response-textarea:focus {
   border-color: #60a5fa;
   box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
 } 

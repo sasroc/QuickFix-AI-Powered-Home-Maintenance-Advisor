@@ -7,6 +7,12 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.community-container.dark {
+  background: #1f2937;
+  color: #f9fafb;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
 .community-header {
   text-align: center;
   margin-bottom: 2rem;
@@ -19,9 +25,17 @@
   margin-bottom: 0.5rem;
 }
 
+.community-container.dark .community-header h2 {
+  color: #f9fafb;
+}
+
 .community-header p {
   color: #6b7280;
   font-size: 1.1rem;
+}
+
+.community-container.dark .community-header p {
+  color: #d1d5db;
 }
 
 .create-post-button {
@@ -67,10 +81,19 @@
   overflow-y: auto;
 }
 
+.create-post-content.dark {
+  background: #374151;
+  color: #f9fafb;
+}
+
 .create-post-content h3 {
   color: #1f2937;
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
+}
+
+.create-post-content.dark h3 {
+  color: #f9fafb;
 }
 
 .form-group {
@@ -84,6 +107,10 @@
   font-weight: 500;
 }
 
+.create-post-content.dark .form-group label {
+  color: #d1d5db;
+}
+
 .form-group input[type="text"],
 .form-group select,
 .form-group textarea {
@@ -93,6 +120,19 @@
   border-radius: 8px;
   font-size: 1rem;
   color: #1f2937;
+}
+
+.create-post-content.dark .form-group input[type="text"],
+.create-post-content.dark .form-group select,
+.create-post-content.dark .form-group textarea {
+  background: #4b5563;
+  border: 1px solid #6b7280;
+  color: #f9fafb;
+}
+
+.create-post-content.dark .form-group input[type="text"]::placeholder,
+.create-post-content.dark .form-group textarea::placeholder {
+  color: #9ca3af;
 }
 
 .form-group textarea {
@@ -106,6 +146,12 @@
   border: 1px dashed #e5e7eb;
   border-radius: 8px;
   background: #f9fafb;
+}
+
+.create-post-content.dark .form-group input[type="file"] {
+  border: 1px dashed #6b7280;
+  background: #374151;
+  color: #f9fafb;
 }
 
 .tag-input {
@@ -147,6 +193,11 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.create-post-content.dark .tag {
+  background: #4b5563;
+  color: #d1d5db;
 }
 
 .tag button {
@@ -199,6 +250,15 @@
   background: #e5e7eb;
 }
 
+.create-post-content.dark .cancel-button {
+  background: #4b5563;
+  color: #d1d5db;
+}
+
+.create-post-content.dark .cancel-button:hover {
+  background: #6b7280;
+}
+
 .delete-button {
   background: #fee2e2;
   color: #ef4444;
@@ -226,6 +286,10 @@
   border-radius: 12px;
 }
 
+.community-container.dark .filters-section {
+  background: #374151;
+}
+
 .category-filter {
   display: flex;
   gap: 0.5rem;
@@ -243,13 +307,31 @@
   white-space: nowrap;
 }
 
+.community-container.dark .category-filter button {
+  background: #4b5563;
+  border: 1px solid #6b7280;
+  color: #d1d5db;
+}
+
 .category-filter button:hover {
   background: #f3f4f6;
   border-color: #3b82f6;
   color: #3b82f6;
 }
 
+.community-container.dark .category-filter button:hover {
+  background: #6b7280;
+  border-color: #60a5fa;
+  color: #60a5fa;
+}
+
 .category-filter button.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.community-container.dark .category-filter button.active {
   background: #3b82f6;
   color: white;
   border-color: #3b82f6;
@@ -265,6 +347,10 @@
   color: #4b5563;
 }
 
+.community-container.dark .sort-filter label {
+  color: #d1d5db;
+}
+
 .sort-filter select {
   padding: 0.5rem;
   border: 1px solid #e5e7eb;
@@ -272,6 +358,12 @@
   background: white;
   color: #4b5563;
   cursor: pointer;
+}
+
+.community-container.dark .sort-filter select {
+  background: #4b5563;
+  border: 1px solid #6b7280;
+  color: #d1d5db;
 }
 
 .posts-grid {
@@ -288,9 +380,18 @@
   transition: all 0.3s ease;
 }
 
+.community-container.dark .post-card {
+  background: #374151;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .post-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.community-container.dark .post-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .post-images {
@@ -299,6 +400,10 @@
   gap: 0.5rem;
   padding: 0.5rem;
   background: #f9fafb;
+}
+
+.community-container.dark .post-images {
+  background: #4b5563;
 }
 
 .image-container {
@@ -335,6 +440,10 @@
   font-size: 1.25rem;
 }
 
+.community-container.dark .post-content h3 {
+  color: #f9fafb;
+}
+
 .post-meta {
   display: flex;
   justify-content: space-between;
@@ -343,10 +452,18 @@
   margin-bottom: 1rem;
 }
 
+.community-container.dark .post-meta {
+  color: #9ca3af;
+}
+
 .description {
   color: #4b5563;
   margin-bottom: 1rem;
   line-height: 1.5;
+}
+
+.community-container.dark .description {
+  color: #d1d5db;
 }
 
 .post-actions {
@@ -354,6 +471,10 @@
   gap: 1rem;
   border-top: 1px solid #e5e7eb;
   padding-top: 1rem;
+}
+
+.community-container.dark .post-actions {
+  border-top: 1px solid #4b5563;
 }
 
 .post-actions button {
@@ -369,8 +490,17 @@
   transition: all 0.3s ease;
 }
 
+.community-container.dark .post-actions button {
+  background: #4b5563;
+  color: #d1d5db;
+}
+
 .post-actions button:hover {
   background: #e5e7eb;
+}
+
+.community-container.dark .post-actions button:hover {
+  background: #6b7280;
 }
 
 .post-actions .like-button:hover {
@@ -448,6 +578,11 @@
   gap: 1rem;
 }
 
+.community-container.dark .no-posts-message {
+  background: #374151;
+  color: #9ca3af;
+}
+
 .no-posts-message .create-post-button {
   position: static;
   transform: none;
@@ -491,6 +626,11 @@
   display: inline-block;
 }
 
+.community-container.dark .sign-in-prompt {
+  background: #374151;
+  color: #d1d5db;
+}
+
 .like-button.disabled {
   cursor: default;
   opacity: 0.7;
@@ -512,6 +652,12 @@
   border-radius: 8px;
   display: inline-block;
   border: 1px solid #e5e7eb;
+}
+
+.community-container.dark .subscription-prompt {
+  background: #374151;
+  color: #d1d5db;
+  border: 1px solid #4b5563;
 }
 
 @media (max-width: 768px) {
@@ -583,16 +729,29 @@
   text-align: center;
 }
 
+.delete-confirmation-content.dark {
+  background: #374151;
+  color: #f9fafb;
+}
+
 .delete-confirmation-content h3 {
   color: #1f2937;
   margin-bottom: 1rem;
   font-size: 1.5rem;
 }
 
+.delete-confirmation-content.dark h3 {
+  color: #f9fafb;
+}
+
 .delete-confirmation-content p {
   color: #4b5563;
   margin-bottom: 1.5rem;
   line-height: 1.5;
+}
+
+.delete-confirmation-content.dark p {
+  color: #d1d5db;
 }
 
 .delete-confirmation-actions {
@@ -627,4 +786,13 @@
 
 .delete-cancel-button:hover {
   background: #e5e7eb;
+}
+
+.delete-confirmation-content.dark .delete-cancel-button {
+  background: #4b5563;
+  color: #d1d5db;
+}
+
+.delete-confirmation-content.dark .delete-cancel-button:hover {
+  background: #6b7280;
 } 

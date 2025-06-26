@@ -10,10 +10,10 @@ const isProduction = process.env.NODE_ENV === 'production' || process.env.RAILWA
 const envFileExists = fs.existsSync(envPath);
 
 if (!isProduction && envFileExists) {
-  const result = dotenv.config({ path: envPath });
-  
-  if (result.error) {
-    console.error('Error loading .env file:', result.error);
+const result = dotenv.config({ path: envPath });
+
+if (result.error) {
+  console.error('Error loading .env file:', result.error);
   } else {
     console.log('Loaded environment variables from .env file');
   }

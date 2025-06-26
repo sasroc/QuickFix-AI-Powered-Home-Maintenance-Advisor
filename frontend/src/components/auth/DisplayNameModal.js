@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import './DisplayNameModal.css';
 
 function DisplayNameModal({ isOpen, onClose }) {
@@ -7,6 +8,7 @@ function DisplayNameModal({ isOpen, onClose }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { updateDisplayName } = useAuth();
+  const { isDarkMode } = useTheme();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,7 +29,7 @@ function DisplayNameModal({ isOpen, onClose }) {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
+      <div className={`modal-content ${isDarkMode ? 'dark' : ''}`}>
         <div className="modal-header">
           <h2>Change Display Name</h2>
           <button className="close-button" onClick={onClose}>×</button>
