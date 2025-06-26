@@ -320,14 +320,6 @@ export const processRefund = async (req: Request, res: Response) => {
     // Get the subscription to find the latest invoice
     const subscription = await stripe.subscriptions.retrieve(userData.stripeSubscriptionId);
     
-    console.log('Subscription details:', {
-      id: subscription.id,
-      status: subscription.status,
-      latest_invoice: subscription.latest_invoice,
-      current_period_start: (subscription as any).current_period_start,
-      current_period_end: (subscription as any).current_period_end
-    });
-    
     if (!subscription.latest_invoice) {
       return res.status(400).json({ message: 'No invoice found for this subscription' });
     }
@@ -335,17 +327,6 @@ export const processRefund = async (req: Request, res: Response) => {
     // Get the invoice to find the payment intent
     const invoice = await stripe.invoices.retrieve(subscription.latest_invoice as string, {
       expand: ['payment_intent', 'charge']
-    });
-    
-    console.log('Invoice details:', {
-      id: invoice.id,
-      status: invoice.status,
-      paid: (invoice as any).paid,
-      amount_paid: (invoice as any).amount_paid,
-      payment_intent: (invoice as any).payment_intent,
-      charge: (invoice as any).charge,
-      // Log the entire invoice object to see what's available
-      full_invoice_keys: Object.keys(invoice)
     });
     
     // Type assertion to access payment_intent (exists in runtime but may not be typed)
@@ -357,26 +338,17 @@ export const processRefund = async (req: Request, res: Response) => {
       paymentIntentId = invoiceAny.payment_intent;
     } else if (invoiceAny.payment_intent?.id) {
       paymentIntentId = invoiceAny.payment_intent.id;
-    } else if (invoiceAny.charge) {
+        } else if (invoiceAny.charge) {
       // If there's a charge instead of payment_intent, get the payment_intent from the charge
       const chargeId = typeof invoiceAny.charge === 'string' ? invoiceAny.charge : invoiceAny.charge.id;
       const charge = await stripe.charges.retrieve(chargeId);
       paymentIntentId = charge.payment_intent;
-      console.log('Found payment_intent via charge:', { chargeId, paymentIntentId });
     } else {
       // Last resort: try to find recent payment intents for this customer
-      console.log('Searching for recent payment intents for customer:', userData.stripeCustomerId);
       const paymentIntents = await stripe.paymentIntents.list({
         customer: userData.stripeCustomerId,
         limit: 10
       });
-      
-      console.log('Recent payment intents:', paymentIntents.data.map(pi => ({
-        id: pi.id,
-        amount: pi.amount,
-        status: pi.status,
-        created: pi.created
-      })));
       
       // Find the most recent successful payment intent with matching amount
       const matchingPaymentIntent = paymentIntents.data.find(pi => 
@@ -385,59 +357,31 @@ export const processRefund = async (req: Request, res: Response) => {
         pi.created >= subscription.created
       );
       
-             if (matchingPaymentIntent) {
-         paymentIntentId = matchingPaymentIntent.id;
-         console.log('Found matching payment intent:', { id: paymentIntentId, amount: matchingPaymentIntent.amount });
-       } else {
-         // If no payment intent found, try to find charges directly
-         console.log('Searching for recent charges for customer:', userData.stripeCustomerId);
-         const charges = await stripe.charges.list({
-           customer: userData.stripeCustomerId,
-           limit: 10
-         });
-         
-         console.log('Recent charges:', charges.data.map(charge => ({
-           id: charge.id,
-           amount: charge.amount,
-           status: charge.status,
-           paid: charge.paid,
-           payment_intent: charge.payment_intent
-         })));
-         
-         // Find a charge that matches the invoice amount and is paid
-         const matchingCharge = charges.data.find(charge => 
-           charge.paid && 
-           charge.amount === (invoice as any).amount_paid &&
-           charge.created >= subscription.created
-         );
-         
-         if (matchingCharge && matchingCharge.payment_intent) {
-           paymentIntentId = matchingCharge.payment_intent;
-           console.log('Found payment intent via matching charge:', { 
-             chargeId: matchingCharge.id, 
-             paymentIntentId 
-           });
-         }
-       }
-     }
-    
-    console.log('Final paymentIntentId:', paymentIntentId);
+      if (matchingPaymentIntent) {
+        paymentIntentId = matchingPaymentIntent.id;
+      } else {
+        // If no payment intent found, try to find charges directly
+        const charges = await stripe.charges.list({
+          customer: userData.stripeCustomerId,
+          limit: 10
+        });
+        
+        // Find a charge that matches the invoice amount and is paid
+        const matchingCharge = charges.data.find(charge => 
+          charge.paid && 
+          charge.amount === (invoice as any).amount_paid &&
+          charge.created >= subscription.created
+        );
+        
+        if (matchingCharge && matchingCharge.payment_intent) {
+          paymentIntentId = matchingCharge.payment_intent;
+        }
+      }
+    }
     
     if (!paymentIntentId) {
-      console.error('No payment method found for refund. Invoice structure:', {
-        hasPaymentIntent: !!invoiceAny.payment_intent,
-        hasCharge: !!invoiceAny.charge,
-        invoiceStatus: invoice.status,
-        invoicePaid: (invoice as any).paid
-      });
       return res.status(400).json({ 
-        message: 'No payment found for this subscription',
-        debug: {
-          invoiceId: invoice.id,
-          invoiceStatus: invoice.status,
-          hasPaymentIntent: !!invoiceAny.payment_intent,
-          hasCharge: !!invoiceAny.charge
-        }
+        message: 'No payment found for this subscription'
       });
     }
 
@@ -453,9 +397,7 @@ export const processRefund = async (req: Request, res: Response) => {
           reason: 'no_credits_used_within_24h'
         }
       });
-      console.log('Refund created via payment_intent:', refund.id);
     } catch (paymentIntentError: any) {
-      console.log('Payment intent refund failed, trying charge refund:', paymentIntentError?.message || paymentIntentError);
       
       // If payment_intent refund fails, try to refund via charge
       const invoiceAny = invoice as any;
@@ -469,7 +411,6 @@ export const processRefund = async (req: Request, res: Response) => {
             reason: 'no_credits_used_within_24h'
           }
         });
-        console.log('Refund created via charge:', refund.id);
       } else {
         throw new Error('Unable to process refund: no valid payment method found');
       }
