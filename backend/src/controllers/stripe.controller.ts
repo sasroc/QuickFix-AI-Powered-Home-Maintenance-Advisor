@@ -327,13 +327,19 @@ export const processRefund = async (req: Request, res: Response) => {
     // Get the invoice to find the payment intent
     const invoice = await stripe.invoices.retrieve(subscription.latest_invoice as string);
     
-    if (!invoice.payment_intent) {
+    // Type assertion to access payment_intent (exists in runtime but may not be typed)
+    const invoiceAny = invoice as any;
+    const paymentIntentId = typeof invoiceAny.payment_intent === 'string' 
+      ? invoiceAny.payment_intent 
+      : invoiceAny.payment_intent?.id;
+    
+    if (!paymentIntentId) {
       return res.status(400).json({ message: 'No payment found for this subscription' });
     }
 
     // Process the refund
     const refund = await stripe.refunds.create({
-      payment_intent: invoice.payment_intent as string,
+      payment_intent: paymentIntentId,
       reason: 'requested_by_customer',
       metadata: {
         uid,
