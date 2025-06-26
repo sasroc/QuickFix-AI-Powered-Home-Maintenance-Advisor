@@ -38,7 +38,6 @@ import aiRoutes from './routes/ai.routes';
 import stripeRoutes from './routes/stripe.routes';
 import supportRoutes from './routes/support.routes';
 import subscribeRoutes from './routes/subscribe.routes';
-import webhookRoutes from './routes/webhook.routes';
 import welcomeRoutes from './routes/welcome.routes';
 import feedbackRoutes from './routes/feedback.routes';
 import cacheRoutes from './routes/cache.routes';
@@ -87,13 +86,18 @@ app.use(sentryPerformanceMiddleware);
 
 // Global rate limiting - applies to all routes
 app.use(globalRateLimit);
-// Stripe webhook raw body parser
-app.use('/api/webhook', express.raw({ type: 'application/json' }));
 
-// JSON body parser - skip for routes that handle multipart form data
+// Stripe webhook raw body parser - MUST come before JSON parser
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
+
+// JSON body parser - skip for routes that handle multipart form data or need raw body
 app.use((req, res, next) => {
   // Skip JSON parsing for feedback submit route (uses multer for multipart form data)
   if (req.path === '/api/feedback/submit') {
+    return next();
+  }
+  // Skip JSON parsing for Stripe webhook (needs raw body)
+  if (req.path === '/api/stripe/webhook') {
     return next();
   }
   // Apply JSON parsing for all other routes
@@ -116,7 +120,6 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/subscribe', subscribeRoutes);
-app.use('/api/webhook', express.raw({ type: 'application/json' }), webhookRoutes);
 app.use('/api/welcome', welcomeRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/cache', cacheRoutes);
