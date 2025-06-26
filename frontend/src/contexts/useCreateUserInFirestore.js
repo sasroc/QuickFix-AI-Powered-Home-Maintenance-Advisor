@@ -18,7 +18,7 @@ function useCreateUserInFirestore() {
               email: user.email,
               displayName: user.displayName || user.email.split('@')[0],
               subscriptionStatus: 'inactive',
-              credits: 3,
+              credits: 0,
               plan: 'starter',
               isAdmin: false,
               createdAt: serverTimestamp(),
