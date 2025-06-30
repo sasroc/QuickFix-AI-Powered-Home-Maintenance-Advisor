@@ -32,7 +32,7 @@ service cloud.firestore {
     }
     
     function isValidPlan(plan) {
-      return plan in ['starter', 'pro', 'premium'];
+      return plan in ['none', 'starter', 'pro', 'premium'];
     }
     
     function isValidFeedbackType(type) {
@@ -75,7 +75,14 @@ service cloud.firestore {
                (!('stripeCustomerId' in data) || data.stripeCustomerId is string) &&
                (!('stripeSubscriptionId' in data) || data.stripeSubscriptionId is string) &&
                (!('createdAt' in data) || data.createdAt != null) &&
-               (!('updatedAt' in data) || data.updatedAt != null);
+               (!('updatedAt' in data) || data.updatedAt != null) &&
+               // Trial-related fields
+               (!('isOnTrial' in data) || data.isOnTrial is bool) &&
+               (!('wasOnTrial' in data) || data.wasOnTrial is bool) &&
+               (!('trialStartDate' in data) || data.trialStartDate != null) &&
+               (!('trialEndDate' in data) || data.trialEndDate != null) &&
+               (!('trialCancelledAt' in data) || data.trialCancelledAt != null) &&
+               (!('trialExpiredAt' in data) || data.trialExpiredAt != null);
       }
     }
 

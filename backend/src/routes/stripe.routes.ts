@@ -7,6 +7,7 @@ const router = Router();
 
 // Stripe subscription endpoints with general rate limiting
 router.post('/subscribe', generalRateLimit, createCheckoutSession);
+router.post('/start-trial', generalRateLimit, createCheckoutSession);
 router.post('/webhook', webhookRateLimit, handleWebhook);
 router.post('/create-portal-session', generalRateLimit, decodeToken, createPortalSession);
 

@@ -8,7 +8,7 @@
     "dev": "nodemon src/app.ts",
     "build": "tsc",
     "test": "jest",
-    "postinstall": "npm run build"
+    "postinstall": "echo 'Skipping build in local development. Run npm run build manually if needed.'"
   },
   "engines": {
     "node": ">=18.0.0"

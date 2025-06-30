@@ -50,16 +50,24 @@ const plans = [
   },
 ];
 
-const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling }) => {
+const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling, userData, subscriptionStatus, showTrial = false }) => {
   const { currentUser } = useAuth();
   const { isDarkMode } = useTheme();
   const [billing, setBilling] = useState(currentBilling || 'annual'); // 'monthly' or 'annual'
   const [loadingPortal, setLoadingPortal] = useState(false);
   const [portalError, setPortalError] = useState('');
 
-  const handleSubscribe = (planKey) => {
+  // Determine if user can start a trial
+  const canStartTrial = currentUser && userData && 
+    !userData.wasOnTrial && 
+    subscriptionStatus !== 'active';
+  
+  // Should show trial banner
+  const shouldShowTrial = showTrial && canStartTrial;
+
+  const handleSubscribe = (planKey, isTrial = false) => {
     if (onSubscribe) {
-      onSubscribe(planKey, billing);
+      onSubscribe(planKey, billing, isTrial);
     }
   };
 
@@ -97,7 +105,72 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling }) => {
 
   return (
     <div className={`payment-plan-container ${!isDarkMode ? 'light' : ''}`}>
-      <h2 className="payment-plan-title">Subscribe to unlock QuickFixAI</h2>
+      {/* Show trial eligibility message if trial was requested but user can't use it */}
+      {showTrial && !canStartTrial && currentUser && userData && (
+        <div className="trial-eligibility-banner">
+          {subscriptionStatus === 'active' ? (
+            <>
+              <h3 style={{ margin: '0 0 0.5rem 0', color: '#28a745' }}>✅ You're Already Subscribed!</h3>
+              <p style={{ margin: 0, color: '#666' }}>
+                You have an active subscription. Manage your current plan below or visit Account Settings.
+              </p>
+            </>
+          ) : userData.wasOnTrial ? (
+            <>
+              <h3 style={{ margin: '0 0 0.5rem 0', color: '#f39c12' }}>⚠️ Trial Already Used</h3>
+              <p style={{ margin: 0, color: '#666' }}>
+                You've already used your free trial. Choose a subscription plan below to continue using QuickFixAI.
+              </p>
+            </>
+          ) : (
+            <>
+              <h3 style={{ margin: '0 0 0.5rem 0', color: '#dc3545' }}>❌ Trial Not Available</h3>
+              <p style={{ margin: 0, color: '#666' }}>
+                The free trial is not available for your account. Please choose a subscription plan below.
+              </p>
+            </>
+          )}
+        </div>
+      )}
+      
+      {shouldShowTrial && (
+        <div className="trial-banner">
+          <h2 className="trial-title">🚀 Start Your 5-Day FREE Pro Trial</h2>
+          <p className="trial-subtitle">
+            No risk, no commitment. Get full access to Pro features for 5 days and see how QuickFixAI transforms your home repairs.
+          </p>
+          <div className="trial-offer">
+            <div className="trial-plan">
+              <h3>Pro Plan Trial</h3>
+              <div className="trial-price">
+                <span className="original-price">$49/month</span>
+                <span className="trial-price-text">FREE for 5 days</span>
+              </div>
+              <ul className="trial-features">
+                <li>✅ 100 repair guides (credits)</li>
+                <li>✅ Advanced AI powered by GPT-4o Mini</li>
+                <li>✅ Unlimited text, voice & image inputs</li>
+                <li>✅ Advanced repair guides with safety tips</li>
+                <li>✅ Save up to 50 repair guides</li>
+                <li>✅ Priority support</li>
+              </ul>
+              <button 
+                className="trial-start-button"
+                onClick={() => handleSubscribe('pro', true)}
+              >
+                Start My Free Trial Now
+              </button>
+              <p className="trial-note">
+                You'll only be charged after your 5-day trial ends. Cancel anytime.
+              </p>
+            </div>
+          </div>
+          <div className="trial-divider">
+            <span>Or choose a plan below</span>
+          </div>
+        </div>
+      )}
+      <h2 className="payment-plan-title">{shouldShowTrial ? 'Regular Subscription Plans' : 'Subscribe to unlock QuickFixAI'}</h2>
       <div className="billing-toggle">
         <button
           className={`billing-button ${billing === 'monthly' ? 'active' : ''}`}

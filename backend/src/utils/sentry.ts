@@ -7,6 +7,12 @@ export const initSentry = () => {
   const dsn = process.env.SENTRY_DSN;
   const environment = process.env.NODE_ENV || 'development';
   
+  // Skip Sentry initialization in development unless explicitly enabled
+  if (environment === 'development' && !dsn) {
+    logger.info('Sentry disabled in development mode (no SENTRY_DSN provided)');
+    return;
+  }
+  
   if (!dsn) {
     logger.warn('SENTRY_DSN not configured - error tracking disabled');
     return;

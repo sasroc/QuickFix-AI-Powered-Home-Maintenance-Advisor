@@ -1,11 +1,31 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
 import './LandingPage.css';
+
+const db = getFirestore();
 
 function LandingPage() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const [userData, setUserData] = useState(null);
+
+  // Fetch user data to check trial eligibility
+  useEffect(() => {
+    if (!currentUser) {
+      setUserData(null);
+      return;
+    }
+    
+    const userRef = doc(db, 'users', currentUser.uid);
+    const unsub = onSnapshot(userRef, (snap) => {
+      if (snap.exists()) {
+        setUserData(snap.data());
+      }
+    });
+    return unsub;
+  }, [currentUser]);
 
   const handleStartRepair = () => {
     if (currentUser) {
@@ -14,6 +34,17 @@ function LandingPage() {
       navigate('/auth', { state: { from: { pathname: '/repair' } } });
     }
   };
+
+  const handleStartTrial = () => {
+    if (currentUser) {
+      navigate('/pricing', { state: { startTrial: true } });
+    } else {
+      navigate('/auth', { state: { from: { pathname: '/pricing' }, startTrial: true } });
+    }
+  };
+
+  // Determine if user can start a trial
+  const canStartTrial = !currentUser || (userData && !userData.wasOnTrial && userData.subscriptionStatus !== 'active');
 
   useEffect(() => {
     const observerOptions = {
@@ -67,12 +98,31 @@ function LandingPage() {
         </h1>
         <p className="hero-subtitle">Your AI-powered home maintenance companion</p>
         <div className="cta-buttons">
-          <button onClick={handleStartRepair} className="start-button">
-            Start Your Repair Now
-          </button>
-          <Link to="/community" className="secondary-button">
-            View Success Stories
-          </Link>
+          {canStartTrial ? (
+            <button onClick={handleStartTrial} className="trial-button">
+              🚀 Start Your 5-Day FREE Trial
+            </button>
+          ) : userData && userData.subscriptionStatus === 'active' ? (
+            <button onClick={handleStartRepair} className="trial-button">
+              ✅ Continue with Your Subscription
+            </button>
+          ) : userData && userData.wasOnTrial ? (
+            <Link to="/pricing" className="trial-button">
+              📋 View Subscription Plans
+            </Link>
+          ) : (
+            <button onClick={handleStartTrial} className="trial-button">
+              🚀 Start Your 5-Day FREE Trial
+            </button>
+          )}
+          <div className="secondary-cta-buttons">
+            <button onClick={handleStartRepair} className="secondary-button">
+              Start Your Repair Now
+            </button>
+            <Link to="/community" className="secondary-button">
+              View Success Stories
+            </Link>
+          </div>
         </div>
       </div>
 

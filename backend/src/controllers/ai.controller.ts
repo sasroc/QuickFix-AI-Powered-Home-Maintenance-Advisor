@@ -5,6 +5,7 @@ import OpenAI from 'openai';
 import admin from '../utils/firebaseAdmin';
 import cacheService from '../services/cacheService';
 import { addBreadcrumb, captureException } from '../utils/sentry';
+import { checkAndUpdateUserTrialStatus } from '../utils/trialCleanup';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -111,6 +112,9 @@ export const analyzeIssue = async (
 
     // If user is authenticated, fetch their plan and credits
     if (uid) {
+      // Check and update trial status if needed (real-time cleanup)
+      await checkAndUpdateUserTrialStatus(uid);
+      
       // Try to get user data from cache first
       let cachedUserData = cacheService.getUserData(uid);
       
@@ -125,7 +129,7 @@ export const analyzeIssue = async (
         const userSnap = await userRef.get();
         if (userSnap.exists) {
           const userData = userSnap.data();
-          plan = userData?.plan || 'starter';
+          plan = userData?.plan || 'none';
           credits = userData?.credits ?? 0;
           
           // Cache the user data for future requests

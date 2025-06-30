@@ -12,6 +12,7 @@ const PricingPage = () => {
   const [currentPlan, setCurrentPlan] = useState(null);
   const [currentBilling, setCurrentBilling] = useState(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ const PricingPage = () => {
         setCurrentPlan(data.plan || null);
         setCurrentBilling(data.billingInterval || 'monthly');
         setSubscriptionStatus(data.subscriptionStatus || 'inactive');
+        setUserData(data);
       }
     });
     return unsub;
@@ -38,7 +40,7 @@ const PricingPage = () => {
     }
   }, [subscriptionStatus, location.state, navigate]);
 
-  const onSubscribe = async (plan, billing) => {
+  const onSubscribe = async (plan, billing, isTrial = false) => {
     if (!currentUser) {
       navigate('/auth');
       return;
@@ -46,15 +48,29 @@ const PricingPage = () => {
     setLoadingCheckout(true);
     setError('');
     try {
-      const response = await apiRequest('api/subscribe', {
+      const endpoint = isTrial ? 'api/stripe/start-trial' : 'api/subscribe';
+      const response = await apiRequest(endpoint, {
         method: 'POST',
-        body: JSON.stringify({ uid: currentUser.uid, plan, billing }),
+        body: JSON.stringify({ 
+          uid: currentUser.uid, 
+          plan, 
+          billing,
+          ...(isTrial && { isTrial: true })
+        }),
       });
+      
+      if (!response.ok) {
+        // Handle HTTP error responses
+        const errorData = await response.json();
+        setError(errorData.message || 'Failed to start checkout. Please try again.');
+        return;
+      }
+      
       const data = await response.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
-        setError('Failed to start checkout. Please try again.');
+        setError(data.message || 'Failed to start checkout. Please try again.');
       }
     } catch (err) {
       console.error('Subscription error:', err);
@@ -90,6 +106,9 @@ const PricingPage = () => {
         onSubscribe={onSubscribe} 
         currentPlan={currentPlan}
         currentBilling={currentBilling}
+        userData={userData}
+        subscriptionStatus={subscriptionStatus}
+        showTrial={location.state?.startTrial}
       />
       {loadingCheckout && (
         <div style={{ textAlign: 'center', marginTop: 16 }}>

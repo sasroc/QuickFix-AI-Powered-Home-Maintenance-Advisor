@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Confetti from 'react-confetti';
 import { useAuth } from '../../contexts/AuthContext';
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const [searchParams] = useSearchParams();
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [showConfetti, setShowConfetti] = useState(true);
+  
+  const isTrial = searchParams.get('trial') === 'true';
 
   // Prevent vertical scrolling on this page
   useEffect(() => {
@@ -109,7 +112,10 @@ const PaymentSuccess = () => {
           color: 'white',
           textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
         }}>
-          Thank You for Subscribing{getDisplayName() ? `, ${getDisplayName()}!` : '!' }
+          {isTrial 
+            ? `Welcome to Your FREE Trial${getDisplayName() ? `, ${getDisplayName()}!` : '!' }`
+            : `Thank You for Subscribing${getDisplayName() ? `, ${getDisplayName()}!` : '!' }`
+          }
         </h1>
         
         <p style={{
@@ -119,7 +125,10 @@ const PaymentSuccess = () => {
           lineHeight: 1.6,
           textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
         }}>
-          Welcome to QuickFix! Your subscription is now active. We're excited to help you with all your home maintenance needs.
+          {isTrial 
+            ? "🎉 Your 5-day Pro trial has started! You now have full access to advanced repair guides, 100 credits, and priority support. No charges until your trial ends."
+            : "Welcome to QuickFix! Your subscription is now active. We're excited to help you with all your home maintenance needs."
+          }
         </p>
 
         <button
@@ -151,7 +160,7 @@ const PaymentSuccess = () => {
             e.target.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
           }}
         >
-          Start Using QuickFix
+          {isTrial ? "Start Your Pro Trial Now" : "Start Using QuickFix"}
         </button>
       </div>
 

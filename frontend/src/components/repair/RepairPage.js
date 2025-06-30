@@ -17,7 +17,7 @@ function RepairPage() {
   const [repairData, setRepairData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [credits, setCredits] = useState(null);
-  const [plan, setPlan] = useState('starter');
+  const [plan, setPlan] = useState('none');
   const [error, setError] = useState(null);
   const { currentUser } = useAuth();
   const { isDarkMode } = useTheme();
@@ -40,7 +40,7 @@ function RepairPage() {
     const unsub = onSnapshot(userRef, (snap) => {
       if (snap.exists()) {
         setCredits(snap.data().credits);
-        setPlan(snap.data().plan || 'starter');
+        setPlan(snap.data().plan || 'none');
       }
     });
     return unsub;

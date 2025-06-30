@@ -22,9 +22,11 @@ function AuthPage() {
 
   useEffect(() => {
     if (currentUser) {
-      navigate(from, { replace: true });
+      // Preserve the startTrial state when redirecting after auth
+      const redirectState = location.state?.startTrial ? { startTrial: true } : {};
+      navigate(from, { replace: true, state: redirectState });
     }
-  }, [currentUser, navigate, from]);
+  }, [currentUser, navigate, from, location.state]);
 
   useEffect(() => {
     if (!isLogin && password && confirmPassword) {
@@ -56,7 +58,9 @@ function AuthPage() {
       } else {
         await signup(email, password);
       }
-      navigate(from, { replace: true });
+      // Preserve the startTrial state when redirecting after auth
+      const redirectState = location.state?.startTrial ? { startTrial: true } : {};
+      navigate(from, { replace: true, state: redirectState });
     } catch (error) {
       setError(error.message);
     } finally {
@@ -69,7 +73,9 @@ function AuthPage() {
     setLoading(true);
     try {
       await loginWithGoogle();
-      navigate(from, { replace: true });
+      // Preserve the startTrial state when redirecting after auth
+      const redirectState = location.state?.startTrial ? { startTrial: true } : {};
+      navigate(from, { replace: true, state: redirectState });
     } catch (error) {
       setError(error.message);
     } finally {

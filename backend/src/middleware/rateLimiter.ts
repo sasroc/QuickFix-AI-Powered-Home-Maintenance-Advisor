@@ -36,6 +36,10 @@ const rateLimitHandler = (req: Request, res: Response) => {
 export const aiRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: (req: Request) => {
+    // In development, be very lenient
+    if (process.env.NODE_ENV === 'development') {
+      return 1000; // 1000 requests per 15 min for development
+    }
     // Authenticated users get more requests
     const userReq = req as RequestWithUser;
     return userReq.user ? 20 : 5; // 20 requests per 15 min for auth users, 5 for anonymous
@@ -73,6 +77,10 @@ export const feedbackRateLimit = rateLimit({
 export const generalRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: (req: Request) => {
+    // In development, be very lenient
+    if (process.env.NODE_ENV === 'development') {
+      return 10000; // 10000 requests per 15 min for development
+    }
     // Higher limits for authenticated users
     const userReq = req as RequestWithUser;
     return userReq.user ? 1000 : 100; // 1000 requests per 15 min for auth users, 100 for anonymous
@@ -121,7 +129,7 @@ export const webhookRateLimit = rateLimit({
 // Authentication Rate Limiter - For login/signup attempts
 export const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 authentication attempts per 15 minutes
+  max: process.env.NODE_ENV === 'development' ? 100 : 5, // 100 attempts in dev, 5 in production
   message: {
     error: 'Authentication rate limit exceeded',
     message: 'Too many authentication attempts. Please wait before trying again.',

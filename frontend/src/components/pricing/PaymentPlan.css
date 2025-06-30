@@ -396,4 +396,232 @@
     padding-left: 1rem !important;
     padding-right: 1rem !important;
   }
+}
+
+/* Trial Eligibility Banner Styles */
+.trial-eligibility-banner {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  border: 2px solid #dee2e6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .trial-eligibility-banner {
+  background: linear-gradient(135deg, #374151, #4b5563);
+  border: 2px solid #6b7280;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Trial Banner Styles */
+.trial-banner {
+  background: linear-gradient(135deg, #e1f5fe 0%, #f3e5f5 50%, #e8f5e8 100%);
+  border: 2px solid #0288d1;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.dark .trial-banner {
+  background: linear-gradient(135deg, rgba(1, 87, 155, 0.1) 0%, rgba(123, 31, 162, 0.1) 50%, rgba(40, 167, 69, 0.1) 100%);
+  border: 2px solid #0288d1;
+}
+
+.trial-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(40, 167, 69, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(2, 136, 209, 0.1) 0%, transparent 50%);
+  z-index: 0;
+}
+
+.trial-banner > * {
+  position: relative;
+  z-index: 1;
+}
+
+.trial-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #01579b;
+  margin-bottom: 1rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.dark .trial-title {
+  color: #42a5f5;
+}
+
+.trial-subtitle {
+  font-size: 1.2rem;
+  color: #37474f;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.dark .trial-subtitle {
+  color: #b0bec5;
+}
+
+.trial-offer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.trial-plan {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1f5fe;
+  max-width: 400px;
+  width: 100%;
+}
+
+.dark .trial-plan {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+}
+
+.trial-plan h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #01579b;
+  margin-bottom: 1rem;
+}
+
+.dark .trial-plan h3 {
+  color: #42a5f5;
+}
+
+.trial-price {
+  margin-bottom: 1.5rem;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: #757575;
+  font-size: 1.1rem;
+  margin-right: 1rem;
+}
+
+.trial-price-text {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.trial-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+  text-align: left;
+}
+
+.trial-features li {
+  padding: 0.5rem 0;
+  color: #37474f;
+  font-weight: 500;
+}
+
+.dark .trial-features li {
+  color: var(--text-primary);
+}
+
+.trial-start-button {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  width: 100%;
+}
+
+.trial-start-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+.trial-note {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 1rem;
+  font-style: italic;
+}
+
+.dark .trial-note {
+  color: #9e9e9e;
+}
+
+.trial-divider {
+  position: relative;
+  text-align: center;
+  margin: 2rem 0 1rem 0;
+}
+
+.trial-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #ddd, transparent);
+}
+
+.trial-divider span {
+  background: var(--card-bg);
+  padding: 0 2rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+}
+
+.dark .trial-divider span {
+  background: var(--bg-primary);
+}
+
+/* Mobile styles for trial banner */
+@media (max-width: 768px) {
+  .trial-banner {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .trial-title {
+    font-size: 1.8rem;
+  }
+  
+  .trial-subtitle {
+    font-size: 1rem;
+  }
+  
+  .trial-plan {
+    padding: 1.5rem;
+  }
+  
+  .trial-start-button {
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
+  }
 } 

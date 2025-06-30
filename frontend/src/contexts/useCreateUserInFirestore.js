@@ -19,7 +19,7 @@ function useCreateUserInFirestore() {
             displayName: user.displayName || user.email.split('@')[0],
             subscriptionStatus: 'inactive',
             credits: 0,
-              plan: 'starter',
+            plan: 'none',
             isAdmin: false,
             createdAt: serverTimestamp(),
           });

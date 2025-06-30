@@ -96,16 +96,174 @@ class EmailService {
   }
 
   public async sendSubscriptionConfirmation(to: string, name: string, plan: string): Promise<void> {
+    const planLabels = {
+      starter: 'Starter',
+      pro: 'Pro', 
+      premium: 'Premium'
+    };
+
+    // Try to use template if available, otherwise use HTML
+    const templateId = process.env.SENDGRID_SUBSCRIPTION_CONFIRMATION_TEMPLATE_ID;
+    
+    if (templateId) {
+      try {
+        // Template-based email
+        await this.sendEmail({
+          to,
+          subject: 'Your QuickFixAI Subscription is Active!',
+          templateId,
+          dynamicTemplateData: {
+            name,
+            plan: planLabels[plan as keyof typeof planLabels],
+            supportEmail: this.supportEmail,
+          },
+        });
+        return; // Exit early if template works
+      } catch (error) {
+        // Fall through to HTML fallback
+      }
+    }
+    
+    // HTML-based email (fallback)
     await this.sendEmail({
-      to,
-      subject: 'Your QuickFixAI Subscription is Active!',
-      templateId: process.env.SENDGRID_SUBSCRIPTION_TEMPLATE_ID,
-      dynamicTemplateData: {
-        name,
-        plan,
-        supportEmail: this.supportEmail,
-      },
-    });
+        to,
+        subject: 'Your QuickFixAI Subscription is Active!',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #333; margin-bottom: 10px;">🎉 Welcome to QuickFixAI ${planLabels[plan as keyof typeof planLabels]}!</h1>
+              <p style="color: #666; font-size: 16px;">Hi ${name},</p>
+            </div>
+            
+            <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #28a745;">
+              <h2 style="color: #155724; margin-top: 0;">✅ Your subscription is now active!</h2>
+              <p style="color: #155724; line-height: 1.6;">
+                Thank you for subscribing to QuickFixAI <strong>${planLabels[plan as keyof typeof planLabels]}</strong>! 
+                Your account has been upgraded and you now have access to all the premium features.
+              </p>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h3 style="color: #333; margin-top: 0;">🚀 What's Next?</h3>
+              <ul style="color: #555; line-height: 1.8;">
+                <li><strong>Start using AI repair guides</strong> - Get instant, expert-level repair instructions</li>
+                <li><strong>Access your repair history</strong> - Save and revisit all your past repairs</li>
+                <li><strong>Join the community</strong> - Share your success stories and connect with others</li>
+                <li><strong>Get priority support</strong> - Reach out to us anytime for help</li>
+              </ul>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/repair" 
+                 style="background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                Start Your First Repair Guide
+              </a>
+            </div>
+
+            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+              <p style="color: #856404; margin: 0; font-size: 14px;">
+                <strong>Need help?</strong> Contact us at ${this.supportEmail} - we're here to help!
+              </p>
+            </div>
+            
+            <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
+              <p>Thank you for choosing QuickFixAI!</p>
+              <p>© 2025 QuickFixAI. All rights reserved.</p>
+            </div>
+          </div>
+        `,
+      });
+  }
+
+  public async sendTrialConfirmation(to: string, name: string, plan: string): Promise<void> {
+    const planLabels = {
+      starter: 'Starter',
+      pro: 'Pro', 
+      premium: 'Premium'
+    };
+
+    // Try to use template if available, otherwise use HTML
+    const templateId = process.env.SENDGRID_TRIAL_CONFIRMATION_TEMPLATE_ID;
+    
+    if (templateId) {
+      try {
+        // Template-based email
+        await this.sendEmail({
+          to,
+          subject: 'Your QuickFixAI Free Trial Has Started!',
+          templateId,
+          dynamicTemplateData: {
+            name,
+            plan: planLabels[plan as keyof typeof planLabels],
+            supportEmail: this.supportEmail,
+          },
+        });
+        return; // Exit early if template works
+      } catch (error) {
+        // Fall through to HTML fallback
+      }
+    }
+    
+    // HTML-based email (fallback)
+    await this.sendEmail({
+        to,
+        subject: 'Your QuickFixAI Free Trial Has Started!',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #333; margin-bottom: 10px;">🚀 Your 5-Day Pro Trial Starts Now!</h1>
+              <p style="color: #666; font-size: 16px;">Hi ${name},</p>
+            </div>
+            
+            <div style="background: #e1f5fe; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0288d1;">
+              <h2 style="color: #01579b; margin-top: 0;">✨ Welcome to your FREE QuickFixAI Pro Trial!</h2>
+              <p style="color: #01579b; line-height: 1.6;">
+                Congratulations! You now have <strong>5 days of unlimited access</strong> to QuickFixAI Pro features. 
+                No charges until your trial ends on <strong>[Trial End Date]</strong>.
+              </p>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h3 style="color: #333; margin-top: 0;">🎯 What You Can Do During Your Trial:</h3>
+              <ul style="color: #555; line-height: 1.8;">
+                <li><strong>100 AI Credits</strong> - Plenty for multiple detailed repair guides</li>
+                <li><strong>Unlimited Text, Voice & Image Inputs</strong> - Describe your issues any way you want</li>
+                <li><strong>Advanced Repair Guides</strong> - Get step-by-step instructions with safety tips</li>
+                <li><strong>Progress Tracking</strong> - Save your repairs and track completion</li>
+                <li><strong>Priority Support</strong> - Get help when you need it</li>
+              </ul>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/repair" 
+                 style="background: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                Start Your First Repair Guide Now
+              </a>
+            </div>
+
+            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+              <p style="color: #856404; margin: 0 0 10px 0; font-size: 14px;">
+                <strong>💡 Pro Tip:</strong> Have a real home issue? Submit it during your trial for a personalized experience!
+              </p>
+              <p style="color: #856404; margin: 0; font-size: 14px;">
+                <strong>Questions?</strong> Contact us at ${this.supportEmail} - we're here to help!
+              </p>
+            </div>
+
+            <div style="background: #f1f3f4; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+              <p style="color: #5f6368; margin: 0; font-size: 13px;">
+                <strong>Trial Details:</strong> Your trial lasts 5 days. You won't be charged until the trial ends. 
+                You can cancel anytime from your account settings or contact support.
+              </p>
+            </div>
+            
+            <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
+              <p>Thank you for trying QuickFixAI!</p>
+              <p>© 2025 QuickFixAI. All rights reserved.</p>
+            </div>
+          </div>
+        `,
+      });
   }
 
   public async sendSupportEmail(from: string, subject: string, message: string): Promise<void> {

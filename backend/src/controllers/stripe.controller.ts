@@ -7,7 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
   try {
-    const { uid, plan, billing } = req.body;
+    const { uid, plan, billing, isTrial = false } = req.body;
     if (!uid || !plan || !billing) {
       return res.status(400).json({ message: 'Missing uid, plan, or billing' });
     }
@@ -22,14 +22,40 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       'premium_annual': process.env.STRIPE_PREMIUM_ANNUAL_PRICE_ID!,
     };
 
-    const priceKey = `${plan}_${billing}`;
+    // For free trials, we only offer Pro plan and force monthly billing
+    if (isTrial && plan !== 'pro') {
+      return res.status(400).json({ message: 'Free trial is only available for Pro plan' });
+    }
+
+    // Check if user has already used their trial
+    if (isTrial) {
+      const userDoc = await admin.firestore().collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        if (userData?.wasOnTrial) {
+          return res.status(400).json({ 
+            message: 'You have already used your free trial. Please choose a regular subscription plan.' 
+          });
+        }
+        // Also prevent trial if user already has an active subscription
+        if (userData?.subscriptionStatus === 'active') {
+          return res.status(400).json({ 
+            message: 'You already have an active subscription. Please manage your current subscription instead.' 
+          });
+        }
+      }
+    }
+
+    // Force monthly billing for trials
+    const effectiveBilling = isTrial ? 'monthly' : billing;
+    const priceKey = `${plan}_${effectiveBilling}`;
     const priceId = priceIdMap[priceKey];
 
     if (!priceId) {
       return res.status(400).json({ message: 'Invalid plan or billing interval' });
     }
 
-    const session = await stripe.checkout.sessions.create({
+    const sessionConfig: any = {
       payment_method_types: ['card'],
       mode: 'subscription',
       line_items: [
@@ -38,15 +64,31 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}${isTrial ? '&trial=true' : ''}`,
       cancel_url: `${process.env.FRONTEND_URL}/payment-cancelled`,
       allow_promotion_codes: true,
       metadata: {
         uid,
         plan,
-        billing,
+        billing: effectiveBilling,
+        isTrial: isTrial.toString(),
       },
-    });
+    };
+
+    // Add trial configuration if this is a trial
+    if (isTrial) {
+      sessionConfig.subscription_data = {
+        trial_period_days: 5,
+        metadata: {
+          uid,
+          plan,
+          billing: effectiveBilling,
+          isTrial: 'true',
+        },
+      };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return res.json({ url: session.url });
   } catch (error) {
@@ -75,38 +117,58 @@ export const handleWebhook = async (req: Request, res: Response) => {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
       const uid = session.metadata?.uid || '';
-      const status = 'active';
       const subscriptionId = (session.subscription as string) || '';
       const plan = session.metadata?.plan || '';
       const billing = session.metadata?.billing || 'monthly';
       const stripeCustomerId = (session.customer as string) || '';
+      const isTrial = session.metadata?.isTrial === 'true';
+      
       // Set initial credits based on plan
       let credits = 0;
       if (plan === 'starter') credits = 25;
       else if (plan === 'pro') credits = 100;
       else if (plan === 'premium') credits = 500;
+
       if (uid) {
-        await admin.firestore().collection('users').doc(uid).set(
-          {
-            subscriptionStatus: status,
-            stripeSubscriptionId: subscriptionId,
-            plan,
-            billingInterval: billing,
-            credits,
-            stripeCustomerId,
-          },
-          { merge: true }
-        );
+        const userUpdateData: any = {
+          subscriptionStatus: 'active',
+          stripeSubscriptionId: subscriptionId,
+          plan,
+          billingInterval: billing,
+          credits,
+          stripeCustomerId,
+        };
+
+        // Add trial-specific data
+        if (isTrial) {
+          const trialEndDate = new Date();
+          trialEndDate.setDate(trialEndDate.getDate() + 5); // 5 days from now
+          
+          userUpdateData.isOnTrial = true;
+          userUpdateData.wasOnTrial = true; // Mark that this user has used their trial
+          userUpdateData.trialEndDate = admin.firestore.Timestamp.fromDate(trialEndDate);
+          userUpdateData.trialStartDate = admin.firestore.Timestamp.now();
+        } else {
+          userUpdateData.isOnTrial = false;
+        }
+
+        await admin.firestore().collection('users').doc(uid).set(userUpdateData, { merge: true });
 
         // Invalidate user cache since plan and credits changed
         cacheService.invalidateUserData(uid);
+        
         // Fetch user email and name from Firestore
         const userDoc = await admin.firestore().collection('users').doc(uid).get();
         const userData = userDoc.data();
         if (userData && userData.email) {
           const name = userData.displayName || userData.email.split('@')[0];
           const EmailService = (await import('../services/email.service')).default;
-          await EmailService.getInstance().sendSubscriptionConfirmation(userData.email, name, plan);
+          
+          if (isTrial) {
+            await EmailService.getInstance().sendTrialConfirmation(userData.email, name, plan);
+          } else {
+            await EmailService.getInstance().sendSubscriptionConfirmation(userData.email, name, plan);
+          }
         }
       }
     } else if (event.type === 'customer.subscription.updated') {
@@ -123,21 +185,30 @@ export const handleWebhook = async (req: Request, res: Response) => {
         const userDoc = querySnap.docs[0];
         const userData = userDoc.data();
         
-        // Update user subscription status
-        await userDoc.ref.set(
-          {
-            subscriptionStatus: status,
-            stripeSubscriptionId: subscriptionId,
-          },
-          { merge: true }
-        );
-
-        // Invalidate user cache since subscription status changed
-        cacheService.invalidateUserData(userDoc.id);
-
         // Check if subscription was canceled and send cancellation email
         // Check for both immediate cancellation and end-of-period cancellation
         const isCanceled = status === 'canceled' || (subscription as any).cancel_at_period_end === true;
+        
+        // Check if this is a trial cancellation
+        const isTrialCancellation = isCanceled && userData.isOnTrial;
+        
+        const updateData: any = {
+          subscriptionStatus: status,
+          stripeSubscriptionId: subscriptionId,
+        };
+
+        // If this is a trial cancellation, track it specially
+        if (isTrialCancellation) {
+          updateData.trialCancelledAt = admin.firestore.Timestamp.now();
+          updateData.wasOnTrial = true; // Track that this user was on trial
+          // Keep isOnTrial true initially so we can track the grace period
+        }
+
+        // Update user subscription status
+        await userDoc.ref.set(updateData, { merge: true });
+
+        // Invalidate user cache since subscription status changed
+        cacheService.invalidateUserData(userDoc.id);
         
         if (isCanceled && userData && userData.email) {
           try {
@@ -200,14 +271,22 @@ export const handleWebhook = async (req: Request, res: Response) => {
         const userDoc = querySnap.docs[0];
         const userData = userDoc.data();
         
+        // Check if this is a trial cancellation  
+        const isTrialCancellation = userData.isOnTrial;
+        
+        const updateData: any = {
+          subscriptionStatus: status,
+          stripeSubscriptionId: subscriptionId,
+        };
+
+        // If this is a trial cancellation, track it specially
+        if (isTrialCancellation) {
+          updateData.trialCancelledAt = admin.firestore.Timestamp.now();
+          updateData.wasOnTrial = true; // Track that this user was on trial
+        }
+
         // Update user subscription status
-        await userDoc.ref.set(
-          {
-            subscriptionStatus: status,
-            stripeSubscriptionId: subscriptionId,
-          },
-          { merge: true }
-        );
+        await userDoc.ref.set(updateData, { merge: true });
 
         // Invalidate user cache since subscription status changed
         cacheService.invalidateUserData(userDoc.id);

@@ -12,7 +12,7 @@ function RepairHistory() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-  const [userPlan, setUserPlan] = useState('starter');
+  const [userPlan, setUserPlan] = useState('none');
   const { currentUser } = useAuth();
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ function RepairHistory() {
     try {
       const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
       if (userDoc.exists()) {
-        setUserPlan(userDoc.data().plan || 'starter');
+        setUserPlan(userDoc.data().plan || 'none');
       }
     } catch (err) {
       console.error('Error fetching user plan:', err);
