@@ -457,41 +457,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
           }
         }
       } else if (event.type === 'payment_intent.payment_failed') {
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      const customerId = (paymentIntent.customer as string) || '';
-      
-      console.log(`Payment failed for customer ${customerId}. Payment intent: ${paymentIntent.id}, status: ${paymentIntent.status}, last_payment_error: ${JSON.stringify(paymentIntent.last_payment_error)}`);
-      
-      // Find user by customer ID
-      if (customerId) {
-        const usersRef = admin.firestore().collection('users');
-        const querySnap = await usersRef.where('stripeCustomerId', '==', customerId).get();
-        
-        if (!querySnap.empty) {
-          const userDoc = querySnap.docs[0];
-          const userData = userDoc.data();
-          
-          // Log the payment failure for debugging
-          console.log(`Payment failed for user ${userDoc.id}. Payment intent: ${paymentIntent.id}, failure reason: ${paymentIntent.last_payment_error?.message || 'Unknown'}`);
-          
-          // Optionally, you could send an email to the user about the failed payment
-          if (userData && userData.email) {
-            try {
-              const name = userData.displayName || userData.email.split('@')[0];
-              const EmailService = (await import('../services/email.service')).default;
-              await EmailService.getInstance().sendPaymentFailedEmail(
-                userData.email,
-                name,
-                paymentIntent.last_payment_error?.message || 'Payment authentication incomplete'
-              );
-            } catch (emailError) {
-              console.error('Failed to send payment failed email:', emailError);
-            }
-          }
-        }
-      }
-    } else if (event.type === 'payment_intent.payment_failed') {
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      const paymentIntent = (event as any).data.object as Stripe.PaymentIntent;
       const customerId = (paymentIntent.customer as string) || '';
       
       console.log(`Payment failed for customer ${customerId}. Payment intent: ${paymentIntent.id}, status: ${paymentIntent.status}, last_payment_error: ${JSON.stringify(paymentIntent.last_payment_error)}`);
