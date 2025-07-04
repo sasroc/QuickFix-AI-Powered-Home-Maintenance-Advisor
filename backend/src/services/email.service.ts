@@ -126,8 +126,8 @@ class EmailService {
     
     // HTML-based email (fallback)
     await this.sendEmail({
-        to,
-        subject: 'Your QuickFixAI Subscription is Active!',
+      to,
+      subject: 'Your QuickFixAI Subscription is Active!',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; margin-bottom: 30px;">
@@ -192,11 +192,11 @@ class EmailService {
           to,
           subject: 'Your QuickFixAI Free Trial Has Started!',
           templateId,
-          dynamicTemplateData: {
-            name,
+      dynamicTemplateData: {
+        name,
             plan: planLabels[plan as keyof typeof planLabels],
-            supportEmail: this.supportEmail,
-          },
+        supportEmail: this.supportEmail,
+      },
         });
         return; // Exit early if template works
       } catch (error) {
@@ -263,7 +263,89 @@ class EmailService {
             </div>
           </div>
         `,
-      });
+    });
+  }
+
+  public async sendTrialConversionConfirmation(to: string, name: string, plan: string): Promise<void> {
+    const planLabels = {
+      starter: 'Starter',
+      pro: 'Pro', 
+      premium: 'Premium'
+    };
+
+    // Try to use template if available, otherwise use HTML
+    const templateId = process.env.SENDGRID_TRIAL_CONVERSION_TEMPLATE_ID;
+    
+    if (templateId) {
+      try {
+        // Template-based email
+        await this.sendEmail({
+          to,
+          subject: 'Your Trial Has Converted to a Paid Subscription!',
+          templateId,
+          dynamicTemplateData: {
+            name,
+            plan: planLabels[plan as keyof typeof planLabels],
+            supportEmail: this.supportEmail,
+          },
+        });
+        return; // Exit early if template works
+      } catch (error) {
+        // Fall through to HTML fallback
+      }
+    }
+    
+    // HTML-based email (fallback)
+    await this.sendEmail({
+      to,
+      subject: 'Your Trial Has Converted to a Paid Subscription!',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #333; margin-bottom: 10px;">🎉 Welcome to QuickFixAI ${planLabels[plan as keyof typeof planLabels]}!</h1>
+            <p style="color: #666; font-size: 16px;">Hi ${name},</p>
+          </div>
+          
+          <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #28a745;">
+            <h2 style="color: #155724; margin-top: 0;">✅ Your trial has automatically converted!</h2>
+            <p style="color: #155724; line-height: 1.6;">
+              Your 5-day free trial has ended and you've been successfully charged for your 
+              <strong>${planLabels[plan as keyof typeof planLabels]}</strong> subscription. 
+              You now have continued access to all premium features!
+            </p>
+          </div>
+
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="color: #333; margin-top: 0;">🚀 Your Subscription Benefits:</h3>
+            <ul style="color: #555; line-height: 1.8;">
+              <li><strong>25 AI repair guides per month</strong> - Get expert-level repair instructions</li>
+              <li><strong>GPT-4.1 Nano AI model</strong> - Fast and accurate repair analysis</li>
+              <li><strong>Unlimited repair history</strong> - Save and access all your past repairs</li>
+              <li><strong>Community access</strong> - Connect with other DIY enthusiasts</li>
+              <li><strong>Priority email support</strong> - Get help when you need it</li>
+            </ul>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.FRONTEND_URL}/repair" 
+               style="background: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              Continue Using QuickFixAI
+            </a>
+          </div>
+
+          <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <p style="color: #0c5460; margin: 0; font-size: 14px;">
+              <strong>Manage your subscription:</strong> You can update your billing details, change plans, or cancel anytime in your account settings.
+            </p>
+          </div>
+          
+          <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
+            <p>Questions about your subscription? Contact us at ${this.supportEmail}</p>
+            <p>© 2025 QuickFixAI. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    });
   }
 
   public async sendSupportEmail(from: string, subject: string, message: string): Promise<void> {

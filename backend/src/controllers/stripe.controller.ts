@@ -5,6 +5,17 @@ import cacheService from '../services/cacheService';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
+// Helper function to get credit allocation for a plan
+const getPlanCredits = (plan: string): number => {
+  const planCredits: { [key: string]: number } = {
+    'none': 0,
+    'starter': 25,
+    'pro': 100,
+    'premium': 500
+  };
+  return planCredits[plan] || 25; // Default to starter credits
+};
+
 export const createCheckoutSession = async (req: Request, res: Response) => {
   try {
     const { uid, plan, billing, isTrial = false } = req.body;
@@ -22,9 +33,9 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       'premium_annual': process.env.STRIPE_PREMIUM_ANNUAL_PRICE_ID!,
     };
 
-    // For free trials, we only offer Pro plan and force monthly billing
-    if (isTrial && plan !== 'pro') {
-      return res.status(400).json({ message: 'Free trial is only available for Pro plan' });
+    // For free trials, we only offer Starter plan and force monthly billing
+    if (isTrial && plan !== 'starter') {
+      return res.status(400).json({ message: 'Free trial is only available for Starter plan' });
     }
 
     // Check if user has already used their trial
@@ -78,7 +89,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
     // Add trial configuration if this is a trial
     if (isTrial) {
       sessionConfig.subscription_data = {
-        trial_period_days: 5,
+        trial_period_days: parseInt(process.env.TRIAL_PERIOD_DAYS || '5'), // Default 5 days, configurable via env
         metadata: {
           uid,
           plan,
@@ -141,8 +152,9 @@ export const handleWebhook = async (req: Request, res: Response) => {
 
         // Add trial-specific data
         if (isTrial) {
+          const trialPeriodDays = parseInt(process.env.TRIAL_PERIOD_DAYS || '5');
           const trialEndDate = new Date();
-          trialEndDate.setDate(trialEndDate.getDate() + 5); // 5 days from now
+          trialEndDate.setDate(trialEndDate.getDate() + trialPeriodDays);
           
           userUpdateData.isOnTrial = true;
           userUpdateData.wasOnTrial = true; // Mark that this user has used their trial
@@ -193,15 +205,22 @@ export const handleWebhook = async (req: Request, res: Response) => {
         const isTrialCancellation = isCanceled && userData.isOnTrial;
         
         const updateData: any = {
-          subscriptionStatus: status,
           stripeSubscriptionId: subscriptionId,
         };
 
         // If this is a trial cancellation, track it specially
         if (isTrialCancellation) {
+          updateData.isOnTrial = false; // CRITICAL: Stop showing trial banner immediately
           updateData.trialCancelledAt = admin.firestore.Timestamp.now();
           updateData.wasOnTrial = true; // Track that this user was on trial
-          // Keep isOnTrial true initially so we can track the grace period
+          updateData.trialExpiredAt = admin.firestore.Timestamp.now(); // Mark when trial ended
+          updateData.plan = 'none'; // CRITICAL: Revoke plan access
+          updateData.subscriptionStatus = 'inactive'; // CRITICAL: Always set to inactive for trial cancellations
+          updateData.credits = 0; // Reset credits to 0
+        } else {
+          // For regular paid subscribers, just update the status
+          // They keep their plan and credits until the billing period ends
+          updateData.subscriptionStatus = status;
         }
 
         // Update user subscription status
@@ -209,6 +228,13 @@ export const handleWebhook = async (req: Request, res: Response) => {
 
         // Invalidate user cache since subscription status changed
         cacheService.invalidateUserData(userDoc.id);
+
+        // Log cancellation for debugging
+        if (isTrialCancellation) {
+          console.log(`TRIAL CANCELLED (via subscription.updated): User ${userDoc.id} - Firestore updated with plan: 'none', subscriptionStatus: 'inactive', credits: 0. Original Stripe status was: '${status}', Cancel at period end: ${(subscription as any).cancel_at_period_end}`);
+        } else if (isCanceled) {
+          console.log(`PAID SUBSCRIPTION CANCELLED (via subscription.updated): User ${userDoc.id} - Keeps plan and credits until billing period ends. Firestore updated with subscriptionStatus: '${status}'`);
+        }
         
         if (isCanceled && userData && userData.email) {
           try {
@@ -257,7 +283,180 @@ export const handleWebhook = async (req: Request, res: Response) => {
           }
         }
       }
-    } else if (event.type === 'customer.subscription.deleted') {
+    } else if (event.type === 'invoice.payment_succeeded') {
+      const invoice = event.data.object as Stripe.Invoice;
+      const subscriptionId = ((invoice as any).subscription as string) || '';
+      
+      // Extract subscription ID from invoice lines if not available directly
+      const invoiceLines = (invoice as any).lines?.data || [];
+      let subscriptionIdFromLine = '';
+      
+      if (invoiceLines.length > 0) {
+        const line = invoiceLines[0];
+        // Check direct subscription property
+        if (line?.subscription) {
+          subscriptionIdFromLine = line.subscription;
+        }
+        // Check nested in parent.subscription_item_details.subscription
+        else if (line?.parent?.subscription_item_details?.subscription) {
+          subscriptionIdFromLine = line.parent.subscription_item_details.subscription;
+        }
+      }
+      
+      const finalSubscriptionId = subscriptionId || subscriptionIdFromLine || '';
+      
+      if (finalSubscriptionId) {
+        // Find the user by subscription ID
+        const usersRef = admin.firestore().collection('users');
+        const querySnap = await usersRef.where('stripeSubscriptionId', '==', finalSubscriptionId).get();
+        
+        if (!querySnap.empty) {
+          const userDoc = querySnap.docs[0];
+          const userData = userDoc.data();
+          
+          // Check if this is the first payment after trial (trial ending) and amount > 0
+          if (userData.isOnTrial && invoice.amount_paid > 0) {
+            // Get credit allocation for user's plan
+            const userPlan = userData.plan || 'starter';
+            const creditsToReset = getPlanCredits(userPlan);
+            
+            const updateData: any = {
+              isOnTrial: false,
+              trialExpiredAt: admin.firestore.Timestamp.now(),
+              subscriptionStatus: 'active',
+              credits: creditsToReset, // Reset credits to plan allocation
+            };
+
+            await userDoc.ref.set(updateData, { merge: true });
+            
+            // Invalidate user cache since trial status changed
+            cacheService.invalidateUserData(userDoc.id);
+            
+            console.log(`Trial ended and payment succeeded for user ${userDoc.id}, subscription ${finalSubscriptionId}. Credits reset to ${creditsToReset} for ${userPlan} plan.`);
+            
+            // Send trial conversion email
+            if (userData.email) {
+              try {
+                const name = userData.displayName || userData.email.split('@')[0];
+                const plan = userData.plan || 'starter';
+                const EmailService = (await import('../services/email.service')).default;
+                await EmailService.getInstance().sendTrialConversionConfirmation(
+                  userData.email,
+                  name,
+                  plan
+                );
+              } catch (emailError) {
+                console.error('Failed to send trial conversion email:', emailError);
+              }
+            }
+          }
+        }
+              } else {
+          // Fallback: try to find user by customer ID
+          const customerId = (invoice.customer as string) || '';
+          if (customerId && invoice.amount_paid > 0) {
+            const usersRef = admin.firestore().collection('users');
+            const customerQuerySnap = await usersRef.where('stripeCustomerId', '==', customerId).get();
+            
+            if (!customerQuerySnap.empty) {
+              const userDoc = customerQuerySnap.docs[0];
+              const userData = userDoc.data();
+              
+              if (userData.isOnTrial) {
+                // Get credit allocation for user's plan
+                const userPlan = userData.plan || 'starter';
+                const creditsToReset = getPlanCredits(userPlan);
+                
+                const updateData: any = {
+                  isOnTrial: false,
+                  trialExpiredAt: admin.firestore.Timestamp.now(),
+                  subscriptionStatus: 'active',
+                  credits: creditsToReset, // Reset credits to plan allocation
+                };
+
+                await userDoc.ref.set(updateData, { merge: true });
+                
+                // Invalidate user cache since trial status changed
+                cacheService.invalidateUserData(userDoc.id);
+                
+                console.log(`Trial ended and payment succeeded for user ${userDoc.id} via customer ID ${customerId}. Credits reset to ${creditsToReset} for ${userPlan} plan.`);
+                
+                // Send trial conversion email
+                if (userData.email) {
+                  try {
+                    const name = userData.displayName || userData.email.split('@')[0];
+                    const plan = userData.plan || 'starter';
+                    const EmailService = (await import('../services/email.service')).default;
+                    await EmailService.getInstance().sendTrialConversionConfirmation(
+                      userData.email,
+                      name,
+                      plan
+                    );
+                  } catch (emailError) {
+                    console.error('Failed to send trial conversion email:', emailError);
+                  }
+                }
+              }
+            }
+          }
+        }
+      } else if ((event as any).type === 'customer.subscription.updated') {
+        const subscription = (event as any).data.object as Stripe.Subscription;
+        const stripeCustomerId = (subscription.customer as string) || '';
+        const status = subscription.status;
+        const subscriptionId = subscription.id;
+        
+        // Check if this is a trial ending (trial_end is in the past and status is active)
+        const now = Math.floor(Date.now() / 1000);
+        const trialEnded = subscription.trial_end && subscription.trial_end < now;
+        
+        if (trialEnded && status === 'active') {
+          // Find the user by customer ID
+          const usersRef = admin.firestore().collection('users');
+          const querySnap = await usersRef.where('stripeCustomerId', '==', stripeCustomerId).get();
+          
+          if (!querySnap.empty) {
+            const userDoc = querySnap.docs[0];
+            const userData = userDoc.data();
+            
+            if (userData.isOnTrial) {
+              // Get credit allocation for user's plan
+              const userPlan = userData.plan || 'starter';
+              const creditsToReset = getPlanCredits(userPlan);
+              
+              const updateData: any = {
+                isOnTrial: false,
+                trialExpiredAt: admin.firestore.Timestamp.now(),
+                subscriptionStatus: 'active',
+                credits: creditsToReset, // Reset credits to plan allocation
+              };
+
+              await userDoc.ref.set(updateData, { merge: true });
+              
+              // Invalidate user cache since trial status changed
+              cacheService.invalidateUserData(userDoc.id);
+              
+              console.log(`Trial ended via subscription.updated for user ${userDoc.id}, subscription ${subscriptionId}. Credits reset to ${creditsToReset} for ${userPlan} plan.`);
+              
+              // Send trial conversion email
+              if (userData.email) {
+                try {
+                  const name = userData.displayName || userData.email.split('@')[0];
+                  const plan = userData.plan || 'starter';
+                  const EmailService = (await import('../services/email.service')).default;
+                  await EmailService.getInstance().sendTrialConversionConfirmation(
+                    userData.email,
+                    name,
+                    plan
+                  );
+                } catch (emailError) {
+                  console.error('Failed to send trial conversion email:', emailError);
+                }
+              }
+            }
+          }
+        }
+      } else if (event.type === 'customer.subscription.deleted') {
       const subscription = event.data.object as Stripe.Subscription;
       const stripeCustomerId = (subscription.customer as string) || '';
       const status = subscription.status;
@@ -275,14 +474,24 @@ export const handleWebhook = async (req: Request, res: Response) => {
         const isTrialCancellation = userData.isOnTrial;
         
         const updateData: any = {
-          subscriptionStatus: status,
           stripeSubscriptionId: subscriptionId,
         };
 
         // If this is a trial cancellation, track it specially
         if (isTrialCancellation) {
+          updateData.isOnTrial = false; // CRITICAL: Stop showing trial banner
           updateData.trialCancelledAt = admin.firestore.Timestamp.now();
           updateData.wasOnTrial = true; // Track that this user was on trial
+          updateData.trialExpiredAt = admin.firestore.Timestamp.now(); // Mark when trial ended
+          updateData.plan = 'none'; // CRITICAL: Revoke plan access
+          updateData.subscriptionStatus = 'inactive'; // CRITICAL: Always set to inactive for trial cancellations
+          updateData.credits = 0; // Reset credits to 0
+        } else {
+          // For regular paid subscribers, subscription deleted means billing period ended
+          // So we do revoke access when the subscription is actually deleted
+          updateData.subscriptionStatus = status; // Use Stripe status (usually 'canceled')
+          updateData.plan = 'none'; // Revoke plan access - billing period has ended
+          updateData.credits = 0; // Reset credits - billing period has ended
         }
 
         // Update user subscription status
@@ -290,6 +499,13 @@ export const handleWebhook = async (req: Request, res: Response) => {
 
         // Invalidate user cache since subscription status changed
         cacheService.invalidateUserData(userDoc.id);
+
+        // Log cancellation for debugging
+        if (isTrialCancellation) {
+          console.log(`TRIAL CANCELLED (via subscription.deleted): User ${userDoc.id} - Firestore updated with plan: 'none', subscriptionStatus: 'inactive', credits: 0. Original Stripe status was: '${status}'`);
+        } else {
+          console.log(`SUBSCRIPTION EXPIRED (via subscription.deleted): User ${userDoc.id} - Billing period ended, access revoked. Firestore updated with plan: 'none', subscriptionStatus: '${status}', credits: 0`);
+        }
 
         // Send cancellation email if user has email
         if (userData && userData.email) {

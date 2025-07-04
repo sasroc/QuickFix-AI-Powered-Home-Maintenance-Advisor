@@ -117,11 +117,11 @@ function LandingPage() {
           )}
           <div className="secondary-cta-buttons">
             <button onClick={handleStartRepair} className="secondary-button">
-              Start Your Repair Now
-            </button>
-            <Link to="/community" className="secondary-button">
-              View Success Stories
-            </Link>
+            Start Your Repair Now
+          </button>
+          <Link to="/community" className="secondary-button">
+            View Success Stories
+          </Link>
           </div>
         </div>
       </div>

@@ -19,6 +19,7 @@ function RepairPage() {
   const [credits, setCredits] = useState(null);
   const [plan, setPlan] = useState('none');
   const [error, setError] = useState(null);
+  const [userData, setUserData] = useState(null);
   const { currentUser } = useAuth();
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
@@ -39,8 +40,10 @@ function RepairPage() {
     const userRef = doc(db, 'users', currentUser.uid);
     const unsub = onSnapshot(userRef, (snap) => {
       if (snap.exists()) {
-        setCredits(snap.data().credits);
-        setPlan(snap.data().plan || 'none');
+        const data = snap.data();
+        setCredits(data.credits);
+        setPlan(data.plan || 'none');
+        setUserData(data);
       }
     });
     return unsub;
@@ -224,6 +227,11 @@ function RepairPage() {
             <span className="credits-badge">
               {credits !== null ? `Credits: ${credits}/${maxCredits}` : 'Loading credits...'}
             </span>
+            {userData?.isOnTrial && (
+              <span className="trial-indicator">
+                🚀 Trial Active
+              </span>
+            )}
             <div className="progress-bar-container">
               <div className="progress-bar-fill" style={{ width: `${percent}%` }} />
             </div>
@@ -231,7 +239,7 @@ function RepairPage() {
               className="upgrade-button"
               onClick={() => navigate('/pricing')}
             >
-              {plan === 'starter' ? 'Upgrade' : 'Change plan'}
+              {userData?.isOnTrial ? 'Subscribe' : plan === 'starter' ? 'Upgrade' : 'Change plan'}
             </button>
           </div>
           <button

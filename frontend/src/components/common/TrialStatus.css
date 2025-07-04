@@ -1,0 +1,254 @@
+.trial-status {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+  border: 2px solid #2196f3;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin: 1rem 0;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+}
+
+.trial-status:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2196f3, #9c27b0);
+  animation: progress-shimmer 2s ease-in-out infinite;
+}
+
+.trial-status-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.trial-icon {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.trial-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.trial-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1565c0;
+  margin-bottom: 0.25rem;
+}
+
+.trial-countdown {
+  font-size: 1rem;
+  color: #424242;
+  font-weight: 500;
+}
+
+.trial-countdown strong {
+  color: #1565c0;
+  font-weight: 700;
+}
+
+.trial-details {
+  margin-top: 0.5rem;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.trial-cta {
+  margin-left: 1rem;
+  flex-shrink: 0;
+}
+
+.upgrade-link {
+  background: linear-gradient(135deg, #2196f3 0%, #9c27b0 100%);
+  color: white;
+  text-decoration: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+}
+
+.upgrade-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.4);
+  text-decoration: none;
+  color: white;
+}
+
+/* Urgent state (less than 24 hours) */
+.trial-status.urgent {
+  background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%);
+  border-color: #ff9800;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.2);
+}
+
+.trial-status.urgent:before {
+  background: linear-gradient(90deg, #ff9800, #e91e63);
+}
+
+.trial-status.urgent .trial-title {
+  color: #e65100;
+}
+
+.trial-status.urgent .trial-countdown strong {
+  color: #e65100;
+}
+
+.trial-status.urgent .upgrade-link {
+  background: linear-gradient(135deg, #ff9800 0%, #e91e63 100%);
+  box-shadow: 0 2px 4px rgba(255, 152, 0, 0.3);
+}
+
+.trial-status.urgent .upgrade-link:hover {
+  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.4);
+}
+
+/* Critical state (less than 6 hours) */
+.trial-status.critical {
+  background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%);
+  border-color: #f44336;
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
+  animation: pulse-warning 2s ease-in-out infinite;
+}
+
+.trial-status.critical:before {
+  background: linear-gradient(90deg, #f44336, #e91e63);
+}
+
+.trial-status.critical .trial-title {
+  color: #c62828;
+}
+
+.trial-status.critical .trial-countdown strong {
+  color: #c62828;
+}
+
+.trial-status.critical .upgrade-link {
+  background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+  box-shadow: 0 2px 4px rgba(244, 67, 54, 0.3);
+  animation: button-pulse 1s ease-in-out infinite;
+}
+
+.trial-status.critical .upgrade-link:hover {
+  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.4);
+}
+
+/* Dark mode support */
+.dark .trial-status {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(156, 39, 176, 0.1) 100%);
+  border-color: #42a5f5;
+}
+
+.dark .trial-status .trial-title {
+  color: #42a5f5;
+}
+
+.dark .trial-status .trial-countdown {
+  color: #e0e0e0;
+}
+
+.dark .trial-status .trial-countdown strong {
+  color: #42a5f5;
+}
+
+.dark .trial-status .trial-details {
+  color: #bdbdbd;
+}
+
+.dark .trial-status.urgent {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(233, 30, 99, 0.1) 100%);
+  border-color: #ffb74d;
+}
+
+.dark .trial-status.urgent .trial-title {
+  color: #ffb74d;
+}
+
+.dark .trial-status.urgent .trial-countdown strong {
+  color: #ffb74d;
+}
+
+.dark .trial-status.critical {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(233, 30, 99, 0.1) 100%);
+  border-color: #ef5350;
+}
+
+.dark .trial-status.critical .trial-title {
+  color: #ef5350;
+}
+
+.dark .trial-status.critical .trial-countdown strong {
+  color: #ef5350;
+}
+
+/* Animations */
+@keyframes progress-shimmer {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
+  }
+  50% {
+    transform: scale(1.01);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+  }
+}
+
+@keyframes button-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .trial-status {
+    padding: 0.8rem 1rem;
+  }
+  
+  .trial-status-content {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  
+  .trial-cta {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+  
+  .trial-icon {
+    font-size: 1.5rem;
+  }
+  
+  .trial-title {
+    font-size: 1rem;
+  }
+  
+  .trial-countdown {
+    font-size: 0.9rem;
+  }
+} 

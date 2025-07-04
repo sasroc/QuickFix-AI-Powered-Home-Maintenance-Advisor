@@ -46,6 +46,29 @@
   white-space: nowrap;
 }
 
+.trial-indicator {
+  background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+  color: #fff;
+  border-radius: 9999px;
+  padding: 0.4rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+  white-space: nowrap;
+  animation: subtle-pulse 2s infinite;
+}
+
+@keyframes subtle-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+  }
+  50% { 
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  }
+}
+
 .history-button {
   background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   color: #fff;

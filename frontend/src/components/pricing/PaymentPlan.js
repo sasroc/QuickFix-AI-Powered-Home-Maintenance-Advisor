@@ -135,28 +135,28 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling, userData, subsc
       
       {shouldShowTrial && (
         <div className="trial-banner">
-          <h2 className="trial-title">🚀 Start Your 5-Day FREE Pro Trial</h2>
+          <h2 className="trial-title">🚀 Start Your 5-Day FREE Starter Trial</h2>
           <p className="trial-subtitle">
-            No risk, no commitment. Get full access to Pro features for 5 days and see how QuickFixAI transforms your home repairs.
+            No risk, no commitment. Get full access to Starter features for 5 days and see how QuickFixAI transforms your home repairs.
           </p>
           <div className="trial-offer">
             <div className="trial-plan">
-              <h3>Pro Plan Trial</h3>
+              <h3>Starter Plan Trial</h3>
               <div className="trial-price">
-                <span className="original-price">$49/month</span>
+                <span className="original-price">$19/month</span>
                 <span className="trial-price-text">FREE for 5 days</span>
               </div>
               <ul className="trial-features">
-                <li>✅ 100 repair guides (credits)</li>
-                <li>✅ Advanced AI powered by GPT-4o Mini</li>
+                <li>✅ 25 repair guides (credits)</li>
+                <li>✅ Powered by GPT-4.1 Nano</li>
                 <li>✅ Unlimited text, voice & image inputs</li>
-                <li>✅ Advanced repair guides with safety tips</li>
-                <li>✅ Save up to 50 repair guides</li>
-                <li>✅ Priority support</li>
+                <li>✅ Standard repair guides with safety tips</li>
+                <li>✅ Save up to 10 repair guides</li>
+                <li>✅ Community access</li>
               </ul>
               <button 
                 className="trial-start-button"
-                onClick={() => handleSubscribe('pro', true)}
+                onClick={() => handleSubscribe('starter', true)}
               >
                 Start My Free Trial Now
               </button>

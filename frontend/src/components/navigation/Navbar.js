@@ -2,10 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
 import DisplayNameModal from '../auth/DisplayNameModal';
 import FeedbackButton from '../feedback/FeedbackButton';
+import TrialStatus from '../common/TrialStatus';
 import logo from '../../assets/logo2.png';
 import './Navbar.css';
+
+const db = getFirestore();
 
 function Navbar() {
   const { currentUser, logout } = useAuth();
@@ -14,8 +18,35 @@ function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDisplayNameModalOpen, setIsDisplayNameModalOpen] = useState(false);
+  const [userData, setUserData] = useState(null);
   const dropdownRef = useRef(null);
   const menuRef = useRef(null);
+  const navbarWrapperRef = useRef(null);
+
+  // Fetch user data for trial status
+  useEffect(() => {
+    if (!currentUser) {
+      setUserData(null);
+      return;
+    }
+    
+    const userRef = doc(db, 'users', currentUser.uid);
+    const unsub = onSnapshot(userRef, (snap) => {
+      if (snap.exists()) {
+        setUserData(snap.data());
+      }
+    });
+    return unsub;
+  }, [currentUser]);
+
+  // Update CSS variable for navbar height based on trial banner presence
+  useEffect(() => {
+    if (navbarWrapperRef.current) {
+      const hasTrialBanner = currentUser && userData?.isOnTrial;
+      const navbarHeight = hasTrialBanner ? 'calc(72px + 50px)' : '72px';
+      navbarWrapperRef.current.style.setProperty('--navbar-height', navbarHeight);
+    }
+  }, [currentUser, userData?.isOnTrial]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -72,12 +103,20 @@ function Navbar() {
   };
 
   return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        <Link to="/" className="navbar-brand">
-          <img src={logo} alt="QuickFixAI Logo" />
-          <span>QuickFixAI</span>
-        </Link>
+    <div className="navbar-wrapper" ref={navbarWrapperRef}>
+      {/* Trial Status Banner - only show for trial users */}
+      {currentUser && userData?.isOnTrial && (
+        <div className="trial-status-banner">
+          <TrialStatus userData={userData} className="navbar-trial-status" />
+        </div>
+      )}
+      
+      <nav className="navbar">
+        <div className="navbar-container">
+          <Link to="/" className="navbar-brand">
+            <img src={logo} alt="QuickFixAI Logo" />
+            <span>QuickFixAI</span>
+          </Link>
 
         <button className="mobile-menu-button" onClick={toggleMenu}>
           <span className={`hamburger ${isMenuOpen ? 'open' : ''}`}></span>
@@ -172,6 +211,7 @@ function Navbar() {
         onClose={() => setIsDisplayNameModalOpen(false)}
       />
     </nav>
+    </div>
   );
 }
 

@@ -446,7 +446,7 @@
 
   .navbar-menu {
     position: fixed;
-    top: 72px;
+    top: var(--navbar-height, 72px);
     left: 0;
     right: 0;
     background: rgba(255, 255, 255, 0.35);
@@ -683,4 +683,141 @@
 
 .dark .theme-toggle:hover {
   background: rgba(75, 85, 99, 0.8);
+}
+
+/* Navbar Wrapper */
+.navbar-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: transparent;
+  --navbar-height: 72px;
+}
+
+/* Trial Status Banner */
+.trial-status-banner {
+  background: linear-gradient(135deg, 
+    rgba(16, 185, 129, 0.98) 0%, 
+    rgba(59, 130, 246, 0.98) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.navbar-trial-status {
+  max-width: 1400px;
+  margin: 0 auto;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  padding: 0.6rem 2rem;
+  background: transparent;
+}
+
+.navbar-trial-status .trial-status-content {
+  justify-content: center;
+  text-align: center;
+}
+
+.navbar-trial-status .trial-icon {
+  font-size: 1.1rem;
+}
+
+.navbar-trial-status .trial-title {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-trial-status .trial-countdown {
+  color: #1f2937;
+  font-size: 0.85rem;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+}
+
+.navbar-trial-status .trial-details {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.75rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-trial-status .trial-cta .upgrade-link {
+  background: rgba(255, 255, 255, 0.85);
+  color: #1f2937;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  padding: 0.35rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-trial-status .trial-cta .upgrade-link:hover {
+  background: #fff;
+  color: #111827;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.dark .trial-status-banner {
+  background: linear-gradient(135deg, 
+    rgba(16, 185, 129, 0.9) 0%, 
+    rgba(59, 130, 246, 0.9) 100%
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dark .navbar-trial-status .trial-title {
+  color: #fff;
+  text-shadow: none;
+}
+
+.dark .navbar-trial-status .trial-countdown {
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: none;
+}
+
+.dark .navbar-trial-status .trial-details {
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: none;
+}
+
+.dark .navbar-trial-status .trial-cta .upgrade-link {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.dark .navbar-trial-status .trial-cta .upgrade-link:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Mobile adjustments for trial banner */
+@media (max-width: 768px) {
+  .navbar-trial-status {
+    padding: 0.8rem 1rem;
+  }
+  
+  .navbar-trial-status .trial-status-content {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .navbar-trial-status .trial-info {
+    text-align: center;
+  }
+  
+  .navbar-trial-status .trial-cta {
+    margin-top: 0.5rem;
+  }
 } 
