@@ -541,6 +541,126 @@ class EmailService {
     }
   }
 
+  public async sendPaymentFailedEmail(
+    to: string,
+    name: string,
+    failureReason: string
+  ): Promise<void> {
+    await this.sendEmail({
+      to,
+      subject: 'Payment Failed - QuickFixAI',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #dc3545; margin-bottom: 10px;">⚠️ Payment Failed</h1>
+            <p style="color: #666; font-size: 16px;">Hi ${name},</p>
+          </div>
+          
+          <div style="background: #f8d7da; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
+            <h2 style="color: #721c24; margin-top: 0;">We couldn't process your payment</h2>
+            <p style="color: #721c24; line-height: 1.6;">
+              Your recent payment attempt was unsuccessful. This is usually due to:
+            </p>
+            <ul style="color: #721c24; line-height: 1.6;">
+              <li>Incomplete 3D Secure authentication</li>
+              <li>Insufficient funds</li>
+              <li>Card declined by your bank</li>
+              <li>Expired or invalid card details</li>
+            </ul>
+          </div>
+
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="color: #333; margin-top: 0;">🔧 How to Fix This</h3>
+            <ol style="color: #555; line-height: 1.8;">
+              <li><strong>Try again</strong> - Visit our subscription page and attempt payment again</li>
+              <li><strong>Use a different card</strong> - Sometimes banks have different authentication requirements</li>
+              <li><strong>Contact your bank</strong> - Ensure your card allows online payments</li>
+              <li><strong>Check your details</strong> - Verify card number, expiry date, and CVV</li>
+            </ol>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.FRONTEND_URL}/pricing" 
+               style="background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              Try Payment Again
+            </a>
+          </div>
+
+          <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <p style="color: #0c5460; margin: 0; font-size: 14px;">
+              <strong>Need help?</strong> Contact us at ${this.supportEmail} - we're here to help resolve any payment issues!
+            </p>
+          </div>
+          
+          <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
+            <p>Thank you for choosing QuickFixAI!</p>
+            <p>© 2025 QuickFixAI. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    });
+  }
+
+  public async sendPaymentFailedEmail(
+    to: string,
+    name: string,
+    failureReason: string
+  ): Promise<void> {
+    await this.sendEmail({
+      to,
+      subject: 'Payment Failed - QuickFixAI',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #dc3545; margin-bottom: 10px;">⚠️ Payment Failed</h1>
+            <p style="color: #666; font-size: 16px;">Hi ${name},</p>
+          </div>
+          
+          <div style="background: #f8d7da; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
+            <h2 style="color: #721c24; margin-top: 0;">We couldn't process your payment</h2>
+            <p style="color: #721c24; line-height: 1.6;">
+              Your recent payment attempt was unsuccessful. This is usually due to:
+            </p>
+            <ul style="color: #721c24; line-height: 1.6;">
+              <li>Incomplete 3D Secure authentication</li>
+              <li>Insufficient funds</li>
+              <li>Card declined by your bank</li>
+              <li>Expired or invalid card details</li>
+            </ul>
+          </div>
+
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="color: #333; margin-top: 0;">🔧 How to Fix This</h3>
+            <ol style="color: #555; line-height: 1.8;">
+              <li><strong>Try again</strong> - Visit our subscription page and attempt payment again</li>
+              <li><strong>Use a different card</strong> - Sometimes banks have different authentication requirements</li>
+              <li><strong>Contact your bank</strong> - Ensure your card allows online payments</li>
+              <li><strong>Check your details</strong> - Verify card number, expiry date, and CVV</li>
+            </ol>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.FRONTEND_URL}/pricing" 
+               style="background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              Try Payment Again
+            </a>
+          </div>
+
+          <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <p style="color: #0c5460; margin: 0; font-size: 14px;">
+              <strong>Need help?</strong> Contact us at ${this.supportEmail} - we're here to help resolve any payment issues!
+            </p>
+          </div>
+          
+          <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
+            <p>Thank you for choosing QuickFixAI!</p>
+            <p>© 2025 QuickFixAI. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    });
+  }
+
   public async sendRefundConfirmation(
     to: string,
     name: string,
