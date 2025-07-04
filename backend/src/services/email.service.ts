@@ -176,13 +176,7 @@ class EmailService {
   }
 
   public async sendTrialConfirmation(to: string, name: string, plan: string): Promise<void> {
-    const planLabels = {
-      starter: 'Starter',
-      pro: 'Pro', 
-      premium: 'Premium'
-    };
-
-    // Try to use template if available, otherwise use HTML
+    // Only starter plan has trials - simplify the email to be starter-specific
     const templateId = process.env.SENDGRID_TRIAL_CONFIRMATION_TEMPLATE_ID;
     
     if (templateId) {
@@ -192,11 +186,12 @@ class EmailService {
           to,
           subject: 'Your QuickFixAI Free Trial Has Started!',
           templateId,
-      dynamicTemplateData: {
-        name,
-            plan: planLabels[plan as keyof typeof planLabels],
-        supportEmail: this.supportEmail,
-      },
+          dynamicTemplateData: {
+            name,
+            plan: 'Starter',
+            credits: 25,
+            supportEmail: this.supportEmail,
+          },
         });
         return; // Exit early if template works
       } catch (error) {
@@ -211,14 +206,14 @@ class EmailService {
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #333; margin-bottom: 10px;">🚀 Your 5-Day Pro Trial Starts Now!</h1>
+              <h1 style="color: #333; margin-bottom: 10px;">🚀 Your 5-Day Starter Trial Starts Now!</h1>
               <p style="color: #666; font-size: 16px;">Hi ${name},</p>
             </div>
             
             <div style="background: #e1f5fe; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0288d1;">
-              <h2 style="color: #01579b; margin-top: 0;">✨ Welcome to your FREE QuickFixAI Pro Trial!</h2>
+              <h2 style="color: #01579b; margin-top: 0;">✨ Welcome to your FREE QuickFixAI Starter Trial!</h2>
               <p style="color: #01579b; line-height: 1.6;">
-                Congratulations! You now have <strong>5 days of unlimited access</strong> to QuickFixAI Pro features. 
+                Congratulations! You now have <strong>5 days of unlimited access</strong> to QuickFixAI Starter features. 
                 No charges until your trial ends on <strong>[Trial End Date]</strong>.
               </p>
             </div>
@@ -226,7 +221,7 @@ class EmailService {
             <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
               <h3 style="color: #333; margin-top: 0;">🎯 What You Can Do During Your Trial:</h3>
               <ul style="color: #555; line-height: 1.8;">
-                <li><strong>100 AI Credits</strong> - Plenty for multiple detailed repair guides</li>
+                <li><strong>25 AI Credits</strong> - Perfect for essential home repairs</li>
                 <li><strong>Unlimited Text, Voice & Image Inputs</strong> - Describe your issues any way you want</li>
                 <li><strong>Advanced Repair Guides</strong> - Get step-by-step instructions with safety tips</li>
                 <li><strong>Progress Tracking</strong> - Save your repairs and track completion</li>
@@ -243,7 +238,7 @@ class EmailService {
 
             <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
               <p style="color: #856404; margin: 0 0 10px 0; font-size: 14px;">
-                <strong>💡 Pro Tip:</strong> Have a real home issue? Submit it during your trial for a personalized experience!
+                <strong>💡 Starter Tip:</strong> Have a real home issue? Submit it during your trial for a personalized experience!
               </p>
               <p style="color: #856404; margin: 0; font-size: 14px;">
                 <strong>Questions?</strong> Contact us at ${this.supportEmail} - we're here to help!
