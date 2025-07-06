@@ -1,0 +1,48 @@
+diff --git a/frontend/src/components/landing/LandingPage.css b/frontend/src/components/landing/LandingPage.css
+index ece8ed2..df92447 100644
+--- a/frontend/src/components/landing/LandingPage.css
++++ b/frontend/src/components/landing/LandingPage.css
+@@ -1394,9 +1394,7 @@ body {
+   padding: 1rem;
+   font-size: 1.1rem;
+   font-weight: 500;
+-  position: sticky;
+-  top: 0;
+-  z-index: 1000; /* Ensure it stays on top of other content */
++  z-index: 1000; /* Kept to ensure it's above other static content if needed */
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+ }
+ 
+@@ -1423,4 +1421,19 @@ body {
+   background-color: #f0f0f0;
+   transform: translateY(-2px);
+   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
++}
++
++@media (max-width: 768px) {
++  .limited-time-offer-banner {
++    padding: 0.75rem;
++    font-size: 0.9rem;
++  }
++  .limited-time-offer-banner p {
++    flex-direction: column;
++    gap: 0.75rem;
++  }
++  .limited-time-offer-banner .offer-link {
++    padding: 0.4rem 0.8rem;
++    font-size: 0.85rem;
++  }
+ } 
+\ No newline at end of file
+diff --git a/frontend/src/components/navigation/Navbar.css b/frontend/src/components/navigation/Navbar.css
+index 81e26f5..d750d5a 100644
+--- a/frontend/src/components/navigation/Navbar.css
++++ b/frontend/src/components/navigation/Navbar.css
+@@ -464,6 +464,7 @@
+     opacity: 0;
+     transition: all 0.3s ease;
+     pointer-events: none;
++    z-index: 1100;
+   }
+ 
+   .navbar-menu::before {
