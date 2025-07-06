@@ -1,0 +1,2586 @@
+diff --git a/backend/src/controllers/stripe.controller.ts b/backend/src/controllers/stripe.controller.ts
+index 342ac1e..5f2134b 100644
+--- a/backend/src/controllers/stripe.controller.ts
++++ b/backend/src/controllers/stripe.controller.ts
+@@ -17,6 +17,8 @@ const getPlanCredits = (plan: string): number => {
+ };
+ 
+ export const createCheckoutSession = async (req: Request, res: Response) => {
++  let sessionConfig: any; // Declare sessionConfig here to make it available in the catch block
++
+   try {
+     const { uid, plan, billing, isTrial = false } = req.body;
+     if (!uid || !plan || !billing) {
+@@ -66,7 +68,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
+       return res.status(400).json({ message: 'Invalid plan or billing interval' });
+     }
+ 
+-    const sessionConfig: any = {
++    sessionConfig = {
+       payment_method_types: ['card'],
+       mode: 'subscription',
+       line_items: [
+@@ -77,7 +79,6 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
+       ],
+       success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}${isTrial ? '&trial=true' : ''}`,
+       cancel_url: `${process.env.FRONTEND_URL}/payment-cancelled`,
+-      allow_promotion_codes: true,
+       metadata: {
+         uid,
+         plan,
+@@ -86,6 +87,14 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
+       },
+     };
+ 
++    // Apply limited-time discount if available, otherwise allow promotion codes
++    const promotionCodeId = process.env.STRIPE_DISCOUNT_COUPON_ID; // This ID should start with 'promo_'
++    if (promotionCodeId) {
++      sessionConfig.discounts = [{ promotion_code: promotionCodeId }];
++    } else {
++      sessionConfig.allow_promotion_codes = true;
++    }
++
+     // Add trial configuration if this is a trial
+     if (isTrial) {
+       sessionConfig.subscription_data = {
+diff --git a/failed-payment-handling.patch b/failed-payment-handling.patch
+new file mode 100644
+index 0000000..e927c95
+--- /dev/null
++++ b/failed-payment-handling.patch
+@@ -0,0 +1,231 @@
++From d7789182d788aa03decb89e87f83152e5d49577c Mon Sep 17 00:00:00 2001
++From: sasroc <sassanirocco@gmail.com>
++Date: Fri, 4 Jul 2025 13:39:39 -0400
++Subject: [PATCH] Add failed payment handling for 3D Secure authentication
++ issues
++
++- Added payment_intent.payment_failed webhook handler
++- Added sendPaymentFailedEmail method for user notifications
++- Improved logging for payment failures and debugging
++- Handles incomplete 3D Secure authentication scenarios
++- Provides clear guidance to users on how to resolve payment issues
++---
++ backend/src/controllers/stripe.controller.ts |  70 ++++++++++-
++ backend/src/services/email.service.ts        | 120 +++++++++++++++++++
++ 2 files changed, 189 insertions(+), 1 deletion(-)
++
++diff --git a/backend/src/controllers/stripe.controller.ts b/backend/src/controllers/stripe.controller.ts
++index 059c6b9..b8e6849 100644
++--- a/backend/src/controllers/stripe.controller.ts
+++++ b/backend/src/controllers/stripe.controller.ts
++@@ -456,7 +456,75 @@ export const handleWebhook = async (req: Request, res: Response) => {
++             }
++           }
++         }
++-      } else if (event.type === 'customer.subscription.deleted') {
+++      } else if (event.type === 'payment_intent.payment_failed') {
+++      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+++      const customerId = (paymentIntent.customer as string) || '';
+++      
+++      console.log(`Payment failed for customer ${customerId}. Payment intent: ${paymentIntent.id}, status: ${paymentIntent.status}, last_payment_error: ${JSON.stringify(paymentIntent.last_payment_error)}`);
+++      
+++      // Find user by customer ID
+++      if (customerId) {
+++        const usersRef = admin.firestore().collection('users');
+++        const querySnap = await usersRef.where('stripeCustomerId', '==', customerId).get();
+++        
+++        if (!querySnap.empty) {
+++          const userDoc = querySnap.docs[0];
+++          const userData = userDoc.data();
+++          
+++          // Log the payment failure for debugging
+++          console.log(`Payment failed for user ${userDoc.id}. Payment intent: ${paymentIntent.id}, failure reason: ${paymentIntent.last_payment_error?.message || 'Unknown'}`);
+++          
+++          // Optionally, you could send an email to the user about the failed payment
+++          if (userData && userData.email) {
+++            try {
+++              const name = userData.displayName || userData.email.split('@')[0];
+++              const EmailService = (await import('../services/email.service')).default;
+++              await EmailService.getInstance().sendPaymentFailedEmail(
+++                userData.email,
+++                name,
+++                paymentIntent.last_payment_error?.message || 'Payment authentication incomplete'
+++              );
+++            } catch (emailError) {
+++              console.error('Failed to send payment failed email:', emailError);
+++            }
+++          }
+++        }
+++      }
+++    } else if (event.type === 'payment_intent.payment_failed') {
+++      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+++      const customerId = (paymentIntent.customer as string) || '';
+++      
+++      console.log(`Payment failed for customer ${customerId}. Payment intent: ${paymentIntent.id}, status: ${paymentIntent.status}, last_payment_error: ${JSON.stringify(paymentIntent.last_payment_error)}`);
+++      
+++      // Find user by customer ID
+++      if (customerId) {
+++        const usersRef = admin.firestore().collection('users');
+++        const querySnap = await usersRef.where('stripeCustomerId', '==', customerId).get();
+++        
+++        if (!querySnap.empty) {
+++          const userDoc = querySnap.docs[0];
+++          const userData = userDoc.data();
+++          
+++          // Log the payment failure for debugging
+++          console.log(`Payment failed for user ${userDoc.id}. Payment intent: ${paymentIntent.id}, failure reason: ${paymentIntent.last_payment_error?.message || 'Unknown'}`);
+++          
+++          // Optionally, you could send an email to the user about the failed payment
+++          if (userData && userData.email) {
+++            try {
+++              const name = userData.displayName || userData.email.split('@')[0];
+++              const EmailService = (await import('../services/email.service')).default;
+++              await EmailService.getInstance().sendPaymentFailedEmail(
+++                userData.email,
+++                name,
+++                paymentIntent.last_payment_error?.message || 'Payment authentication incomplete'
+++              );
+++            } catch (emailError) {
+++              console.error('Failed to send payment failed email:', emailError);
+++            }
+++          }
+++        }
+++      }
+++    } else if (event.type === 'customer.subscription.deleted') {
++       const subscription = event.data.object as Stripe.Subscription;
++       const stripeCustomerId = (subscription.customer as string) || '';
++       const status = subscription.status;
++diff --git a/backend/src/services/email.service.ts b/backend/src/services/email.service.ts
++index 661d0ff..6618ae7 100644
++--- a/backend/src/services/email.service.ts
+++++ b/backend/src/services/email.service.ts
++@@ -541,6 +541,126 @@ class EmailService {
++     }
++   }
++ 
+++  public async sendPaymentFailedEmail(
+++    to: string,
+++    name: string,
+++    failureReason: string
+++  ): Promise<void> {
+++    await this.sendEmail({
+++      to,
+++      subject: 'Payment Failed - QuickFixAI',
+++      html: `
+++        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+++          <div style="text-align: center; margin-bottom: 30px;">
+++            <h1 style="color: #dc3545; margin-bottom: 10px;">⚠️ Payment Failed</h1>
+++            <p style="color: #666; font-size: 16px;">Hi ${name},</p>
+++          </div>
+++          
+++          <div style="background: #f8d7da; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
+++            <h2 style="color: #721c24; margin-top: 0;">We couldn't process your payment</h2>
+++            <p style="color: #721c24; line-height: 1.6;">
+++              Your recent payment attempt was unsuccessful. This is usually due to:
+++            </p>
+++            <ul style="color: #721c24; line-height: 1.6;">
+++              <li>Incomplete 3D Secure authentication</li>
+++              <li>Insufficient funds</li>
+++              <li>Card declined by your bank</li>
+++              <li>Expired or invalid card details</li>
+++            </ul>
+++          </div>
+++
+++          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+++            <h3 style="color: #333; margin-top: 0;">🔧 How to Fix This</h3>
+++            <ol style="color: #555; line-height: 1.8;">
+++              <li><strong>Try again</strong> - Visit our subscription page and attempt payment again</li>
+++              <li><strong>Use a different card</strong> - Sometimes banks have different authentication requirements</li>
+++              <li><strong>Contact your bank</strong> - Ensure your card allows online payments</li>
+++              <li><strong>Check your details</strong> - Verify card number, expiry date, and CVV</li>
+++            </ol>
+++          </div>
+++
+++          <div style="text-align: center; margin: 30px 0;">
+++            <a href="${process.env.FRONTEND_URL}/pricing" 
+++               style="background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+++              Try Payment Again
+++            </a>
+++          </div>
+++
+++          <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+++            <p style="color: #0c5460; margin: 0; font-size: 14px;">
+++              <strong>Need help?</strong> Contact us at ${this.supportEmail} - we're here to help resolve any payment issues!
+++            </p>
+++          </div>
+++          
+++          <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
+++            <p>Thank you for choosing QuickFixAI!</p>
+++            <p>© 2025 QuickFixAI. All rights reserved.</p>
+++          </div>
+++        </div>
+++      `,
+++    });
+++  }
+++
+++  public async sendPaymentFailedEmail(
+++    to: string,
+++    name: string,
+++    failureReason: string
+++  ): Promise<void> {
+++    await this.sendEmail({
+++      to,
+++      subject: 'Payment Failed - QuickFixAI',
+++      html: `
+++        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+++          <div style="text-align: center; margin-bottom: 30px;">
+++            <h1 style="color: #dc3545; margin-bottom: 10px;">⚠️ Payment Failed</h1>
+++            <p style="color: #666; font-size: 16px;">Hi ${name},</p>
+++          </div>
+++          
+++          <div style="background: #f8d7da; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
+++            <h2 style="color: #721c24; margin-top: 0;">We couldn't process your payment</h2>
+++            <p style="color: #721c24; line-height: 1.6;">
+++              Your recent payment attempt was unsuccessful. This is usually due to:
+++            </p>
+++            <ul style="color: #721c24; line-height: 1.6;">
+++              <li>Incomplete 3D Secure authentication</li>
+++              <li>Insufficient funds</li>
+++              <li>Card declined by your bank</li>
+++              <li>Expired or invalid card details</li>
+++            </ul>
+++          </div>
+++
+++          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+++            <h3 style="color: #333; margin-top: 0;">🔧 How to Fix This</h3>
+++            <ol style="color: #555; line-height: 1.8;">
+++              <li><strong>Try again</strong> - Visit our subscription page and attempt payment again</li>
+++              <li><strong>Use a different card</strong> - Sometimes banks have different authentication requirements</li>
+++              <li><strong>Contact your bank</strong> - Ensure your card allows online payments</li>
+++              <li><strong>Check your details</strong> - Verify card number, expiry date, and CVV</li>
+++            </ol>
+++          </div>
+++
+++          <div style="text-align: center; margin: 30px 0;">
+++            <a href="${process.env.FRONTEND_URL}/pricing" 
+++               style="background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+++              Try Payment Again
+++            </a>
+++          </div>
+++
+++          <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+++            <p style="color: #0c5460; margin: 0; font-size: 14px;">
+++              <strong>Need help?</strong> Contact us at ${this.supportEmail} - we're here to help resolve any payment issues!
+++            </p>
+++          </div>
+++          
+++          <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
+++            <p>Thank you for choosing QuickFixAI!</p>
+++            <p>© 2025 QuickFixAI. All rights reserved.</p>
+++          </div>
+++        </div>
+++      `,
+++    });
+++  }
+++
++   public async sendRefundConfirmation(
++     to: string,
++     name: string,
++-- 
++2.49.0
++
+diff --git a/fix-ts-errors-payment-failed.patch b/fix-ts-errors-payment-failed.patch
+new file mode 100644
+index 0000000..9fdba82
+--- /dev/null
++++ b/fix-ts-errors-payment-failed.patch
+@@ -0,0 +1,135 @@
++From f254978891d0ab0b379728aeade1ca870a53d71e Mon Sep 17 00:00:00 2001
++From: sasroc <sassanirocco@gmail.com>
++Date: Fri, 4 Jul 2025 13:48:47 -0400
++Subject: [PATCH] Fix TypeScript errors for payment_intent.payment_failed
++ webhook and remove duplicate sendPaymentFailedEmail implementation
++
++- Use type assertion for event type and data in Stripe webhook
++- Remove duplicate sendPaymentFailedEmail function in email service
++- Ensures clean build for Railway deployment
++---
++ backend/src/controllers/stripe.controller.ts | 36 +-----------
++ backend/src/services/email.service.ts        | 60 --------------------
++ 2 files changed, 1 insertion(+), 95 deletions(-)
++
++diff --git a/backend/src/controllers/stripe.controller.ts b/backend/src/controllers/stripe.controller.ts
++index b8e6849..342ac1e 100644
++--- a/backend/src/controllers/stripe.controller.ts
+++++ b/backend/src/controllers/stripe.controller.ts
++@@ -457,41 +457,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
++           }
++         }
++       } else if (event.type === 'payment_intent.payment_failed') {
++-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
++-      const customerId = (paymentIntent.customer as string) || '';
++-      
++-      console.log(`Payment failed for customer ${customerId}. Payment intent: ${paymentIntent.id}, status: ${paymentIntent.status}, last_payment_error: ${JSON.stringify(paymentIntent.last_payment_error)}`);
++-      
++-      // Find user by customer ID
++-      if (customerId) {
++-        const usersRef = admin.firestore().collection('users');
++-        const querySnap = await usersRef.where('stripeCustomerId', '==', customerId).get();
++-        
++-        if (!querySnap.empty) {
++-          const userDoc = querySnap.docs[0];
++-          const userData = userDoc.data();
++-          
++-          // Log the payment failure for debugging
++-          console.log(`Payment failed for user ${userDoc.id}. Payment intent: ${paymentIntent.id}, failure reason: ${paymentIntent.last_payment_error?.message || 'Unknown'}`);
++-          
++-          // Optionally, you could send an email to the user about the failed payment
++-          if (userData && userData.email) {
++-            try {
++-              const name = userData.displayName || userData.email.split('@')[0];
++-              const EmailService = (await import('../services/email.service')).default;
++-              await EmailService.getInstance().sendPaymentFailedEmail(
++-                userData.email,
++-                name,
++-                paymentIntent.last_payment_error?.message || 'Payment authentication incomplete'
++-              );
++-            } catch (emailError) {
++-              console.error('Failed to send payment failed email:', emailError);
++-            }
++-          }
++-        }
++-      }
++-    } else if (event.type === 'payment_intent.payment_failed') {
++-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+++      const paymentIntent = (event as any).data.object as Stripe.PaymentIntent;
++       const customerId = (paymentIntent.customer as string) || '';
++       
++       console.log(`Payment failed for customer ${customerId}. Payment intent: ${paymentIntent.id}, status: ${paymentIntent.status}, last_payment_error: ${JSON.stringify(paymentIntent.last_payment_error)}`);
++diff --git a/backend/src/services/email.service.ts b/backend/src/services/email.service.ts
++index 6618ae7..9e5f96f 100644
++--- a/backend/src/services/email.service.ts
+++++ b/backend/src/services/email.service.ts
++@@ -601,66 +601,6 @@ class EmailService {
++     });
++   }
++ 
++-  public async sendPaymentFailedEmail(
++-    to: string,
++-    name: string,
++-    failureReason: string
++-  ): Promise<void> {
++-    await this.sendEmail({
++-      to,
++-      subject: 'Payment Failed - QuickFixAI',
++-      html: `
++-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
++-          <div style="text-align: center; margin-bottom: 30px;">
++-            <h1 style="color: #dc3545; margin-bottom: 10px;">⚠️ Payment Failed</h1>
++-            <p style="color: #666; font-size: 16px;">Hi ${name},</p>
++-          </div>
++-          
++-          <div style="background: #f8d7da; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
++-            <h2 style="color: #721c24; margin-top: 0;">We couldn't process your payment</h2>
++-            <p style="color: #721c24; line-height: 1.6;">
++-              Your recent payment attempt was unsuccessful. This is usually due to:
++-            </p>
++-            <ul style="color: #721c24; line-height: 1.6;">
++-              <li>Incomplete 3D Secure authentication</li>
++-              <li>Insufficient funds</li>
++-              <li>Card declined by your bank</li>
++-              <li>Expired or invalid card details</li>
++-            </ul>
++-          </div>
++-
++-          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
++-            <h3 style="color: #333; margin-top: 0;">🔧 How to Fix This</h3>
++-            <ol style="color: #555; line-height: 1.8;">
++-              <li><strong>Try again</strong> - Visit our subscription page and attempt payment again</li>
++-              <li><strong>Use a different card</strong> - Sometimes banks have different authentication requirements</li>
++-              <li><strong>Contact your bank</strong> - Ensure your card allows online payments</li>
++-              <li><strong>Check your details</strong> - Verify card number, expiry date, and CVV</li>
++-            </ol>
++-          </div>
++-
++-          <div style="text-align: center; margin: 30px 0;">
++-            <a href="${process.env.FRONTEND_URL}/pricing" 
++-               style="background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
++-              Try Payment Again
++-            </a>
++-          </div>
++-
++-          <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
++-            <p style="color: #0c5460; margin: 0; font-size: 14px;">
++-              <strong>Need help?</strong> Contact us at ${this.supportEmail} - we're here to help resolve any payment issues!
++-            </p>
++-          </div>
++-          
++-          <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
++-            <p>Thank you for choosing QuickFixAI!</p>
++-            <p>© 2025 QuickFixAI. All rights reserved.</p>
++-          </div>
++-        </div>
++-      `,
++-    });
++-  }
++-
++   public async sendRefundConfirmation(
++     to: string,
++     name: string,
++-- 
++2.49.0
++
+diff --git a/frontend/src/components/landing/LandingPage.css b/frontend/src/components/landing/LandingPage.css
+index 746e8ea..ece8ed2 100644
+--- a/frontend/src/components/landing/LandingPage.css
++++ b/frontend/src/components/landing/LandingPage.css
+@@ -7,6 +7,8 @@
+   padding: 2rem 0;
+   position: relative;
+   transition: background 0.3s ease;
++  font-family: 'Poppins', sans-serif;
++  color: var(--text-primary);
+ }
+ 
+ .quickfix-gradient-bg {
+@@ -1379,4 +1381,46 @@ body {
+ 
+ .animate-on-scroll.stagger-4 {
+   transition-delay: 0.4s;
++}
++
++.landing-page-container {
++  /* This container will hold the new banner and the rest of the page */
++}
++
++.limited-time-offer-banner {
++  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
++  color: #ffffff;
++  text-align: center;
++  padding: 1rem;
++  font-size: 1.1rem;
++  font-weight: 500;
++  position: sticky;
++  top: 0;
++  z-index: 1000; /* Ensure it stays on top of other content */
++  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
++}
++
++.limited-time-offer-banner p {
++  margin: 0;
++  display: flex;
++  align-items: center;
++  justify-content: center;
++  gap: 1rem;
++}
++
++.limited-time-offer-banner .offer-link {
++  background-color: #ffffff;
++  color: var(--accent-primary);
++  padding: 0.5rem 1rem;
++  border-radius: 20px;
++  text-decoration: none;
++  font-weight: 700;
++  transition: all 0.2s ease-in-out;
++  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
++}
++
++.limited-time-offer-banner .offer-link:hover {
++  background-color: #f0f0f0;
++  transform: translateY(-2px);
++  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+ } 
+\ No newline at end of file
+diff --git a/frontend/src/components/landing/LandingPage.js b/frontend/src/components/landing/LandingPage.js
+index d347016..b63c039 100644
+--- a/frontend/src/components/landing/LandingPage.js
++++ b/frontend/src/components/landing/LandingPage.js
+@@ -70,269 +70,278 @@ function LandingPage() {
+   }, []);
+ 
+   return (
+-    <div className="landing-page" style={{ position: 'relative', overflow: 'hidden' }}>
+-      <div className="quickfix-gradient-bg" />
+-      
+-      {/* Trust Badges - Moved to top right */}
+-      <div className="trust-badges">
+-        <div className="badge">
+-          <span className="badge-icon">🔒</span>
+-          <span className="badge-text">Secure & Private</span>
+-        </div>
+-        <div className="badge">
+-          <span className="badge-icon">⚡</span>
+-          <span className="badge-text">Instant Solutions</span>
+-        </div>
+-        <div className="badge">
+-          <span className="badge-icon">🎯</span>
+-          <span className="badge-text">Accurate Results</span>
+-        </div>
++    <div className="landing-page-container">
++      <div className="limited-time-offer-banner">
++        <p>
++          <strong>🎉 Limited Time Offer!</strong> Get <strong>30% OFF</strong> all subscription plans. This offer expires on August 6th.
++          <a href="/pricing" className="offer-link">Claim Offer Now</a>
++        </p>
+       </div>
+ 
+-      {/* Hero Section */}
+-      <div className="hero-section" style={{ position: 'relative', zIndex: 1 }}>
+-        <h1 className="app-title">
+-          <span className="title-quick">Quick</span>
+-          <span className="title-fix">Fix</span>
+-          <span className="title-ai">AI</span>
+-        </h1>
+-        <p className="hero-subtitle">Your AI-powered home maintenance companion</p>
+-        <div className="cta-buttons">
+-          {canStartTrial ? (
+-            <button onClick={handleStartTrial} className="trial-button">
+-              🚀 Start Your 5-Day FREE Trial
+-            </button>
+-          ) : userData && userData.subscriptionStatus === 'active' ? (
+-            <button onClick={handleStartRepair} className="trial-button">
+-              ✅ Continue with Your Subscription
+-            </button>
+-          ) : userData && userData.wasOnTrial ? (
+-            <Link to="/pricing" className="trial-button">
+-              📋 View Subscription Plans
+-            </Link>
+-          ) : (
+-            <button onClick={handleStartTrial} className="trial-button">
+-              🚀 Start Your 5-Day FREE Trial
+-            </button>
+-          )}
+-          <div className="secondary-cta-buttons">
+-            <button onClick={handleStartRepair} className="secondary-button">
+-            Start Your Repair Now
+-          </button>
+-          <Link to="/community" className="secondary-button">
+-            View Success Stories
+-          </Link>
++      <div className="landing-page" style={{ position: 'relative', overflow: 'hidden' }}>
++        <div className="quickfix-gradient-bg" />
++        
++        {/* Trust Badges - Moved to top right */}
++        <div className="trust-badges">
++          <div className="badge">
++            <span className="badge-icon">🔒</span>
++            <span className="badge-text">Secure & Private</span>
++          </div>
++          <div className="badge">
++            <span className="badge-icon">⚡</span>
++            <span className="badge-text">Instant Solutions</span>
++          </div>
++          <div className="badge">
++            <span className="badge-icon">🎯</span>
++            <span className="badge-text">Accurate Results</span>
+           </div>
+         </div>
+-      </div>
+ 
+-      {/* Steps Section - Keeping original position */}
+-      <div className="steps-section">
+-        <div className="step-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+-          <div className="step-number">1</div>
+-          <h3>Describe Your Issue</h3>
+-          <p>Simply tell us about your repair problem using text, voice, or upload a photo. Our AI understands natural language and visual cues.</p>
+-          <div className="step-emoji" style={{ marginTop: 'auto', paddingBottom: '2rem' }}>📝</div>
+-        </div>
+-        <div className="step-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+-          <div className="step-number">2</div>
+-          <h3>Get AI Guidance</h3>
+-          <p>Receive personalized step-by-step instructions tailored to your specific situation, including safety warnings and professional tips.</p>
+-          <div className="step-emoji" style={{ marginTop: 'auto', paddingBottom: '2rem' }}>🤖</div>
+-        </div>
+-        <div className="step-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+-          <div className="step-number">3</div>
+-          <h3>Fix with Confidence</h3>
+-          <p>Follow our interactive guide with exact tool recommendations, time estimates, and when to call a professional.</p>
+-          <div className="step-emoji" style={{ marginTop: 'auto', paddingBottom: '2rem' }}>🔧</div>
++        {/* Hero Section */}
++        <div className="hero-section" style={{ position: 'relative', zIndex: 1 }}>
++          <h1 className="app-title">
++            <span className="title-quick">Quick</span>
++            <span className="title-fix">Fix</span>
++            <span className="title-ai">AI</span>
++          </h1>
++          <p className="hero-subtitle">Your AI-powered home maintenance companion</p>
++          <div className="cta-buttons">
++            {canStartTrial ? (
++              <button onClick={handleStartTrial} className="trial-button">
++                🚀 Start Your 5-Day FREE Trial
++              </button>
++            ) : userData && userData.subscriptionStatus === 'active' ? (
++              <button onClick={handleStartRepair} className="trial-button">
++                ✅ Continue with Your Subscription
++              </button>
++            ) : userData && userData.wasOnTrial ? (
++              <Link to="/pricing" className="trial-button">
++                📋 View Subscription Plans
++              </Link>
++            ) : (
++              <button onClick={handleStartTrial} className="trial-button">
++                🚀 Start Your 5-Day FREE Trial
++              </button>
++            )}
++            <div className="secondary-cta-buttons">
++              <button onClick={handleStartRepair} className="secondary-button">
++              Start Your Repair Now
++            </button>
++            <Link to="/community" className="secondary-button">
++              View Success Stories
++            </Link>
++            </div>
++          </div>
+         </div>
+-      </div>
+ 
+-      {/* Features Section */}
+-      <div className="features-section">
+-        <h2 className="section-title">Why Choose QuickFix AI for Home Repairs?</h2>
+-        <div className="features-grid">
+-          <div className="feature-card">
+-            <span className="feature-icon">📝</span>
+-            <h3>Smart AI Diagnosis</h3>
+-            <p>Advanced AI technology analyzes your repair issue and provides accurate, personalized solutions for your specific situation.</p>
++        {/* Steps Section - Keeping original position */}
++        <div className="steps-section">
++          <div className="step-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
++            <div className="step-number">1</div>
++            <h3>Describe Your Issue</h3>
++            <p>Simply tell us about your repair problem using text, voice, or upload a photo. Our AI understands natural language and visual cues.</p>
++            <div className="step-emoji" style={{ marginTop: 'auto', paddingBottom: '2rem' }}>📝</div>
+           </div>
+-          <div className="feature-card">
+-            <span className="feature-icon">🔧</span>
+-            <h3>Professional-Grade Guides</h3>
+-            <p>Step-by-step instructions written by repair experts, with safety precautions and professional techniques.</p>
++          <div className="step-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
++            <div className="step-number">2</div>
++            <h3>Get AI Guidance</h3>
++            <p>Receive personalized step-by-step instructions tailored to your specific situation, including safety warnings and professional tips.</p>
++            <div className="step-emoji" style={{ marginTop: 'auto', paddingBottom: '2rem' }}>🤖</div>
+           </div>
+-          <div className="feature-card">
+-            <span className="feature-icon">🎯</span>
+-            <h3>Comprehensive Coverage</h3>
+-            <p>From simple plumbing fixes to complex electrical work, HVAC maintenance, and structural repairs - we've got you covered.</p>
+-          </div>
+-          <div className="feature-card">
+-            <span className="feature-icon">📱</span>
+-            <h3>Always Accessible</h3>
+-            <p>Access repair guidance on any device, anywhere, anytime. Perfect for emergency repairs and planned maintenance.</p>
++          <div className="step-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
++            <div className="step-number">3</div>
++            <h3>Fix with Confidence</h3>
++            <p>Follow our interactive guide with exact tool recommendations, time estimates, and when to call a professional.</p>
++            <div className="step-emoji" style={{ marginTop: 'auto', paddingBottom: '2rem' }}>🔧</div>
+           </div>
+         </div>
+-      </div>
+ 
+-      {/* Founder Story Section */}
+-      <div className="team-story-section">
+-        <h2 className="section-title">Meet the Developer</h2>
+-        <div className="story-content">
+-          <div className="story-image">
+-            <img src="/images/developing.jpeg" alt="Rocco Sassani working on QuickFix AI development" />
+-          </div>
+-          <div className="story-text">
+-            <h3>A Developer's Journey to Simplify Home Repairs</h3>
+-            <p>Hi, I'm Rocco Sassani, a software developer with a passion for solving real-world problems. QuickFixAI was born from my own frustrating experiences with home repairs – particularly a memorable experience battling with what should have been a simple water filter repair.</p>
+-            <p>That experience made me realize that while there's plenty of home repair information available online, finding the right guidance at the right moment is surprisingly difficult. As a developer, I knew there had to be a better way. By combining my software engineering expertise with AI technology, I've created QuickFixAI to make home repairs more approachable for everyone.</p>
+-            <div className="founder-principles">
+-              <div className="principle-item">
+-                <span className="principle-icon">💡</span>
+-                <h4>Problem-Solver First</h4>
+-                <p>Every feature is built to solve real repair challenges</p>
+-              </div>
+-              <div className="principle-item">
+-                <span className="principle-icon">🔍</span>
+-                <h4>Accuracy Focused</h4>
+-                <p>Continuously refined AI guidance based on expert input</p>
+-              </div>
+-              <div className="principle-item">
+-                <span className="principle-icon">👋</span>
+-                <h4>Direct Support</h4>
+-                <p>Personal attention to user feedback and needs</p>
+-              </div>
++        {/* Features Section */}
++        <div className="features-section">
++          <h2 className="section-title">Why Choose QuickFix AI for Home Repairs?</h2>
++          <div className="features-grid">
++            <div className="feature-card">
++              <span className="feature-icon">📝</span>
++              <h3>Smart AI Diagnosis</h3>
++              <p>Advanced AI technology analyzes your repair issue and provides accurate, personalized solutions for your specific situation.</p>
++            </div>
++            <div className="feature-card">
++              <span className="feature-icon">🔧</span>
++              <h3>Professional-Grade Guides</h3>
++              <p>Step-by-step instructions written by repair experts, with safety precautions and professional techniques.</p>
++            </div>
++            <div className="feature-card">
++              <span className="feature-icon">🎯</span>
++              <h3>Comprehensive Coverage</h3>
++              <p>From simple plumbing fixes to complex electrical work, HVAC maintenance, and structural repairs - we've got you covered.</p>
++            </div>
++            <div className="feature-card">
++              <span className="feature-icon">📱</span>
++              <h3>Always Accessible</h3>
++              <p>Access repair guidance on any device, anywhere, anytime. Perfect for emergency repairs and planned maintenance.</p>
+             </div>
+           </div>
+         </div>
+-      </div>
+ 
+-      {/* Interactive Demo Section */}
+-      <div className="demo-section">
+-        <h2 className="section-title">See QuickFixAI in Action</h2>
+-        <div className="demo-container">
+-          <div className="video-wrapper">
+-            {/* Replace VIDEO_ID with your actual YouTube video ID */}
+-            <iframe 
+-              src="https://www.youtube.com/embed/psJXd5XGru4"
+-              title="QuickFixAI Demo - AI-Powered Home Repair Guidance"
+-              frameBorder="0"
+-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+-              allowFullScreen
+-            ></iframe>
+-          </div>
+-          <div className="demo-features">
+-            <div className="demo-feature">
+-              <span className="demo-icon">🤖</span>
+-              <h4>Real-Time AI Analysis</h4>
+-              <p>Watch as our AI instantly understands and diagnoses repair issues</p>
+-            </div>
+-            <div className="demo-feature">
+-              <span className="demo-icon">📝</span>
+-              <h4>Step-by-Step Guidance</h4>
+-              <p>Clear, detailed instructions tailored to your specific situation</p>
++        {/* Founder Story Section */}
++        <div className="team-story-section">
++          <h2 className="section-title">Meet the Developer</h2>
++          <div className="story-content">
++            <div className="story-image">
++              <img src="/images/developing.jpeg" alt="Rocco Sassani working on QuickFix AI development" />
+             </div>
+-            <div className="demo-feature">
+-              <span className="demo-icon">⚡</span>
+-              <h4>Instant Solutions</h4>
+-              <p>Get immediate, actionable repair guidance when you need it</p>
++            <div className="story-text">
++              <h3>A Developer's Journey to Simplify Home Repairs</h3>
++              <p>Hi, I'm Rocco Sassani, a software developer with a passion for solving real-world problems. QuickFixAI was born from my own frustrating experiences with home repairs – particularly a memorable experience battling with what should have been a simple water filter repair.</p>
++              <p>That experience made me realize that while there's plenty of home repair information available online, finding the right guidance at the right moment is surprisingly difficult. As a developer, I knew there had to be a better way. By combining my software engineering expertise with AI technology, I've created QuickFixAI to make home repairs more approachable for everyone.</p>
++              <div className="founder-principles">
++                <div className="principle-item">
++                  <span className="principle-icon">💡</span>
++                  <h4>Problem-Solver First</h4>
++                  <p>Every feature is built to solve real repair challenges</p>
++                </div>
++                <div className="principle-item">
++                  <span className="principle-icon">🔍</span>
++                  <h4>Accuracy Focused</h4>
++                  <p>Continuously refined AI guidance based on expert input</p>
++                </div>
++                <div className="principle-item">
++                  <span className="principle-icon">👋</span>
++                  <h4>Direct Support</h4>
++                  <p>Personal attention to user feedback and needs</p>
++                </div>
++              </div>
+             </div>
+           </div>
+         </div>
+-      </div>
+ 
+-      {/* Before/After Section */}
+-      <div className="before-after-section">
+-        <h2 className="section-title">See Real Repair Transformations</h2>
+-        <div className="before-after-grid">
+-          <div className="before-after-card">
+-            <div className="image-comparison">
+-              <div className="before">
+-                <img src="/images/faucetb4.png" alt="Leaky kitchen faucet before repair showing water dripping" />
+-                <span className="label">Before</span>
++        {/* Interactive Demo Section */}
++        <div className="demo-section">
++          <h2 className="section-title">See QuickFixAI in Action</h2>
++          <div className="demo-container">
++            <div className="video-wrapper">
++              {/* Replace VIDEO_ID with your actual YouTube video ID */}
++              <iframe 
++                src="https://www.youtube.com/embed/psJXd5XGru4"
++                title="QuickFixAI Demo - AI-Powered Home Repair Guidance"
++                frameBorder="0"
++                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
++                allowFullScreen
++              ></iframe>
++            </div>
++            <div className="demo-features">
++              <div className="demo-feature">
++                <span className="demo-icon">🤖</span>
++                <h4>Real-Time AI Analysis</h4>
++                <p>Watch as our AI instantly understands and diagnoses repair issues</p>
++              </div>
++              <div className="demo-feature">
++                <span className="demo-icon">📝</span>
++                <h4>Step-by-Step Guidance</h4>
++                <p>Clear, detailed instructions tailored to your specific situation</p>
+               </div>
+-              <div className="after">
+-                <img src="/images/faucetafter.png" alt="Fixed kitchen faucet after repair, no leaks" />
+-                <span className="label">After</span>
++              <div className="demo-feature">
++                <span className="demo-icon">⚡</span>
++                <h4>Instant Solutions</h4>
++                <p>Get immediate, actionable repair guidance when you need it</p>
+               </div>
+             </div>
+-            <h3>Leaky Faucet Repair</h3>
+-            <p>Fixed a dripping kitchen faucet with proper washer replacement and seal installation</p>
+           </div>
+-          <div className="before-after-card">
+-            <div className="image-comparison">
+-              <div className="before">
+-                <img src="/images/wallb4.png" alt="Damaged drywall with hole showing wall studs" />
+-                <span className="label">Before</span>
+-              </div>
+-              <div className="after">
+-                <img src="/images/wallafter.png" alt="Smooth repaired drywall with seamless finish" />
+-                <span className="label">After</span>
++        </div>
++
++        {/* Before/After Section */}
++        <div className="before-after-section">
++          <h2 className="section-title">See Real Repair Transformations</h2>
++          <div className="before-after-grid">
++            <div className="before-after-card">
++              <div className="image-comparison">
++                <div className="before">
++                  <img src="/images/faucetb4.png" alt="Leaky kitchen faucet before repair showing water dripping" />
++                  <span className="label">Before</span>
++                </div>
++                <div className="after">
++                  <img src="/images/faucetafter.png" alt="Fixed kitchen faucet after repair, no leaks" />
++                  <span className="label">After</span>
++                </div>
+               </div>
++              <h3>Leaky Faucet Repair</h3>
++              <p>Fixed a dripping kitchen faucet with proper washer replacement and seal installation</p>
+             </div>
+-            <h3>Drywall Repair</h3>
+-            <p>Patched and finished a hole in the wall with professional-grade results and seamless texture matching</p>
+-          </div>
+-          <div className="before-after-card">
+-            <div className="image-comparison">
+-              <div className="before">
+-                <img src="/images/outletb4.png" alt="Faulty electrical outlet with damaged cover" />
+-                <span className="label">Before</span>
++            <div className="before-after-card">
++              <div className="image-comparison">
++                <div className="before">
++                  <img src="/images/wallb4.png" alt="Damaged drywall with hole showing wall studs" />
++                  <span className="label">Before</span>
++                </div>
++                <div className="after">
++                  <img src="/images/wallafter.png" alt="Smooth repaired drywall with seamless finish" />
++                  <span className="label">After</span>
++                </div>
+               </div>
+-              <div className="after">
+-                <img src="/images/outletafter.png" alt="Safely installed electrical outlet with new cover" />
+-                <span className="label">After</span>
++              <h3>Drywall Repair</h3>
++              <p>Patched and finished a hole in the wall with professional-grade results and seamless texture matching</p>
++            </div>
++            <div className="before-after-card">
++              <div className="image-comparison">
++                <div className="before">
++                  <img src="/images/outletb4.png" alt="Faulty electrical outlet with damaged cover" />
++                  <span className="label">Before</span>
++                </div>
++                <div className="after">
++                  <img src="/images/outletafter.png" alt="Safely installed electrical outlet with new cover" />
++                  <span className="label">After</span>
++                </div>
+               </div>
++              <h3>Electrical Outlet Fix</h3>
++              <p>Replaced a faulty outlet with proper safety measures and code-compliant installation</p>
+             </div>
+-            <h3>Electrical Outlet Fix</h3>
+-            <p>Replaced a faulty outlet with proper safety measures and code-compliant installation</p>
+           </div>
+         </div>
+-      </div>
+ 
+-      {/* CTA Section */}
+-      <div className="cta-section">
+-        <h2>Ready to Master Your Home Repairs?</h2>
+-        <p>Join homeowners who are taking control of their maintenance with AI-powered guidance. Save money, learn new skills, and keep your home in perfect condition.</p>
+-        <button onClick={handleStartRepair} className="start-button">
+-          Start Your First Repair
+-        </button>
+-      </div>
++        {/* CTA Section */}
++        <div className="cta-section">
++          <h2>Ready to Master Your Home Repairs?</h2>
++          <p>Join homeowners who are taking control of their maintenance with AI-powered guidance. Save money, learn new skills, and keep your home in perfect condition.</p>
++          <button onClick={handleStartRepair} className="start-button">
++            Start Your First Repair
++          </button>
++        </div>
+ 
+-      {/* FAQ Section */}
+-      <div className="faq-section">
+-        <h2 className="section-title">Frequently Asked Questions</h2>
+-        <div className="faq-grid">
+-          <div className="faq-item">
+-            <h3>What is QuickFix AI and how does it work?</h3>
+-            <p>QuickFix AI is an intelligent home maintenance platform that uses advanced artificial intelligence to provide personalized repair guidance. Simply describe your issue or upload a photo, and our AI will generate step-by-step instructions tailored to your specific situation, including tool recommendations and safety precautions.</p>
+-          </div>
+-          <div className="faq-item">
+-            <h3>What types of home repairs can QuickFix AI help with?</h3>
+-            <p>QuickFix AI covers a comprehensive range of home repairs including plumbing (leaks, clogs, fixture replacement), electrical (outlet repair, switch installation, lighting), HVAC maintenance, drywall repair, painting, basic carpentry, appliance troubleshooting, and many more common household issues.</p>
+-          </div>
+-          <div className="faq-item">
+-            <h3>Is it safe to follow AI-generated repair guides?</h3>
+-            <p>Our AI provides detailed, accurate repair guides with built-in safety warnings. However, we always recommend consulting with a licensed professional for complex electrical work, major plumbing projects, or any repairs involving gas lines. Our guides clearly indicate when professional help is required.</p>
+-          </div>
+-          <div className="faq-item">
+-            <h3>Do I need any special tools or experience?</h3>
+-            <p>Most repairs can be completed with basic household tools. Our guides specify exactly what tools you'll need and provide alternatives when possible. No prior repair experience is required - our step-by-step instructions are designed for beginners while being detailed enough for DIY enthusiasts.</p>
+-          </div>
+-          <div className="faq-item">
+-            <h3>How accurate are the repair instructions?</h3>
+-            <p>Our AI has been trained on thousands of repair scenarios and professional techniques. The instructions are based on industry best practices and include safety measures. We continuously improve our AI based on user feedback and professional input to ensure accuracy and reliability.</p>
++        {/* FAQ Section */}
++        <div className="faq-section">
++          <h2 className="section-title">Frequently Asked Questions</h2>
++          <div className="faq-grid">
++            <div className="faq-item">
++              <h3>What is QuickFix AI and how does it work?</h3>
++              <p>QuickFix AI is an intelligent home maintenance platform that uses advanced artificial intelligence to provide personalized repair guidance. Simply describe your issue or upload a photo, and our AI will generate step-by-step instructions tailored to your specific situation, including tool recommendations and safety precautions.</p>
++            </div>
++            <div className="faq-item">
++              <h3>What types of home repairs can QuickFix AI help with?</h3>
++              <p>QuickFix AI covers a comprehensive range of home repairs including plumbing (leaks, clogs, fixture replacement), electrical (outlet repair, switch installation, lighting), HVAC maintenance, drywall repair, painting, basic carpentry, appliance troubleshooting, and many more common household issues.</p>
++            </div>
++            <div className="faq-item">
++              <h3>Is it safe to follow AI-generated repair guides?</h3>
++              <p>Our AI provides detailed, accurate repair guides with built-in safety warnings. However, we always recommend consulting with a licensed professional for complex electrical work, major plumbing projects, or any repairs involving gas lines. Our guides clearly indicate when professional help is required.</p>
++            </div>
++            <div className="faq-item">
++              <h3>Do I need any special tools or experience?</h3>
++              <p>Most repairs can be completed with basic household tools. Our guides specify exactly what tools you'll need and provide alternatives when possible. No prior repair experience is required - our step-by-step instructions are designed for beginners while being detailed enough for DIY enthusiasts.</p>
++            </div>
++            <div className="faq-item">
++              <h3>How accurate are the repair instructions?</h3>
++              <p>Our AI has been trained on thousands of repair scenarios and professional techniques. The instructions are based on industry best practices and include safety measures. We continuously improve our AI based on user feedback and professional input to ensure accuracy and reliability.</p>
++            </div>
++            <div className="faq-item">
++              <h3>Can I use QuickFix AI on my mobile device?</h3>
++              <p>Absolutely! QuickFix AI is fully optimized for mobile devices. You can access repair guides on your smartphone or tablet, making it perfect for on-the-spot repairs. The interface adapts to your screen size and includes touch-friendly controls.</p>
++            </div>
+           </div>
+-          <div className="faq-item">
+-            <h3>Can I use QuickFix AI on my mobile device?</h3>
+-            <p>Absolutely! QuickFix AI is fully optimized for mobile devices. You can access repair guides on your smartphone or tablet, making it perfect for on-the-spot repairs. The interface adapts to your screen size and includes touch-friendly controls.</p>
++          <div className="faq-cta">
++            <Link to="/faq" className="secondary-button">
++              View All FAQs
++            </Link>
+           </div>
+         </div>
+-        <div className="faq-cta">
+-          <Link to="/faq" className="secondary-button">
+-            View All FAQs
+-          </Link>
+-        </div>
+       </div>
+     </div>
+   );
+diff --git a/frontend/src/components/pricing/PaymentPlan.css b/frontend/src/components/pricing/PaymentPlan.css
+index 8651a3d..b61b833 100644
+--- a/frontend/src/components/pricing/PaymentPlan.css
++++ b/frontend/src/components/pricing/PaymentPlan.css
+@@ -194,6 +194,19 @@
+   line-height: 1;
+ }
+ 
++.price-wrapper {
++  display: flex;
++  align-items: baseline;
++  gap: 0.5rem;
++}
++
++.original-price-text {
++  text-decoration: line-through;
++  color: var(--text-light);
++  font-size: 1.5rem;
++  font-weight: 400;
++}
++
+ .period {
+   font-size: 1.15rem;
+   color: var(--text-secondary);
+@@ -624,4 +637,15 @@
+     font-size: 1rem;
+     padding: 0.8rem 1.5rem;
+   }
++}
++
++.limited-time-discount-banner {
++  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
++  color: white;
++  text-align: center;
++  padding: 1rem;
++  font-size: 1.1rem;
++  font-weight: 600;
++  margin-bottom: 2rem;
++  border-radius: 8px;
+ } 
+\ No newline at end of file
+diff --git a/frontend/src/components/pricing/PaymentPlan.js b/frontend/src/components/pricing/PaymentPlan.js
+index 2a44275..c0ce665 100644
+--- a/frontend/src/components/pricing/PaymentPlan.js
++++ b/frontend/src/components/pricing/PaymentPlan.js
+@@ -103,8 +103,15 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling, userData, subsc
+     return currentPlan === planKey && currentBilling === billing;
+   };
+ 
++  const calculateDiscountedPrice = (price) => {
++    return (price * 0.7).toFixed(2);
++  };
++
+   return (
+     <div className={`payment-plan-container ${!isDarkMode ? 'light' : ''}`}>
++      <div className="limited-time-discount-banner">
++        🎉 Limited Time Offer: Get 30% off all plans! The discount is applied automatically at checkout. 🎉
++      </div>
+       {/* Show trial eligibility message if trial was requested but user can't use it */}
+       {showTrial && !canStartTrial && currentUser && userData && (
+         <div className="trial-eligibility-banner">
+@@ -204,14 +211,19 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling, userData, subsc
+             <h3 className="plan-label">{plan.label}</h3>
+             <div className="plan-price">
+               <div className="price-amount">
+-                <span className="price">
+-                  ${billing === 'monthly' ? plan.monthly : plan.annual}
+-                </span>
++                <div className="price-wrapper">
++                  <span className="original-price-text">
++                    ${billing === 'monthly' ? plan.monthly : plan.annual}
++                  </span>
++                  <span className="price">
++                    ${calculateDiscountedPrice(billing === 'monthly' ? plan.monthly : plan.annual)}
++                  </span>
++                </div>
+                 <span className="period">per month</span>
+               </div>
+               {billing === 'annual' && (
+                 <span className="annual-note">
+-                  billed annually ${plan.annualTotal}
++                  billed annually ${calculateDiscountedPrice(plan.annualTotal)}
+                 </span>
+               )}
+             </div>
+diff --git a/subscription-cancellation-fix.patch b/subscription-cancellation-fix.patch
+new file mode 100644
+index 0000000..2adc19c
+--- /dev/null
++++ b/subscription-cancellation-fix.patch
+@@ -0,0 +1,1407 @@
++From f2071cff395add7a388a691d86ec1aef506d1a4a Mon Sep 17 00:00:00 2001
++From: sasroc <sassanirocco@gmail.com>
++Date: Thu, 3 Jul 2025 18:24:27 -0400
++Subject: [PATCH] Critical fix: Subscription cancellation behavior
++
++- Fixed subscription cancellation to preserve access until billing period ends
++- Trial cancellations: Immediately revoke access (correct behavior)
++- Paid subscription cancellations: Keep plan and credits until billing cycle ends
++- Enhanced trial UI with better positioning and light mode visibility
++- Updated webhook handlers for proper subscription lifecycle management
++- Added comprehensive logging for debugging subscription events
++---
++ backend/src/controllers/stripe.controller.ts  | 234 +++++++++++++++-
++ backend/src/services/email.service.ts         |  96 ++++++-
++ .../src/components/common/TrialStatus.css     | 254 ++++++++++++++++++
++ frontend/src/components/common/TrialStatus.js |  87 ++++++
++ .../src/components/landing/LandingPage.js     |  10 +-
++ .../src/components/landing/PaymentSuccess.js  |   4 +-
++ frontend/src/components/navigation/Navbar.css | 139 +++++++++-
++ frontend/src/components/navigation/Navbar.js  |  52 +++-
++ .../src/components/pricing/PaymentPlan.js     |  20 +-
++ frontend/src/components/repair/RepairPage.css |  23 ++
++ frontend/src/components/repair/RepairPage.js  |  14 +-
++ frontend/src/utils/trialUtils.js              | 137 ++++++++--
++ 12 files changed, 1001 insertions(+), 69 deletions(-)
++ create mode 100644 frontend/src/components/common/TrialStatus.css
++ create mode 100644 frontend/src/components/common/TrialStatus.js
++
++diff --git a/backend/src/controllers/stripe.controller.ts b/backend/src/controllers/stripe.controller.ts
++index ac6ab4b..059c6b9 100644
++--- a/backend/src/controllers/stripe.controller.ts
+++++ b/backend/src/controllers/stripe.controller.ts
++@@ -5,6 +5,17 @@ import cacheService from '../services/cacheService';
++ 
++ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
++ 
+++// Helper function to get credit allocation for a plan
+++const getPlanCredits = (plan: string): number => {
+++  const planCredits: { [key: string]: number } = {
+++    'none': 0,
+++    'starter': 25,
+++    'pro': 100,
+++    'premium': 500
+++  };
+++  return planCredits[plan] || 25; // Default to starter credits
+++};
+++
++ export const createCheckoutSession = async (req: Request, res: Response) => {
++   try {
++     const { uid, plan, billing, isTrial = false } = req.body;
++@@ -22,9 +33,9 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
++       'premium_annual': process.env.STRIPE_PREMIUM_ANNUAL_PRICE_ID!,
++     };
++ 
++-    // For free trials, we only offer Pro plan and force monthly billing
++-    if (isTrial && plan !== 'pro') {
++-      return res.status(400).json({ message: 'Free trial is only available for Pro plan' });
+++    // For free trials, we only offer Starter plan and force monthly billing
+++    if (isTrial && plan !== 'starter') {
+++      return res.status(400).json({ message: 'Free trial is only available for Starter plan' });
++     }
++ 
++     // Check if user has already used their trial
++@@ -78,7 +89,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
++     // Add trial configuration if this is a trial
++     if (isTrial) {
++       sessionConfig.subscription_data = {
++-        trial_period_days: 5,
+++        trial_period_days: parseInt(process.env.TRIAL_PERIOD_DAYS || '5'), // Default 5 days, configurable via env
++         metadata: {
++           uid,
++           plan,
++@@ -141,8 +152,9 @@ export const handleWebhook = async (req: Request, res: Response) => {
++ 
++         // Add trial-specific data
++         if (isTrial) {
+++          const trialPeriodDays = parseInt(process.env.TRIAL_PERIOD_DAYS || '5');
++           const trialEndDate = new Date();
++-          trialEndDate.setDate(trialEndDate.getDate() + 5); // 5 days from now
+++          trialEndDate.setDate(trialEndDate.getDate() + trialPeriodDays);
++           
++           userUpdateData.isOnTrial = true;
++           userUpdateData.wasOnTrial = true; // Mark that this user has used their trial
++@@ -193,15 +205,22 @@ export const handleWebhook = async (req: Request, res: Response) => {
++         const isTrialCancellation = isCanceled && userData.isOnTrial;
++         
++         const updateData: any = {
++-          subscriptionStatus: status,
++           stripeSubscriptionId: subscriptionId,
++         };
++ 
++         // If this is a trial cancellation, track it specially
++         if (isTrialCancellation) {
+++          updateData.isOnTrial = false; // CRITICAL: Stop showing trial banner immediately
++           updateData.trialCancelledAt = admin.firestore.Timestamp.now();
++           updateData.wasOnTrial = true; // Track that this user was on trial
++-          // Keep isOnTrial true initially so we can track the grace period
+++          updateData.trialExpiredAt = admin.firestore.Timestamp.now(); // Mark when trial ended
+++          updateData.plan = 'none'; // CRITICAL: Revoke plan access
+++          updateData.subscriptionStatus = 'inactive'; // CRITICAL: Always set to inactive for trial cancellations
+++          updateData.credits = 0; // Reset credits to 0
+++        } else {
+++          // For regular paid subscribers, just update the status
+++          // They keep their plan and credits until the billing period ends
+++          updateData.subscriptionStatus = status;
++         }
++ 
++         // Update user subscription status
++@@ -209,6 +228,13 @@ export const handleWebhook = async (req: Request, res: Response) => {
++ 
++         // Invalidate user cache since subscription status changed
++         cacheService.invalidateUserData(userDoc.id);
+++
+++        // Log cancellation for debugging
+++        if (isTrialCancellation) {
+++          console.log(`TRIAL CANCELLED (via subscription.updated): User ${userDoc.id} - Firestore updated with plan: 'none', subscriptionStatus: 'inactive', credits: 0. Original Stripe status was: '${status}', Cancel at period end: ${(subscription as any).cancel_at_period_end}`);
+++        } else if (isCanceled) {
+++          console.log(`PAID SUBSCRIPTION CANCELLED (via subscription.updated): User ${userDoc.id} - Keeps plan and credits until billing period ends. Firestore updated with subscriptionStatus: '${status}'`);
+++        }
++         
++         if (isCanceled && userData && userData.email) {
++           try {
++@@ -257,7 +283,180 @@ export const handleWebhook = async (req: Request, res: Response) => {
++           }
++         }
++       }
++-    } else if (event.type === 'customer.subscription.deleted') {
+++    } else if (event.type === 'invoice.payment_succeeded') {
+++      const invoice = event.data.object as Stripe.Invoice;
+++      const subscriptionId = ((invoice as any).subscription as string) || '';
+++      
+++      // Extract subscription ID from invoice lines if not available directly
+++      const invoiceLines = (invoice as any).lines?.data || [];
+++      let subscriptionIdFromLine = '';
+++      
+++      if (invoiceLines.length > 0) {
+++        const line = invoiceLines[0];
+++        // Check direct subscription property
+++        if (line?.subscription) {
+++          subscriptionIdFromLine = line.subscription;
+++        }
+++        // Check nested in parent.subscription_item_details.subscription
+++        else if (line?.parent?.subscription_item_details?.subscription) {
+++          subscriptionIdFromLine = line.parent.subscription_item_details.subscription;
+++        }
+++      }
+++      
+++      const finalSubscriptionId = subscriptionId || subscriptionIdFromLine || '';
+++      
+++      if (finalSubscriptionId) {
+++        // Find the user by subscription ID
+++        const usersRef = admin.firestore().collection('users');
+++        const querySnap = await usersRef.where('stripeSubscriptionId', '==', finalSubscriptionId).get();
+++        
+++        if (!querySnap.empty) {
+++          const userDoc = querySnap.docs[0];
+++          const userData = userDoc.data();
+++          
+++          // Check if this is the first payment after trial (trial ending) and amount > 0
+++          if (userData.isOnTrial && invoice.amount_paid > 0) {
+++            // Get credit allocation for user's plan
+++            const userPlan = userData.plan || 'starter';
+++            const creditsToReset = getPlanCredits(userPlan);
+++            
+++            const updateData: any = {
+++              isOnTrial: false,
+++              trialExpiredAt: admin.firestore.Timestamp.now(),
+++              subscriptionStatus: 'active',
+++              credits: creditsToReset, // Reset credits to plan allocation
+++            };
+++
+++            await userDoc.ref.set(updateData, { merge: true });
+++            
+++            // Invalidate user cache since trial status changed
+++            cacheService.invalidateUserData(userDoc.id);
+++            
+++            console.log(`Trial ended and payment succeeded for user ${userDoc.id}, subscription ${finalSubscriptionId}. Credits reset to ${creditsToReset} for ${userPlan} plan.`);
+++            
+++            // Send trial conversion email
+++            if (userData.email) {
+++              try {
+++                const name = userData.displayName || userData.email.split('@')[0];
+++                const plan = userData.plan || 'starter';
+++                const EmailService = (await import('../services/email.service')).default;
+++                await EmailService.getInstance().sendTrialConversionConfirmation(
+++                  userData.email,
+++                  name,
+++                  plan
+++                );
+++              } catch (emailError) {
+++                console.error('Failed to send trial conversion email:', emailError);
+++              }
+++            }
+++          }
+++        }
+++              } else {
+++          // Fallback: try to find user by customer ID
+++          const customerId = (invoice.customer as string) || '';
+++          if (customerId && invoice.amount_paid > 0) {
+++            const usersRef = admin.firestore().collection('users');
+++            const customerQuerySnap = await usersRef.where('stripeCustomerId', '==', customerId).get();
+++            
+++            if (!customerQuerySnap.empty) {
+++              const userDoc = customerQuerySnap.docs[0];
+++              const userData = userDoc.data();
+++              
+++              if (userData.isOnTrial) {
+++                // Get credit allocation for user's plan
+++                const userPlan = userData.plan || 'starter';
+++                const creditsToReset = getPlanCredits(userPlan);
+++                
+++                const updateData: any = {
+++                  isOnTrial: false,
+++                  trialExpiredAt: admin.firestore.Timestamp.now(),
+++                  subscriptionStatus: 'active',
+++                  credits: creditsToReset, // Reset credits to plan allocation
+++                };
+++
+++                await userDoc.ref.set(updateData, { merge: true });
+++                
+++                // Invalidate user cache since trial status changed
+++                cacheService.invalidateUserData(userDoc.id);
+++                
+++                console.log(`Trial ended and payment succeeded for user ${userDoc.id} via customer ID ${customerId}. Credits reset to ${creditsToReset} for ${userPlan} plan.`);
+++                
+++                // Send trial conversion email
+++                if (userData.email) {
+++                  try {
+++                    const name = userData.displayName || userData.email.split('@')[0];
+++                    const plan = userData.plan || 'starter';
+++                    const EmailService = (await import('../services/email.service')).default;
+++                    await EmailService.getInstance().sendTrialConversionConfirmation(
+++                      userData.email,
+++                      name,
+++                      plan
+++                    );
+++                  } catch (emailError) {
+++                    console.error('Failed to send trial conversion email:', emailError);
+++                  }
+++                }
+++              }
+++            }
+++          }
+++        }
+++      } else if ((event as any).type === 'customer.subscription.updated') {
+++        const subscription = (event as any).data.object as Stripe.Subscription;
+++        const stripeCustomerId = (subscription.customer as string) || '';
+++        const status = subscription.status;
+++        const subscriptionId = subscription.id;
+++        
+++        // Check if this is a trial ending (trial_end is in the past and status is active)
+++        const now = Math.floor(Date.now() / 1000);
+++        const trialEnded = subscription.trial_end && subscription.trial_end < now;
+++        
+++        if (trialEnded && status === 'active') {
+++          // Find the user by customer ID
+++          const usersRef = admin.firestore().collection('users');
+++          const querySnap = await usersRef.where('stripeCustomerId', '==', stripeCustomerId).get();
+++          
+++          if (!querySnap.empty) {
+++            const userDoc = querySnap.docs[0];
+++            const userData = userDoc.data();
+++            
+++            if (userData.isOnTrial) {
+++              // Get credit allocation for user's plan
+++              const userPlan = userData.plan || 'starter';
+++              const creditsToReset = getPlanCredits(userPlan);
+++              
+++              const updateData: any = {
+++                isOnTrial: false,
+++                trialExpiredAt: admin.firestore.Timestamp.now(),
+++                subscriptionStatus: 'active',
+++                credits: creditsToReset, // Reset credits to plan allocation
+++              };
+++
+++              await userDoc.ref.set(updateData, { merge: true });
+++              
+++              // Invalidate user cache since trial status changed
+++              cacheService.invalidateUserData(userDoc.id);
+++              
+++              console.log(`Trial ended via subscription.updated for user ${userDoc.id}, subscription ${subscriptionId}. Credits reset to ${creditsToReset} for ${userPlan} plan.`);
+++              
+++              // Send trial conversion email
+++              if (userData.email) {
+++                try {
+++                  const name = userData.displayName || userData.email.split('@')[0];
+++                  const plan = userData.plan || 'starter';
+++                  const EmailService = (await import('../services/email.service')).default;
+++                  await EmailService.getInstance().sendTrialConversionConfirmation(
+++                    userData.email,
+++                    name,
+++                    plan
+++                  );
+++                } catch (emailError) {
+++                  console.error('Failed to send trial conversion email:', emailError);
+++                }
+++              }
+++            }
+++          }
+++        }
+++      } else if (event.type === 'customer.subscription.deleted') {
++       const subscription = event.data.object as Stripe.Subscription;
++       const stripeCustomerId = (subscription.customer as string) || '';
++       const status = subscription.status;
++@@ -275,14 +474,24 @@ export const handleWebhook = async (req: Request, res: Response) => {
++         const isTrialCancellation = userData.isOnTrial;
++         
++         const updateData: any = {
++-          subscriptionStatus: status,
++           stripeSubscriptionId: subscriptionId,
++         };
++ 
++         // If this is a trial cancellation, track it specially
++         if (isTrialCancellation) {
+++          updateData.isOnTrial = false; // CRITICAL: Stop showing trial banner
++           updateData.trialCancelledAt = admin.firestore.Timestamp.now();
++           updateData.wasOnTrial = true; // Track that this user was on trial
+++          updateData.trialExpiredAt = admin.firestore.Timestamp.now(); // Mark when trial ended
+++          updateData.plan = 'none'; // CRITICAL: Revoke plan access
+++          updateData.subscriptionStatus = 'inactive'; // CRITICAL: Always set to inactive for trial cancellations
+++          updateData.credits = 0; // Reset credits to 0
+++        } else {
+++          // For regular paid subscribers, subscription deleted means billing period ended
+++          // So we do revoke access when the subscription is actually deleted
+++          updateData.subscriptionStatus = status; // Use Stripe status (usually 'canceled')
+++          updateData.plan = 'none'; // Revoke plan access - billing period has ended
+++          updateData.credits = 0; // Reset credits - billing period has ended
++         }
++ 
++         // Update user subscription status
++@@ -291,6 +500,13 @@ export const handleWebhook = async (req: Request, res: Response) => {
++         // Invalidate user cache since subscription status changed
++         cacheService.invalidateUserData(userDoc.id);
++ 
+++        // Log cancellation for debugging
+++        if (isTrialCancellation) {
+++          console.log(`TRIAL CANCELLED (via subscription.deleted): User ${userDoc.id} - Firestore updated with plan: 'none', subscriptionStatus: 'inactive', credits: 0. Original Stripe status was: '${status}'`);
+++        } else {
+++          console.log(`SUBSCRIPTION EXPIRED (via subscription.deleted): User ${userDoc.id} - Billing period ended, access revoked. Firestore updated with plan: 'none', subscriptionStatus: '${status}', credits: 0`);
+++        }
+++
++         // Send cancellation email if user has email
++         if (userData && userData.email) {
++           try {
++diff --git a/backend/src/services/email.service.ts b/backend/src/services/email.service.ts
++index 532b04c..fce02e7 100644
++--- a/backend/src/services/email.service.ts
+++++ b/backend/src/services/email.service.ts
++@@ -126,8 +126,8 @@ class EmailService {
++     
++     // HTML-based email (fallback)
++     await this.sendEmail({
++-        to,
++-        subject: 'Your QuickFixAI Subscription is Active!',
+++      to,
+++      subject: 'Your QuickFixAI Subscription is Active!',
++         html: `
++           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
++             <div style="text-align: center; margin-bottom: 30px;">
++@@ -192,11 +192,11 @@ class EmailService {
++           to,
++           subject: 'Your QuickFixAI Free Trial Has Started!',
++           templateId,
++-          dynamicTemplateData: {
++-            name,
+++      dynamicTemplateData: {
+++        name,
++             plan: planLabels[plan as keyof typeof planLabels],
++-            supportEmail: this.supportEmail,
++-          },
+++        supportEmail: this.supportEmail,
+++      },
++         });
++         return; // Exit early if template works
++       } catch (error) {
++@@ -263,7 +263,89 @@ class EmailService {
++             </div>
++           </div>
++         `,
++-      });
+++    });
+++  }
+++
+++  public async sendTrialConversionConfirmation(to: string, name: string, plan: string): Promise<void> {
+++    const planLabels = {
+++      starter: 'Starter',
+++      pro: 'Pro', 
+++      premium: 'Premium'
+++    };
+++
+++    // Try to use template if available, otherwise use HTML
+++    const templateId = process.env.SENDGRID_TRIAL_CONVERSION_TEMPLATE_ID;
+++    
+++    if (templateId) {
+++      try {
+++        // Template-based email
+++        await this.sendEmail({
+++          to,
+++          subject: 'Your Trial Has Converted to a Paid Subscription!',
+++          templateId,
+++          dynamicTemplateData: {
+++            name,
+++            plan: planLabels[plan as keyof typeof planLabels],
+++            supportEmail: this.supportEmail,
+++          },
+++        });
+++        return; // Exit early if template works
+++      } catch (error) {
+++        // Fall through to HTML fallback
+++      }
+++    }
+++    
+++    // HTML-based email (fallback)
+++    await this.sendEmail({
+++      to,
+++      subject: 'Your Trial Has Converted to a Paid Subscription!',
+++      html: `
+++        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+++          <div style="text-align: center; margin-bottom: 30px;">
+++            <h1 style="color: #333; margin-bottom: 10px;">🎉 Welcome to QuickFixAI ${planLabels[plan as keyof typeof planLabels]}!</h1>
+++            <p style="color: #666; font-size: 16px;">Hi ${name},</p>
+++          </div>
+++          
+++          <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #28a745;">
+++            <h2 style="color: #155724; margin-top: 0;">✅ Your trial has automatically converted!</h2>
+++            <p style="color: #155724; line-height: 1.6;">
+++              Your 5-day free trial has ended and you've been successfully charged for your 
+++              <strong>${planLabels[plan as keyof typeof planLabels]}</strong> subscription. 
+++              You now have continued access to all premium features!
+++            </p>
+++          </div>
+++
+++          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+++            <h3 style="color: #333; margin-top: 0;">🚀 Your Subscription Benefits:</h3>
+++            <ul style="color: #555; line-height: 1.8;">
+++              <li><strong>25 AI repair guides per month</strong> - Get expert-level repair instructions</li>
+++              <li><strong>GPT-4.1 Nano AI model</strong> - Fast and accurate repair analysis</li>
+++              <li><strong>Unlimited repair history</strong> - Save and access all your past repairs</li>
+++              <li><strong>Community access</strong> - Connect with other DIY enthusiasts</li>
+++              <li><strong>Priority email support</strong> - Get help when you need it</li>
+++            </ul>
+++          </div>
+++
+++          <div style="text-align: center; margin: 30px 0;">
+++            <a href="${process.env.FRONTEND_URL}/repair" 
+++               style="background: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+++              Continue Using QuickFixAI
+++            </a>
+++          </div>
+++
+++          <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+++            <p style="color: #0c5460; margin: 0; font-size: 14px;">
+++              <strong>Manage your subscription:</strong> You can update your billing details, change plans, or cancel anytime in your account settings.
+++            </p>
+++          </div>
+++          
+++          <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
+++            <p>Questions about your subscription? Contact us at ${this.supportEmail}</p>
+++            <p>© 2025 QuickFixAI. All rights reserved.</p>
+++          </div>
+++        </div>
+++      `,
+++    });
++   }
++ 
++   public async sendSupportEmail(from: string, subject: string, message: string): Promise<void> {
++diff --git a/frontend/src/components/common/TrialStatus.css b/frontend/src/components/common/TrialStatus.css
++new file mode 100644
++index 0000000..3c9ef73
++--- /dev/null
+++++ b/frontend/src/components/common/TrialStatus.css
++@@ -0,0 +1,254 @@
+++.trial-status {
+++  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+++  border: 2px solid #2196f3;
+++  border-radius: 12px;
+++  padding: 1rem 1.5rem;
+++  margin: 1rem 0;
+++  position: relative;
+++  overflow: hidden;
+++  transition: all 0.3s ease;
+++  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+++}
+++
+++.trial-status:before {
+++  content: '';
+++  position: absolute;
+++  top: 0;
+++  left: 0;
+++  right: 0;
+++  height: 3px;
+++  background: linear-gradient(90deg, #2196f3, #9c27b0);
+++  animation: progress-shimmer 2s ease-in-out infinite;
+++}
+++
+++.trial-status-content {
+++  display: flex;
+++  align-items: center;
+++  gap: 1rem;
+++}
+++
+++.trial-icon {
+++  font-size: 2rem;
+++  line-height: 1;
+++  flex-shrink: 0;
+++}
+++
+++.trial-info {
+++  flex: 1;
+++  min-width: 0;
+++}
+++
+++.trial-title {
+++  font-weight: 700;
+++  font-size: 1.1rem;
+++  color: #1565c0;
+++  margin-bottom: 0.25rem;
+++}
+++
+++.trial-countdown {
+++  font-size: 1rem;
+++  color: #424242;
+++  font-weight: 500;
+++}
+++
+++.trial-countdown strong {
+++  color: #1565c0;
+++  font-weight: 700;
+++}
+++
+++.trial-details {
+++  margin-top: 0.5rem;
+++  color: #666;
+++  font-size: 0.85rem;
+++}
+++
+++.trial-cta {
+++  margin-left: 1rem;
+++  flex-shrink: 0;
+++}
+++
+++.upgrade-link {
+++  background: linear-gradient(135deg, #2196f3 0%, #9c27b0 100%);
+++  color: white;
+++  text-decoration: none;
+++  padding: 0.6rem 1.2rem;
+++  border-radius: 8px;
+++  font-weight: 600;
+++  font-size: 0.9rem;
+++  transition: all 0.3s ease;
+++  display: inline-block;
+++  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+++}
+++
+++.upgrade-link:hover {
+++  transform: translateY(-1px);
+++  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.4);
+++  text-decoration: none;
+++  color: white;
+++}
+++
+++/* Urgent state (less than 24 hours) */
+++.trial-status.urgent {
+++  background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%);
+++  border-color: #ff9800;
+++  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.2);
+++}
+++
+++.trial-status.urgent:before {
+++  background: linear-gradient(90deg, #ff9800, #e91e63);
+++}
+++
+++.trial-status.urgent .trial-title {
+++  color: #e65100;
+++}
+++
+++.trial-status.urgent .trial-countdown strong {
+++  color: #e65100;
+++}
+++
+++.trial-status.urgent .upgrade-link {
+++  background: linear-gradient(135deg, #ff9800 0%, #e91e63 100%);
+++  box-shadow: 0 2px 4px rgba(255, 152, 0, 0.3);
+++}
+++
+++.trial-status.urgent .upgrade-link:hover {
+++  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.4);
+++}
+++
+++/* Critical state (less than 6 hours) */
+++.trial-status.critical {
+++  background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%);
+++  border-color: #f44336;
+++  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
+++  animation: pulse-warning 2s ease-in-out infinite;
+++}
+++
+++.trial-status.critical:before {
+++  background: linear-gradient(90deg, #f44336, #e91e63);
+++}
+++
+++.trial-status.critical .trial-title {
+++  color: #c62828;
+++}
+++
+++.trial-status.critical .trial-countdown strong {
+++  color: #c62828;
+++}
+++
+++.trial-status.critical .upgrade-link {
+++  background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+++  box-shadow: 0 2px 4px rgba(244, 67, 54, 0.3);
+++  animation: button-pulse 1s ease-in-out infinite;
+++}
+++
+++.trial-status.critical .upgrade-link:hover {
+++  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.4);
+++}
+++
+++/* Dark mode support */
+++.dark .trial-status {
+++  background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(156, 39, 176, 0.1) 100%);
+++  border-color: #42a5f5;
+++}
+++
+++.dark .trial-status .trial-title {
+++  color: #42a5f5;
+++}
+++
+++.dark .trial-status .trial-countdown {
+++  color: #e0e0e0;
+++}
+++
+++.dark .trial-status .trial-countdown strong {
+++  color: #42a5f5;
+++}
+++
+++.dark .trial-status .trial-details {
+++  color: #bdbdbd;
+++}
+++
+++.dark .trial-status.urgent {
+++  background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(233, 30, 99, 0.1) 100%);
+++  border-color: #ffb74d;
+++}
+++
+++.dark .trial-status.urgent .trial-title {
+++  color: #ffb74d;
+++}
+++
+++.dark .trial-status.urgent .trial-countdown strong {
+++  color: #ffb74d;
+++}
+++
+++.dark .trial-status.critical {
+++  background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(233, 30, 99, 0.1) 100%);
+++  border-color: #ef5350;
+++}
+++
+++.dark .trial-status.critical .trial-title {
+++  color: #ef5350;
+++}
+++
+++.dark .trial-status.critical .trial-countdown strong {
+++  color: #ef5350;
+++}
+++
+++/* Animations */
+++@keyframes progress-shimmer {
+++  0%, 100% {
+++    opacity: 1;
+++  }
+++  50% {
+++    opacity: 0.7;
+++  }
+++}
+++
+++@keyframes pulse-warning {
+++  0%, 100% {
+++    transform: scale(1);
+++    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
+++  }
+++  50% {
+++    transform: scale(1.01);
+++    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+++  }
+++}
+++
+++@keyframes button-pulse {
+++  0%, 100% {
+++    transform: scale(1);
+++  }
+++  50% {
+++    transform: scale(1.05);
+++  }
+++}
+++
+++/* Responsive */
+++@media (max-width: 768px) {
+++  .trial-status {
+++    padding: 0.8rem 1rem;
+++  }
+++  
+++  .trial-status-content {
+++    flex-direction: column;
+++    gap: 0.5rem;
+++    text-align: center;
+++  }
+++  
+++  .trial-cta {
+++    margin-left: 0;
+++    margin-top: 0.5rem;
+++  }
+++  
+++  .trial-icon {
+++    font-size: 1.5rem;
+++  }
+++  
+++  .trial-title {
+++    font-size: 1rem;
+++  }
+++  
+++  .trial-countdown {
+++    font-size: 0.9rem;
+++  }
+++} 
++\ No newline at end of file
++diff --git a/frontend/src/components/common/TrialStatus.js b/frontend/src/components/common/TrialStatus.js
++new file mode 100644
++index 0000000..8780a92
++--- /dev/null
+++++ b/frontend/src/components/common/TrialStatus.js
++@@ -0,0 +1,87 @@
+++import React, { useState, useEffect } from 'react';
+++import { getTrialTimeRemaining, formatTrialTimeRemaining } from '../../utils/trialUtils';
+++import './TrialStatus.css';
+++
+++const TrialStatus = ({ userData, showDetailed = false, className = '' }) => {
+++  const [timeRemaining, setTimeRemaining] = useState(null);
+++  const [mounted, setMounted] = useState(true);
+++
+++  // Update countdown frequently and respond to userData changes
+++  useEffect(() => {
+++    const updateCountdown = () => {
+++      if (mounted && userData?.isOnTrial) {
+++        setTimeRemaining(getTrialTimeRemaining(userData));
+++      }
+++    };
+++
+++    // Initial update
+++    updateCountdown();
+++
+++    // Update every 10 seconds for more responsive updates
+++    const interval = setInterval(updateCountdown, 10000);
+++
+++    return () => {
+++      setMounted(false);
+++      clearInterval(interval);
+++    };
+++  }, [userData, mounted]);
+++
+++  // Also update immediately when userData changes
+++  useEffect(() => {
+++    if (userData?.isOnTrial) {
+++      setTimeRemaining(getTrialTimeRemaining(userData));
+++    }
+++  }, [userData]);
+++
+++  // Don't render if user is not on trial
+++  if (!userData?.isOnTrial || !timeRemaining) {
+++    return null;
+++  }
+++
+++  const isUrgent = timeRemaining.totalHours <= 24; // Less than 24 hours remaining
+++  const isCritical = timeRemaining.totalHours <= 6; // Less than 6 hours remaining
+++
+++  return (
+++    <div className={`trial-status ${className} ${isUrgent ? 'urgent' : ''} ${isCritical ? 'critical' : ''}`}>
+++      <div className="trial-status-content">
+++        <div className="trial-icon">
+++          {isCritical ? '⏰' : isUrgent ? '⚠️' : '🚀'}
+++        </div>
+++        <div className="trial-info">
+++          <div className="trial-title">
+++            {isCritical ? 'Trial Ending Soon!' : isUrgent ? 'Trial Ending Tomorrow' : 'Free Trial Active'}
+++          </div>
+++          <div className="trial-countdown">
+++            {showDetailed && timeRemaining.days > 0 ? (
+++              <span>
+++                <strong>{timeRemaining.days}</strong> day{timeRemaining.days > 1 ? 's' : ''}
+++                {timeRemaining.hours > 0 && (
+++                  <>, <strong>{timeRemaining.hours}</strong> hour{timeRemaining.hours > 1 ? 's' : ''}</>
+++                )} remaining
+++              </span>
+++            ) : (
+++              <span>{formatTrialTimeRemaining(userData)}</span>
+++            )}
+++          </div>
+++          {showDetailed && (
+++            <div className="trial-details">
+++              <small>
+++                Trial ends on {timeRemaining.endDate?.toLocaleDateString()} at{' '}
+++                {timeRemaining.endDate?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+++              </small>
+++            </div>
+++          )}
+++        </div>
+++      </div>
+++      {(isUrgent || isCritical) && (
+++        <div className="trial-cta">
+++          <a href="/pricing" className="upgrade-link">
+++            Subscribe Now
+++          </a>
+++        </div>
+++      )}
+++    </div>
+++  );
+++};
+++
+++export default TrialStatus; 
++\ No newline at end of file
++diff --git a/frontend/src/components/landing/LandingPage.js b/frontend/src/components/landing/LandingPage.js
++index 535a984..d347016 100644
++--- a/frontend/src/components/landing/LandingPage.js
+++++ b/frontend/src/components/landing/LandingPage.js
++@@ -117,11 +117,11 @@ function LandingPage() {
++           )}
++           <div className="secondary-cta-buttons">
++             <button onClick={handleStartRepair} className="secondary-button">
++-              Start Your Repair Now
++-            </button>
++-            <Link to="/community" className="secondary-button">
++-              View Success Stories
++-            </Link>
+++            Start Your Repair Now
+++          </button>
+++          <Link to="/community" className="secondary-button">
+++            View Success Stories
+++          </Link>
++           </div>
++         </div>
++       </div>
++diff --git a/frontend/src/components/landing/PaymentSuccess.js b/frontend/src/components/landing/PaymentSuccess.js
++index c3d03f3..530a37d 100644
++--- a/frontend/src/components/landing/PaymentSuccess.js
+++++ b/frontend/src/components/landing/PaymentSuccess.js
++@@ -126,7 +126,7 @@ const PaymentSuccess = () => {
++           textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
++         }}>
++           {isTrial 
++-            ? "🎉 Your 5-day Pro trial has started! You now have full access to advanced repair guides, 100 credits, and priority support. No charges until your trial ends."
+++            ? "🎉 Your 5-day Starter trial has started! You now have full access to repair guides, 25 credits, and community access. No charges until your trial ends."
++             : "Welcome to QuickFix! Your subscription is now active. We're excited to help you with all your home maintenance needs."
++           }
++         </p>
++@@ -160,7 +160,7 @@ const PaymentSuccess = () => {
++             e.target.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
++           }}
++         >
++-          {isTrial ? "Start Your Pro Trial Now" : "Start Using QuickFix"}
+++          {isTrial ? "Start Your Starter Trial Now" : "Start Using QuickFix"}
++         </button>
++       </div>
++ 
++diff --git a/frontend/src/components/navigation/Navbar.css b/frontend/src/components/navigation/Navbar.css
++index 5be929a..81e26f5 100644
++--- a/frontend/src/components/navigation/Navbar.css
+++++ b/frontend/src/components/navigation/Navbar.css
++@@ -446,7 +446,7 @@
++ 
++   .navbar-menu {
++     position: fixed;
++-    top: 72px;
+++    top: var(--navbar-height, 72px);
++     left: 0;
++     right: 0;
++     background: rgba(255, 255, 255, 0.35);
++@@ -683,4 +683,141 @@
++ 
++ .dark .theme-toggle:hover {
++   background: rgba(75, 85, 99, 0.8);
+++}
+++
+++/* Navbar Wrapper */
+++.navbar-wrapper {
+++  position: sticky;
+++  top: 0;
+++  z-index: 1000;
+++  background: transparent;
+++  --navbar-height: 72px;
+++}
+++
+++/* Trial Status Banner */
+++.trial-status-banner {
+++  background: linear-gradient(135deg, 
+++    rgba(16, 185, 129, 0.98) 0%, 
+++    rgba(59, 130, 246, 0.98) 100%
+++  );
+++  backdrop-filter: blur(12px);
+++  -webkit-backdrop-filter: blur(12px);
+++  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+++  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+++}
+++
+++.navbar-trial-status {
+++  max-width: 1400px;
+++  margin: 0 auto;
+++  border-radius: 0;
+++  border: none;
+++  box-shadow: none;
+++  padding: 0.6rem 2rem;
+++  background: transparent;
+++}
+++
+++.navbar-trial-status .trial-status-content {
+++  justify-content: center;
+++  text-align: center;
+++}
+++
+++.navbar-trial-status .trial-icon {
+++  font-size: 1.1rem;
+++}
+++
+++.navbar-trial-status .trial-title {
+++  color: #fff;
+++  font-weight: 600;
+++  font-size: 0.95rem;
+++  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+++}
+++
+++.navbar-trial-status .trial-countdown {
+++  color: #1f2937;
+++  font-size: 0.85rem;
+++  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+++  font-weight: 600;
+++}
+++
+++.navbar-trial-status .trial-details {
+++  color: rgba(255, 255, 255, 0.95);
+++  font-size: 0.75rem;
+++  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+++}
+++
+++.navbar-trial-status .trial-cta .upgrade-link {
+++  background: rgba(255, 255, 255, 0.85);
+++  color: #1f2937;
+++  border: 1px solid rgba(255, 255, 255, 0.9);
+++  padding: 0.35rem 0.8rem;
+++  font-size: 0.8rem;
+++  font-weight: 700;
+++  border-radius: 6px;
+++  text-decoration: none;
+++  transition: all 0.2s ease;
+++  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+++}
+++
+++.navbar-trial-status .trial-cta .upgrade-link:hover {
+++  background: #fff;
+++  color: #111827;
+++  transform: translateY(-1px);
+++  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+++}
+++
+++.dark .trial-status-banner {
+++  background: linear-gradient(135deg, 
+++    rgba(16, 185, 129, 0.9) 0%, 
+++    rgba(59, 130, 246, 0.9) 100%
+++  );
+++  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+++  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+++}
+++
+++.dark .navbar-trial-status .trial-title {
+++  color: #fff;
+++  text-shadow: none;
+++}
+++
+++.dark .navbar-trial-status .trial-countdown {
+++  color: rgba(255, 255, 255, 0.95);
+++  text-shadow: none;
+++}
+++
+++.dark .navbar-trial-status .trial-details {
+++  color: rgba(255, 255, 255, 0.85);
+++  text-shadow: none;
+++}
+++
+++.dark .navbar-trial-status .trial-cta .upgrade-link {
+++  background: rgba(255, 255, 255, 0.15);
+++  color: #fff;
+++  border: 1px solid rgba(255, 255, 255, 0.25);
+++  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+++}
+++
+++.dark .navbar-trial-status .trial-cta .upgrade-link:hover {
+++  background: rgba(255, 255, 255, 0.25);
+++  color: #fff;
+++  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+++}
+++
+++/* Mobile adjustments for trial banner */
+++@media (max-width: 768px) {
+++  .navbar-trial-status {
+++    padding: 0.8rem 1rem;
+++  }
+++  
+++  .navbar-trial-status .trial-status-content {
+++    flex-direction: column;
+++    gap: 0.5rem;
+++  }
+++  
+++  .navbar-trial-status .trial-info {
+++    text-align: center;
+++  }
+++  
+++  .navbar-trial-status .trial-cta {
+++    margin-top: 0.5rem;
+++  }
++ } 
++\ No newline at end of file
++diff --git a/frontend/src/components/navigation/Navbar.js b/frontend/src/components/navigation/Navbar.js
++index a0cf4d9..49c9d35 100644
++--- a/frontend/src/components/navigation/Navbar.js
+++++ b/frontend/src/components/navigation/Navbar.js
++@@ -2,11 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
++ import { Link, useNavigate } from 'react-router-dom';
++ import { useAuth } from '../../contexts/AuthContext';
++ import { useTheme } from '../../contexts/ThemeContext';
+++import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
++ import DisplayNameModal from '../auth/DisplayNameModal';
++ import FeedbackButton from '../feedback/FeedbackButton';
+++import TrialStatus from '../common/TrialStatus';
++ import logo from '../../assets/logo2.png';
++ import './Navbar.css';
++ 
+++const db = getFirestore();
+++
++ function Navbar() {
++   const { currentUser, logout } = useAuth();
++   const { isDarkMode, toggleTheme } = useTheme();
++@@ -14,8 +18,35 @@ function Navbar() {
++   const [isMenuOpen, setIsMenuOpen] = useState(false);
++   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
++   const [isDisplayNameModalOpen, setIsDisplayNameModalOpen] = useState(false);
+++  const [userData, setUserData] = useState(null);
++   const dropdownRef = useRef(null);
++   const menuRef = useRef(null);
+++  const navbarWrapperRef = useRef(null);
+++
+++  // Fetch user data for trial status
+++  useEffect(() => {
+++    if (!currentUser) {
+++      setUserData(null);
+++      return;
+++    }
+++    
+++    const userRef = doc(db, 'users', currentUser.uid);
+++    const unsub = onSnapshot(userRef, (snap) => {
+++      if (snap.exists()) {
+++        setUserData(snap.data());
+++      }
+++    });
+++    return unsub;
+++  }, [currentUser]);
+++
+++  // Update CSS variable for navbar height based on trial banner presence
+++  useEffect(() => {
+++    if (navbarWrapperRef.current) {
+++      const hasTrialBanner = currentUser && userData?.isOnTrial;
+++      const navbarHeight = hasTrialBanner ? 'calc(72px + 50px)' : '72px';
+++      navbarWrapperRef.current.style.setProperty('--navbar-height', navbarHeight);
+++    }
+++  }, [currentUser, userData?.isOnTrial]);
++ 
++   useEffect(() => {
++     function handleClickOutside(event) {
++@@ -72,12 +103,20 @@ function Navbar() {
++   };
++ 
++   return (
++-    <nav className="navbar">
++-      <div className="navbar-container">
++-        <Link to="/" className="navbar-brand">
++-          <img src={logo} alt="QuickFixAI Logo" />
++-          <span>QuickFixAI</span>
++-        </Link>
+++    <div className="navbar-wrapper" ref={navbarWrapperRef}>
+++      {/* Trial Status Banner - only show for trial users */}
+++      {currentUser && userData?.isOnTrial && (
+++        <div className="trial-status-banner">
+++          <TrialStatus userData={userData} className="navbar-trial-status" />
+++        </div>
+++      )}
+++      
+++      <nav className="navbar">
+++        <div className="navbar-container">
+++          <Link to="/" className="navbar-brand">
+++            <img src={logo} alt="QuickFixAI Logo" />
+++            <span>QuickFixAI</span>
+++          </Link>
++ 
++         <button className="mobile-menu-button" onClick={toggleMenu}>
++           <span className={`hamburger ${isMenuOpen ? 'open' : ''}`}></span>
++@@ -172,6 +211,7 @@ function Navbar() {
++         onClose={() => setIsDisplayNameModalOpen(false)}
++       />
++     </nav>
+++    </div>
++   );
++ }
++ 
++diff --git a/frontend/src/components/pricing/PaymentPlan.js b/frontend/src/components/pricing/PaymentPlan.js
++index eb3c24f..2a44275 100644
++--- a/frontend/src/components/pricing/PaymentPlan.js
+++++ b/frontend/src/components/pricing/PaymentPlan.js
++@@ -135,28 +135,28 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling, userData, subsc
++       
++       {shouldShowTrial && (
++         <div className="trial-banner">
++-          <h2 className="trial-title">🚀 Start Your 5-Day FREE Pro Trial</h2>
+++          <h2 className="trial-title">🚀 Start Your 5-Day FREE Starter Trial</h2>
++           <p className="trial-subtitle">
++-            No risk, no commitment. Get full access to Pro features for 5 days and see how QuickFixAI transforms your home repairs.
+++            No risk, no commitment. Get full access to Starter features for 5 days and see how QuickFixAI transforms your home repairs.
++           </p>
++           <div className="trial-offer">
++             <div className="trial-plan">
++-              <h3>Pro Plan Trial</h3>
+++              <h3>Starter Plan Trial</h3>
++               <div className="trial-price">
++-                <span className="original-price">$49/month</span>
+++                <span className="original-price">$19/month</span>
++                 <span className="trial-price-text">FREE for 5 days</span>
++               </div>
++               <ul className="trial-features">
++-                <li>✅ 100 repair guides (credits)</li>
++-                <li>✅ Advanced AI powered by GPT-4o Mini</li>
+++                <li>✅ 25 repair guides (credits)</li>
+++                <li>✅ Powered by GPT-4.1 Nano</li>
++                 <li>✅ Unlimited text, voice & image inputs</li>
++-                <li>✅ Advanced repair guides with safety tips</li>
++-                <li>✅ Save up to 50 repair guides</li>
++-                <li>✅ Priority support</li>
+++                <li>✅ Standard repair guides with safety tips</li>
+++                <li>✅ Save up to 10 repair guides</li>
+++                <li>✅ Community access</li>
++               </ul>
++               <button 
++                 className="trial-start-button"
++-                onClick={() => handleSubscribe('pro', true)}
+++                onClick={() => handleSubscribe('starter', true)}
++               >
++                 Start My Free Trial Now
++               </button>
++diff --git a/frontend/src/components/repair/RepairPage.css b/frontend/src/components/repair/RepairPage.css
++index 3a4af0f..c6c4c14 100644
++--- a/frontend/src/components/repair/RepairPage.css
+++++ b/frontend/src/components/repair/RepairPage.css
++@@ -46,6 +46,29 @@
++   white-space: nowrap;
++ }
++ 
+++.trial-indicator {
+++  background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+++  color: #fff;
+++  border-radius: 9999px;
+++  padding: 0.4rem 1rem;
+++  font-weight: 600;
+++  font-size: 0.9rem;
+++  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+++  white-space: nowrap;
+++  animation: subtle-pulse 2s infinite;
+++}
+++
+++@keyframes subtle-pulse {
+++  0%, 100% { 
+++    transform: scale(1);
+++    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+++  }
+++  50% { 
+++    transform: scale(1.02);
+++    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+++  }
+++}
+++
++ .history-button {
++   background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
++   color: #fff;
++diff --git a/frontend/src/components/repair/RepairPage.js b/frontend/src/components/repair/RepairPage.js
++index cfb98e2..42c8ff1 100644
++--- a/frontend/src/components/repair/RepairPage.js
+++++ b/frontend/src/components/repair/RepairPage.js
++@@ -19,6 +19,7 @@ function RepairPage() {
++   const [credits, setCredits] = useState(null);
++   const [plan, setPlan] = useState('none');
++   const [error, setError] = useState(null);
+++  const [userData, setUserData] = useState(null);
++   const { currentUser } = useAuth();
++   const { isDarkMode } = useTheme();
++   const navigate = useNavigate();
++@@ -39,8 +40,10 @@ function RepairPage() {
++     const userRef = doc(db, 'users', currentUser.uid);
++     const unsub = onSnapshot(userRef, (snap) => {
++       if (snap.exists()) {
++-        setCredits(snap.data().credits);
++-        setPlan(snap.data().plan || 'none');
+++        const data = snap.data();
+++        setCredits(data.credits);
+++        setPlan(data.plan || 'none');
+++        setUserData(data);
++       }
++     });
++     return unsub;
++@@ -224,6 +227,11 @@ function RepairPage() {
++             <span className="credits-badge">
++               {credits !== null ? `Credits: ${credits}/${maxCredits}` : 'Loading credits...'}
++             </span>
+++            {userData?.isOnTrial && (
+++              <span className="trial-indicator">
+++                🚀 Trial Active
+++              </span>
+++            )}
++             <div className="progress-bar-container">
++               <div className="progress-bar-fill" style={{ width: `${percent}%` }} />
++             </div>
++@@ -231,7 +239,7 @@ function RepairPage() {
++               className="upgrade-button"
++               onClick={() => navigate('/pricing')}
++             >
++-              {plan === 'starter' ? 'Upgrade' : 'Change plan'}
+++              {userData?.isOnTrial ? 'Subscribe' : plan === 'starter' ? 'Upgrade' : 'Change plan'}
++             </button>
++           </div>
++           <button
++diff --git a/frontend/src/utils/trialUtils.js b/frontend/src/utils/trialUtils.js
++index 6b9978f..c9e91d8 100644
++--- a/frontend/src/utils/trialUtils.js
+++++ b/frontend/src/utils/trialUtils.js
++@@ -1,8 +1,9 @@
++ /**
++- * Check if a user has access during trial cancellation grace period
++- * Trial users get 24 hours of access after cancelling their subscription
+++ * Check if a user has access to premium features
+++ * Trial users lose access immediately when they cancel (no grace period)
+++ * Regular paid subscribers may have grace periods based on billing cycles
++  */
++-export const hasTrialGracePeriodAccess = (userData) => {
+++export const hasPremiumAccess = (userData) => {
++   if (!userData) return false;
++   
++   // If subscription is active, they have access
++@@ -10,44 +11,128 @@ export const hasTrialGracePeriodAccess = (userData) => {
++     return true;
++   }
++   
++-  // Check if this is a cancelled trial user with grace period
+++  // If user is currently on trial (and hasn't cancelled), they have access
+++  if (userData.isOnTrial) {
+++    return true;
+++  }
+++  
+++  // IMPORTANT: Cancelled trial users lose access immediately (no grace period)
+++  // This is different from regular paid subscribers who might get access until period end
++   if (userData.wasOnTrial && userData.trialCancelledAt) {
++-    const now = new Date();
++-    const cancelledAt = userData.trialCancelledAt.toDate ? 
++-      userData.trialCancelledAt.toDate() : 
++-      new Date(userData.trialCancelledAt);
++-    
++-    // Calculate hours since cancellation
++-    const hoursSinceCancellation = (now.getTime() - cancelledAt.getTime()) / (1000 * 60 * 60);
++-    
++-    // Allow access for 24 hours after trial cancellation
++-    const GRACE_PERIOD_HOURS = 24;
++-    return hoursSinceCancellation < GRACE_PERIOD_HOURS;
+++    return false; // Immediate access revocation for trial cancellations
+++  }
+++  
+++  // For regular paid subscribers (not trial users), check if they have grace period access
+++  // This would apply to users who had paid subscriptions and cancelled
+++  if (userData.subscriptionStatus === 'canceled' && !userData.wasOnTrial) {
+++    // Regular subscribers might get access until end of billing period
+++    // For now, revoke access immediately, but this could be enhanced later
+++    return false;
++   }
++   
++   return false;
++ };
++ 
+++// Backward compatibility alias
+++export const hasTrialGracePeriodAccess = hasPremiumAccess;
+++
++ /**
++  * Get remaining grace period time for trial users
+++ * NOTE: Trial users no longer get grace periods - they lose access immediately when cancelled
+++ * This function is kept for backward compatibility but will always return null for cancelled trials
++  */
++ export const getTrialGracePeriodRemaining = (userData) => {
++-  if (!userData?.wasOnTrial || !userData?.trialCancelledAt) {
++-    return null;
+++  // Trial users no longer get grace periods - return null
+++  if (userData?.wasOnTrial && userData?.trialCancelledAt) {
+++    return {
+++      hoursRemaining: 0,
+++      minutesRemaining: 0,
+++      hasTimeLeft: false
+++    };
++   }
++   
+++  // For other cases (regular subscribers), we might implement grace periods in the future
+++  return null;
+++};
+++
+++/**
+++ * Get remaining trial time based on trialEndDate
+++ * @param {Object} userData - User data from Firestore
+++ * @returns {Object|null} - Trial time remaining or null if not on trial
+++ */
+++export const getTrialTimeRemaining = (userData) => {
+++  if (!userData?.isOnTrial || !userData?.trialEndDate) {
+++    return null;
+++  }
+++
++   const now = new Date();
++-  const cancelledAt = userData.trialCancelledAt.toDate ? 
++-    userData.trialCancelledAt.toDate() : 
++-    new Date(userData.trialCancelledAt);
+++  const trialEndDate = userData.trialEndDate.toDate ? 
+++    userData.trialEndDate.toDate() : 
+++    new Date(userData.trialEndDate);
++   
++-  const hoursSinceCancellation = (now.getTime() - cancelledAt.getTime()) / (1000 * 60 * 60);
++-  const GRACE_PERIOD_HOURS = 24; // Should match backend TRIAL_GRACE_PERIOD_HOURS
++-  const hoursRemaining = Math.max(0, GRACE_PERIOD_HOURS - hoursSinceCancellation);
+++  const timeRemaining = trialEndDate.getTime() - now.getTime();
+++  
+++  // If trial has expired
+++  if (timeRemaining <= 0) {
+++    return {
+++      days: 0,
+++      hours: 0,
+++      minutes: 0,
+++      isExpired: true,
+++      totalHours: 0
+++    };
+++  }
+++  
+++  const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+++  const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+++  const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+++  const totalHours = Math.floor(timeRemaining / (1000 * 60 * 60));
++   
++   return {
++-    hoursRemaining,
++-    minutesRemaining: Math.max(0, Math.floor((hoursRemaining % 1) * 60)),
++-    hasTimeLeft: hoursRemaining > 0
+++    days,
+++    hours,
+++    minutes,
+++    isExpired: false,
+++    totalHours,
+++    endDate: trialEndDate
++   };
+++};
+++
+++/**
+++ * Format trial time remaining for display
+++ * @param {Object} userData - User data from Firestore
+++ * @returns {string} - Formatted time remaining text
+++ */
+++export const formatTrialTimeRemaining = (userData) => {
+++  const timeRemaining = getTrialTimeRemaining(userData);
+++  
+++  if (!timeRemaining) {
+++    return null;
+++  }
+++  
+++  if (timeRemaining.isExpired) {
+++    return 'Trial expired';
+++  }
+++  
+++  // Show detailed time breakdown
+++  const parts = [];
+++  
+++  if (timeRemaining.days > 0) {
+++    parts.push(`${timeRemaining.days} day${timeRemaining.days > 1 ? 's' : ''}`);
+++  }
+++  
+++  if (timeRemaining.hours > 0) {
+++    parts.push(`${timeRemaining.hours} hour${timeRemaining.hours > 1 ? 's' : ''}`);
+++  }
+++  
+++  if (timeRemaining.minutes > 0) {
+++    parts.push(`${timeRemaining.minutes} minute${timeRemaining.minutes > 1 ? 's' : ''}`);
+++  }
+++  
+++  // If no time parts, show less than a minute
+++  if (parts.length === 0) {
+++    return 'Less than a minute left';
+++  }
+++  
+++  return parts.join(', ') + ' left';
++ }; 
++\ No newline at end of file
++-- 
++2.49.0
++
+diff --git a/trial-email-fix.patch b/trial-email-fix.patch
+new file mode 100644
+index 0000000..6149b72
+--- /dev/null
++++ b/trial-email-fix.patch
+@@ -0,0 +1,89 @@
++From d24cbb15195972823941bd00f3fda1bd526975e9 Mon Sep 17 00:00:00 2001
++From: sasroc <sassanirocco@gmail.com>
++Date: Thu, 3 Jul 2025 22:07:25 -0400
++Subject: [PATCH] Fix trial email to be Starter-specific only
++
++- Removed dynamic plan logic since only Starter plan has trials
++- Hardcoded email to show Starter plan with 25 credits
++- Simplified email template and removed unused helper method
++- Fixed issue where trial emails incorrectly showed Pro plan details
++---
++ backend/src/services/email.service.ts | 29 +++++++++++----------------
++ 1 file changed, 12 insertions(+), 17 deletions(-)
++
++diff --git a/backend/src/services/email.service.ts b/backend/src/services/email.service.ts
++index fce02e7..661d0ff 100644
++--- a/backend/src/services/email.service.ts
+++++ b/backend/src/services/email.service.ts
++@@ -176,13 +176,7 @@ class EmailService {
++   }
++ 
++   public async sendTrialConfirmation(to: string, name: string, plan: string): Promise<void> {
++-    const planLabels = {
++-      starter: 'Starter',
++-      pro: 'Pro', 
++-      premium: 'Premium'
++-    };
++-
++-    // Try to use template if available, otherwise use HTML
+++    // Only starter plan has trials - simplify the email to be starter-specific
++     const templateId = process.env.SENDGRID_TRIAL_CONFIRMATION_TEMPLATE_ID;
++     
++     if (templateId) {
++@@ -192,11 +186,12 @@ class EmailService {
++           to,
++           subject: 'Your QuickFixAI Free Trial Has Started!',
++           templateId,
++-      dynamicTemplateData: {
++-        name,
++-            plan: planLabels[plan as keyof typeof planLabels],
++-        supportEmail: this.supportEmail,
++-      },
+++          dynamicTemplateData: {
+++            name,
+++            plan: 'Starter',
+++            credits: 25,
+++            supportEmail: this.supportEmail,
+++          },
++         });
++         return; // Exit early if template works
++       } catch (error) {
++@@ -211,14 +206,14 @@ class EmailService {
++         html: `
++           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
++             <div style="text-align: center; margin-bottom: 30px;">
++-              <h1 style="color: #333; margin-bottom: 10px;">🚀 Your 5-Day Pro Trial Starts Now!</h1>
+++              <h1 style="color: #333; margin-bottom: 10px;">🚀 Your 5-Day Starter Trial Starts Now!</h1>
++               <p style="color: #666; font-size: 16px;">Hi ${name},</p>
++             </div>
++             
++             <div style="background: #e1f5fe; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0288d1;">
++-              <h2 style="color: #01579b; margin-top: 0;">✨ Welcome to your FREE QuickFixAI Pro Trial!</h2>
+++              <h2 style="color: #01579b; margin-top: 0;">✨ Welcome to your FREE QuickFixAI Starter Trial!</h2>
++               <p style="color: #01579b; line-height: 1.6;">
++-                Congratulations! You now have <strong>5 days of unlimited access</strong> to QuickFixAI Pro features. 
+++                Congratulations! You now have <strong>5 days of unlimited access</strong> to QuickFixAI Starter features. 
++                 No charges until your trial ends on <strong>[Trial End Date]</strong>.
++               </p>
++             </div>
++@@ -226,7 +221,7 @@ class EmailService {
++             <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
++               <h3 style="color: #333; margin-top: 0;">🎯 What You Can Do During Your Trial:</h3>
++               <ul style="color: #555; line-height: 1.8;">
++-                <li><strong>100 AI Credits</strong> - Plenty for multiple detailed repair guides</li>
+++                <li><strong>25 AI Credits</strong> - Perfect for essential home repairs</li>
++                 <li><strong>Unlimited Text, Voice & Image Inputs</strong> - Describe your issues any way you want</li>
++                 <li><strong>Advanced Repair Guides</strong> - Get step-by-step instructions with safety tips</li>
++                 <li><strong>Progress Tracking</strong> - Save your repairs and track completion</li>
++@@ -243,7 +238,7 @@ class EmailService {
++ 
++             <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
++               <p style="color: #856404; margin: 0 0 10px 0; font-size: 14px;">
++-                <strong>💡 Pro Tip:</strong> Have a real home issue? Submit it during your trial for a personalized experience!
+++                <strong>💡 Starter Tip:</strong> Have a real home issue? Submit it during your trial for a personalized experience!
++               </p>
++               <p style="color: #856404; margin: 0; font-size: 14px;">
++                 <strong>Questions?</strong> Contact us at ${this.supportEmail} - we're here to help!
++-- 
++2.49.0
++

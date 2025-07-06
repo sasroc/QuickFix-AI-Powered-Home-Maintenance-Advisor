@@ -1,0 +1,135 @@
+From f254978891d0ab0b379728aeade1ca870a53d71e Mon Sep 17 00:00:00 2001
+From: sasroc <sassanirocco@gmail.com>
+Date: Fri, 4 Jul 2025 13:48:47 -0400
+Subject: [PATCH] Fix TypeScript errors for payment_intent.payment_failed
+ webhook and remove duplicate sendPaymentFailedEmail implementation
+
+- Use type assertion for event type and data in Stripe webhook
+- Remove duplicate sendPaymentFailedEmail function in email service
+- Ensures clean build for Railway deployment
+---
+ backend/src/controllers/stripe.controller.ts | 36 +-----------
+ backend/src/services/email.service.ts        | 60 --------------------
+ 2 files changed, 1 insertion(+), 95 deletions(-)
+
+diff --git a/backend/src/controllers/stripe.controller.ts b/backend/src/controllers/stripe.controller.ts
+index b8e6849..342ac1e 100644
+--- a/backend/src/controllers/stripe.controller.ts
++++ b/backend/src/controllers/stripe.controller.ts
+@@ -457,41 +457,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
+           }
+         }
+       } else if (event.type === 'payment_intent.payment_failed') {
+-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+-      const customerId = (paymentIntent.customer as string) || '';
+-      
+-      console.log(`Payment failed for customer ${customerId}. Payment intent: ${paymentIntent.id}, status: ${paymentIntent.status}, last_payment_error: ${JSON.stringify(paymentIntent.last_payment_error)}`);
+-      
+-      // Find user by customer ID
+-      if (customerId) {
+-        const usersRef = admin.firestore().collection('users');
+-        const querySnap = await usersRef.where('stripeCustomerId', '==', customerId).get();
+-        
+-        if (!querySnap.empty) {
+-          const userDoc = querySnap.docs[0];
+-          const userData = userDoc.data();
+-          
+-          // Log the payment failure for debugging
+-          console.log(`Payment failed for user ${userDoc.id}. Payment intent: ${paymentIntent.id}, failure reason: ${paymentIntent.last_payment_error?.message || 'Unknown'}`);
+-          
+-          // Optionally, you could send an email to the user about the failed payment
+-          if (userData && userData.email) {
+-            try {
+-              const name = userData.displayName || userData.email.split('@')[0];
+-              const EmailService = (await import('../services/email.service')).default;
+-              await EmailService.getInstance().sendPaymentFailedEmail(
+-                userData.email,
+-                name,
+-                paymentIntent.last_payment_error?.message || 'Payment authentication incomplete'
+-              );
+-            } catch (emailError) {
+-              console.error('Failed to send payment failed email:', emailError);
+-            }
+-          }
+-        }
+-      }
+-    } else if (event.type === 'payment_intent.payment_failed') {
+-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
++      const paymentIntent = (event as any).data.object as Stripe.PaymentIntent;
+       const customerId = (paymentIntent.customer as string) || '';
+       
+       console.log(`Payment failed for customer ${customerId}. Payment intent: ${paymentIntent.id}, status: ${paymentIntent.status}, last_payment_error: ${JSON.stringify(paymentIntent.last_payment_error)}`);
+diff --git a/backend/src/services/email.service.ts b/backend/src/services/email.service.ts
+index 6618ae7..9e5f96f 100644
+--- a/backend/src/services/email.service.ts
++++ b/backend/src/services/email.service.ts
+@@ -601,66 +601,6 @@ class EmailService {
+     });
+   }
+ 
+-  public async sendPaymentFailedEmail(
+-    to: string,
+-    name: string,
+-    failureReason: string
+-  ): Promise<void> {
+-    await this.sendEmail({
+-      to,
+-      subject: 'Payment Failed - QuickFixAI',
+-      html: `
+-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+-          <div style="text-align: center; margin-bottom: 30px;">
+-            <h1 style="color: #dc3545; margin-bottom: 10px;">⚠️ Payment Failed</h1>
+-            <p style="color: #666; font-size: 16px;">Hi ${name},</p>
+-          </div>
+-          
+-          <div style="background: #f8d7da; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
+-            <h2 style="color: #721c24; margin-top: 0;">We couldn't process your payment</h2>
+-            <p style="color: #721c24; line-height: 1.6;">
+-              Your recent payment attempt was unsuccessful. This is usually due to:
+-            </p>
+-            <ul style="color: #721c24; line-height: 1.6;">
+-              <li>Incomplete 3D Secure authentication</li>
+-              <li>Insufficient funds</li>
+-              <li>Card declined by your bank</li>
+-              <li>Expired or invalid card details</li>
+-            </ul>
+-          </div>
+-
+-          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+-            <h3 style="color: #333; margin-top: 0;">🔧 How to Fix This</h3>
+-            <ol style="color: #555; line-height: 1.8;">
+-              <li><strong>Try again</strong> - Visit our subscription page and attempt payment again</li>
+-              <li><strong>Use a different card</strong> - Sometimes banks have different authentication requirements</li>
+-              <li><strong>Contact your bank</strong> - Ensure your card allows online payments</li>
+-              <li><strong>Check your details</strong> - Verify card number, expiry date, and CVV</li>
+-            </ol>
+-          </div>
+-
+-          <div style="text-align: center; margin: 30px 0;">
+-            <a href="${process.env.FRONTEND_URL}/pricing" 
+-               style="background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+-              Try Payment Again
+-            </a>
+-          </div>
+-
+-          <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+-            <p style="color: #0c5460; margin: 0; font-size: 14px;">
+-              <strong>Need help?</strong> Contact us at ${this.supportEmail} - we're here to help resolve any payment issues!
+-            </p>
+-          </div>
+-          
+-          <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
+-            <p>Thank you for choosing QuickFixAI!</p>
+-            <p>© 2025 QuickFixAI. All rights reserved.</p>
+-          </div>
+-        </div>
+-      `,
+-    });
+-  }
+-
+   public async sendRefundConfirmation(
+     to: string,
+     name: string,
+-- 
+2.49.0
+

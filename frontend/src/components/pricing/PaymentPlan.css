@@ -194,6 +194,19 @@
   line-height: 1;
 }
 
+.price-wrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.original-price-text {
+  text-decoration: line-through;
+  color: var(--text-light);
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
 .period {
   font-size: 1.15rem;
   color: var(--text-secondary);
@@ -624,4 +637,15 @@
     font-size: 1rem;
     padding: 0.8rem 1.5rem;
   }
+}
+
+.limited-time-discount-banner {
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  border-radius: 8px;
 } 
