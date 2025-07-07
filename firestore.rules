@@ -20,7 +20,8 @@ service cloud.firestore {
     function hasActiveSubscription() {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.subscriptionStatus == 'active';
+             (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.subscriptionStatus == 'active' ||
+              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.hasLifetimeAccess == true);
     }
     
     function isValidEmail(email) {
@@ -82,7 +83,10 @@ service cloud.firestore {
                (!('trialStartDate' in data) || data.trialStartDate != null) &&
                (!('trialEndDate' in data) || data.trialEndDate != null) &&
                (!('trialCancelledAt' in data) || data.trialCancelledAt != null) &&
-               (!('trialExpiredAt' in data) || data.trialExpiredAt != null);
+               (!('trialExpiredAt' in data) || data.trialExpiredAt != null) &&
+               // Lifetime access fields
+               (!('hasLifetimeAccess' in data) || data.hasLifetimeAccess is bool) &&
+               (!('lastCreditReset' in data) || data.lastCreditReset != null);
       }
     }
 

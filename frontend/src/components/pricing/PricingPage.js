@@ -25,7 +25,7 @@ const PricingPage = () => {
       if (snap.exists()) {
         const data = snap.data();
         setCurrentPlan(data.plan || null);
-        setCurrentBilling(data.billingInterval || 'monthly');
+        setCurrentBilling(data.billingInterval || 'annual');
         setSubscriptionStatus(data.subscriptionStatus || 'inactive');
         setUserData(data);
       }

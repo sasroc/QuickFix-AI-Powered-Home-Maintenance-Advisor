@@ -2,9 +2,15 @@
  * Check if a user has access to premium features
  * Trial users lose access immediately when they cancel (no grace period)
  * Regular paid subscribers may have grace periods based on billing cycles
+ * Lifetime users always have access with starter plan features
  */
 export const hasPremiumAccess = (userData) => {
   if (!userData) return false;
+  
+  // LIFETIME ACCESS: Check first - overrides all other conditions
+  if (userData.hasLifetimeAccess) {
+    return true;
+  }
   
   // If subscription is active, they have access
   if (userData.subscriptionStatus === 'active') {
@@ -135,4 +141,77 @@ export const formatTrialTimeRemaining = (userData) => {
   }
   
   return parts.join(', ') + ' left';
+};
+
+/**
+ * Check if user has lifetime access
+ * @param {Object} userData - User data from Firestore
+ * @returns {boolean} - Whether user has lifetime access
+ */
+export const hasLifetimeAccess = (userData) => {
+  return userData?.hasLifetimeAccess === true;
+};
+
+/**
+ * Get the effective plan for a user (considering lifetime access)
+ * Lifetime users always get starter plan features
+ * @param {Object} userData - User data from Firestore
+ * @returns {string} - The effective plan (starter for lifetime users)
+ */
+export const getEffectivePlan = (userData) => {
+  if (hasLifetimeAccess(userData)) {
+    return 'starter'; // Lifetime users get starter plan features
+  }
+  return userData?.plan || 'none';
+};
+
+/**
+ * Get the effective subscription status for display purposes
+ * @param {Object} userData - User data from Firestore
+ * @returns {string} - Human-readable status including lifetime access
+ */
+export const getEffectiveSubscriptionStatus = (userData) => {
+  if (hasLifetimeAccess(userData)) {
+    return 'Lifetime Access';
+  }
+  
+  if (!userData) return 'No subscription';
+  
+  const status = userData.subscriptionStatus;
+  switch (status) {
+    case 'active':
+      return 'Active';
+    case 'trialing':
+      return 'Free Trial';
+    case 'canceled':
+      return 'Canceled';
+    case 'past_due':
+      return 'Past Due';
+    case 'incomplete':
+      return 'Incomplete';
+    case 'inactive':
+      return 'Inactive';
+    default:
+      return 'Unknown';
+  }
+};
+
+/**
+ * Check if user should have monthly credit reset
+ * @param {Object} userData - User data from Firestore
+ * @returns {boolean} - Whether user gets monthly credit resets
+ */
+export const shouldGetMonthlyCreditReset = (userData) => {
+  // Lifetime users get monthly credit resets
+  if (hasLifetimeAccess(userData)) {
+    return true;
+  }
+  
+  // Active subscribers get monthly credit resets
+  if (userData?.subscriptionStatus === 'active') {
+    return true;
+  }
+  
+  // Trial users get credits but not monthly resets (trial has fixed duration)
+  return false;
 }; 

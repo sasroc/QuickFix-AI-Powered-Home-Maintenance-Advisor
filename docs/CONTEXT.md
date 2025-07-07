@@ -294,24 +294,24 @@ quickfix/
 ├── frontend/                   # React frontend application
 │   ├── public/                 # Static files
 │   │   ├── assets/            # Images, fonts, etc.
-│   │   ├── src/
-│   │   │   ├── assets/        # Images, fonts, etc.
-│   │   │   ├── components/    # Reusable React components
-│   │   │   │   ├── common/    # Shared components
-│   │   │   │   ├── forms/     # Form components
-│   │   │   │   ├── layout/    # Layout components
-│   │   │   │   └── repair/    # Repair-specific components
-│   │   │   │   └── contexts/  # React contexts
-│   │   │   │   └── hooks/     # Custom React hooks
-│   │   │   │   └── pages/     # Page components
-│   │   │   │   └── services/  # API services
-│   │   │   │   └── styles/    # Global styles
-│   │   │   │   └── types/     # TypeScript types
-│   │   │   │   └── utils/     # Utility functions
-│   │   │   │   └── App.tsx
-│   │   │   │   └── index.tsx
-│   │   │   ├── package.json
-│   │   │   └── tsconfig.json
+│   │   │   ├── src/
+│   │   │   │   ├── assets/        # Images, fonts, etc.
+│   │   │   │   ├── components/    # Reusable React components
+│   │   │   │   │   ├── common/    # Shared components
+│   │   │   │   │   ├── forms/     # Form components
+│   │   │   │   │   ├── layout/    # Layout components
+│   │   │   │   │   └── repair/    # Repair-specific components
+│   │   │   │   │   └── contexts/  # React contexts
+│   │   │   │   │   └── hooks/     # Custom React hooks
+│   │   │   │   │   └── pages/     # Page components
+│   │   │   │   │   └── services/  # API services
+│   │   │   │   │   └── styles/    # Global styles
+│   │   │   │   │   └── types/     # TypeScript types
+│   │   │   │   │   └── utils/     # Utility functions
+│   │   │   │   │   └── App.tsx
+│   │   │   │   │   └── index.tsx
+│   │   │   │   ├── package.json
+│   │   │   │   └── tsconfig.json
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   ├── backend/                # Node.js backend application
@@ -385,3 +385,68 @@ quickfix/
    - Frontend: `npm run test` in frontend directory
    - Backend: `npm run test` in backend directory
    - E2E: `npm run test:e2e` in root directory
+
+## QuickFix-Local System Overview
+
+**Primary Function**: AI-powered repair guide generator
+**Architecture**: React frontend + Node.js backend + Firebase/Firestore + Stripe
+
+### Core Components
+
+// ... existing code ...
+
+## Lifetime Access Feature
+
+QuickFixAI includes a special **Lifetime Access** feature that provides permanent access to Starter plan features without any billing or subscription requirements.
+
+### Features of Lifetime Access
+- **Permanent Access**: Never expires, no billing cycles
+- **Starter Plan Benefits**: 25 credits, 10 repair histories  
+- **Monthly Credit Reset**: Credits automatically reset to 25 every month
+- **No Stripe Integration**: Completely bypasses all payment processing
+- **Admin-Only Granting**: Can only be enabled by direct database modification
+
+### Technical Implementation
+
+**Database Schema:**
+- `hasLifetimeAccess`: Boolean field in user documents
+- `lastCreditReset`: Timestamp tracking last monthly reset
+- Firestore rules updated to validate these fields
+
+**Access Control:**
+- Lifetime users bypass all subscription checks
+- Protected from Stripe webhook interference  
+- Always treated as having "starter" plan access
+
+**Credit Management:**
+- Monthly automatic credit reset to 25
+- Admin endpoints for manual credit resets
+- Eligibility checks prevent multiple resets per month
+
+### Granting Lifetime Access
+
+**Manual Process (Admin Only):**
+1. Access Firestore console or use admin tools
+2. Navigate to user document: `/users/{userId}`
+3. Add field: `hasLifetimeAccess: true`
+4. Optionally add: `lastCreditReset: null` (for immediate credit reset)
+5. User will have lifetime access on next app reload
+
+**Admin API Endpoints:**
+- `POST /admin/reset-lifetime-credits` - Reset all lifetime user credits
+- `POST /admin/reset-user-credits/{uid}` - Reset specific user credits
+
+### System Behavior
+
+**UI Changes:**
+- Special "♾️ Lifetime Access" badge in RepairPage  
+- "Lifetime Access" status in AccountSettings
+- Upgrade button hidden for lifetime users
+- Distinct styling with green glow animations
+
+**Backend Protection:**
+- All Stripe webhooks skip lifetime users
+- Credit reset system runs monthly via cron
+- Subscription logic bypassed for lifetime users
+
+This feature is designed for special promotions, employee access, or VIP user rewards while maintaining full system security and preventing any billing conflicts.

@@ -6,6 +6,8 @@ import { verifyBeforeUpdateEmail } from 'firebase/auth';
 import ManageSubscriptionButton from './ManageSubscriptionButton';
 import RefundButton from './RefundButton';
 import './AccountSettings.css';
+import { hasLifetimeAccess } from '../../utils/trialUtils';
+import { getSubscriptionStatusText } from '../../utils/subscriptionUtils';
 
 const db = getFirestore();
 
@@ -124,6 +126,28 @@ const AccountSettings = () => {
     }
   };
 
+  // Helper function to format dates
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    
+    let date;
+    if (timestamp.toDate) {
+      // Firestore timestamp
+      date = timestamp.toDate();
+    } else if (timestamp instanceof Date) {
+      date = timestamp;
+    } else {
+      // String or number timestamp
+      date = new Date(timestamp);
+    }
+    
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   return (
     <div className={`settings-container ${isDarkMode ? 'dark' : ''}`}>
       <h2 className="settings-title">Account Settings</h2>
@@ -196,14 +220,35 @@ const AccountSettings = () => {
           {/* Subscription Section */}
           <section className="settings-section">
             <h3 className="section-title">Subscription</h3>
-            <div className="section-content">
-              <strong>Status:</strong> {userData?.subscriptionStatus ? userData.subscriptionStatus.charAt(0).toUpperCase() + userData.subscriptionStatus.slice(1) : 'Inactive'}
+            <div className="setting-group">
+              <label>Subscription Status</label>
+              <div className="status-container">
+                <span className={`status-badge ${hasLifetimeAccess(userData) ? 'lifetime' : userData?.subscriptionStatus || 'none'}`}>
+                  {getSubscriptionStatusText(userData)}
+                </span>
+                {hasLifetimeAccess(userData) && (
+                  <div className="lifetime-badge">
+                    <span className="lifetime-icon">♾️</span>
+                    <span>No billing - Lifetime access</span>
+                  </div>
+                )}
+                {userData?.subscriptionStatus === 'active' && userData?.subscriptionEndDate && !hasLifetimeAccess(userData) && (
+                  <span className="subscription-end">
+                    Next billing: {formatDate(userData.subscriptionEndDate)}
+                  </span>
+                )}
+                {userData?.isOnTrial && !hasLifetimeAccess(userData) && (
+                  <span className="trial-end">
+                    Trial ends: {formatDate(userData.trialEndDate)}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="section-content">
               <strong>Plan:</strong> {userData?.plan ? userData.plan.charAt(0).toUpperCase() + userData.plan.slice(1) : 'None'}
             </div>
-            <ManageSubscriptionButton />
-            <RefundButton />
+            {!hasLifetimeAccess(userData) && <ManageSubscriptionButton />}
+            {!hasLifetimeAccess(userData) && <RefundButton />}
           </section>
 
           {/* Password Reset Section */}

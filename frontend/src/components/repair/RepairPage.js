@@ -5,9 +5,10 @@ import { analyzeRepairIssue } from '../../services/aiService';
 import SubscriptionGate from '../auth/SubscriptionGate';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { getFirestore, doc, onSnapshot, collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
+import { getFirestore, doc, onSnapshot, collection, addDoc, serverTimestamp, query, where, getDocs, updateDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { PLAN_CREDITS, PLAN_HISTORY_CAPS } from '../../constants/plans';
+import { hasLifetimeAccess, getEffectivePlan } from '../../utils/trialUtils';
 import useAnalytics from '../../hooks/useAnalytics';
 import './RepairPage.css';
 
@@ -38,16 +39,107 @@ function RepairPage() {
   useEffect(() => {
     if (!currentUser) return;
     const userRef = doc(db, 'users', currentUser.uid);
-    const unsub = onSnapshot(userRef, (snap) => {
+    const unsub = onSnapshot(userRef, async (snap) => {
       if (snap.exists()) {
         const data = snap.data();
+        
+        // Auto-allocate credits for new lifetime users (only when credits are null/undefined, not 0)
+        if (hasLifetimeAccess(data) && (data.credits === null || data.credits === undefined)) {
+          try {
+            await updateDoc(userRef, {
+              credits: 25,
+              plan: 'starter',
+              lastCreditReset: serverTimestamp()
+            });
+            // Don't update local state here - let the snapshot update handle it
+            return;
+          } catch (error) {
+            console.error('Failed to auto-allocate credits for lifetime user:', error);
+          }
+        }
+        
+        // Auto-reset credits for lifetime users if monthly reset is due
+        if (hasLifetimeAccess(data) && data.credits !== null && data.credits !== undefined) {
+          const isEligibleForReset = checkMonthlyResetEligibility(data.lastCreditReset);
+          if (isEligibleForReset) {
+            try {
+              await updateDoc(userRef, {
+                credits: 25,
+                plan: 'starter',
+                lastCreditReset: serverTimestamp()
+              });
+              // Don't update local state here - let the snapshot update handle it
+              return;
+            } catch (error) {
+              console.error('Failed to auto-reset monthly credits for lifetime user:', error);
+            }
+          }
+        }
+        
+        // Auto-reset credits for annual subscribers if monthly reset is due
+        if (!hasLifetimeAccess(data) && 
+            data.subscriptionStatus === 'active' && 
+            data.billingInterval === 'annual' &&
+            data.credits !== null && data.credits !== undefined) {
+          const isEligibleForReset = checkMonthlyResetEligibility(data.lastCreditReset);
+          if (isEligibleForReset) {
+            try {
+              // Get credit allocation for user's plan
+              const effectivePlan = getEffectivePlan(data);
+              const PLAN_CREDITS_MAP = {
+                'starter': 25,
+                'pro': 100,
+                'premium': 500
+              };
+              const creditsToReset = PLAN_CREDITS_MAP[effectivePlan] || 25;
+              
+              console.log(`Auto-resetting monthly credits for annual ${effectivePlan} subscriber`);
+              await updateDoc(userRef, {
+                credits: creditsToReset,
+                lastCreditReset: serverTimestamp()
+              });
+              // Don't update local state here - let the snapshot update handle it
+              return;
+            } catch (error) {
+              console.error('Failed to auto-reset monthly credits for annual subscriber:', error);
+            }
+          }
+        }
+        
         setCredits(data.credits);
-        setPlan(data.plan || 'none');
+        setPlan(getEffectivePlan(data)); // Use effective plan (considers lifetime access)
         setUserData(data);
       }
     });
     return unsub;
   }, [currentUser]);
+
+  // Helper function to check if user is eligible for monthly credit reset
+  const checkMonthlyResetEligibility = (lastCreditReset) => {
+    // If no lastCreditReset exists, user is eligible
+    if (!lastCreditReset) {
+      return true;
+    }
+    
+    const now = new Date();
+    let lastReset;
+    
+    // Handle Firestore timestamp
+    if (lastCreditReset.toDate) {
+      lastReset = lastCreditReset.toDate();
+    } else if (lastCreditReset instanceof Date) {
+      lastReset = lastCreditReset;
+    } else {
+      // String or number timestamp
+      lastReset = new Date(lastCreditReset);
+    }
+    
+    // Calculate the difference in days
+    const daysDifference = Math.floor((now.getTime() - lastReset.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Eligible if at least 30 days have passed since last reset
+    return daysDifference >= 30;
+  };
 
   // Scroll to top when repair guide is displayed
   useEffect(() => {
@@ -216,7 +308,8 @@ function RepairPage() {
   };
 
   const outOfCredits = credits !== null && credits <= 0;
-  const maxCredits = PLAN_CREDITS[plan] || 50;
+  const effectivePlan = getEffectivePlan(userData);
+  const maxCredits = PLAN_CREDITS[effectivePlan] || 25;
   const percent = credits !== null ? Math.max(0, Math.min(100, Math.round((credits / maxCredits) * 100))) : 100;
 
   return (
@@ -232,14 +325,20 @@ function RepairPage() {
                 🚀 Trial Active
               </span>
             )}
+            {hasLifetimeAccess(userData) && (
+              <span className="lifetime-indicator">
+                ♾️ Lifetime Access
+              </span>
+            )}
             <div className="progress-bar-container">
               <div className="progress-bar-fill" style={{ width: `${percent}%` }} />
             </div>
             <button
               className="upgrade-button"
               onClick={() => navigate('/pricing')}
+              style={{ display: hasLifetimeAccess(userData) ? 'none' : 'block' }}
             >
-              {userData?.isOnTrial ? 'Subscribe' : plan === 'starter' ? 'Upgrade' : 'Change plan'}
+              {userData?.isOnTrial ? 'Subscribe' : effectivePlan === 'starter' ? 'Upgrade' : 'Change plan'}
             </button>
           </div>
           <button

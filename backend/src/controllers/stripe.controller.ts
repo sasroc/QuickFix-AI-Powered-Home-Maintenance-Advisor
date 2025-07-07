@@ -150,6 +150,15 @@ export const handleWebhook = async (req: Request, res: Response) => {
       else if (plan === 'premium') credits = 500;
 
       if (uid) {
+        // LIFETIME ACCESS PROTECTION: Check if user has lifetime access before updating
+        const existingUserDoc = await admin.firestore().collection('users').doc(uid).get();
+        const existingUserData = existingUserDoc.data();
+        
+        if (existingUserData?.hasLifetimeAccess) {
+          console.log(`Skipping checkout completion for lifetime user ${uid}`);
+          return res.json({ received: true, skipped: 'lifetime_user' });
+        }
+        
         const userUpdateData: any = {
           subscriptionStatus: 'active',
           stripeSubscriptionId: subscriptionId,
@@ -205,6 +214,12 @@ export const handleWebhook = async (req: Request, res: Response) => {
       if (!querySnap.empty) {
         const userDoc = querySnap.docs[0];
         const userData = userDoc.data();
+        
+        // LIFETIME ACCESS PROTECTION: Skip Stripe updates for lifetime users
+        if (userData?.hasLifetimeAccess) {
+          console.log(`Skipping Stripe subscription update for lifetime user ${userDoc.id}`);
+          return res.json({ received: true, skipped: 'lifetime_user' });
+        }
         
         // Check if subscription was canceled and send cancellation email
         // Check for both immediate cancellation and end-of-period cancellation
@@ -323,6 +338,12 @@ export const handleWebhook = async (req: Request, res: Response) => {
           const userDoc = querySnap.docs[0];
           const userData = userDoc.data();
           
+          // LIFETIME ACCESS PROTECTION: Skip Stripe updates for lifetime users
+          if (userData?.hasLifetimeAccess) {
+            console.log(`Skipping payment processing for lifetime user ${userDoc.id}`);
+            return res.json({ received: true, skipped: 'lifetime_user' });
+          }
+          
           // Check if this is the first payment after trial (trial ending) and amount > 0
           if (userData.isOnTrial && invoice.amount_paid > 0) {
             // Get credit allocation for user's plan
@@ -358,75 +379,78 @@ export const handleWebhook = async (req: Request, res: Response) => {
                 console.error('Failed to send trial conversion email:', emailError);
               }
             }
-          }
-        }
-              } else {
-          // Fallback: try to find user by customer ID
-          const customerId = (invoice.customer as string) || '';
-          if (customerId && invoice.amount_paid > 0) {
-            const usersRef = admin.firestore().collection('users');
-            const customerQuerySnap = await usersRef.where('stripeCustomerId', '==', customerId).get();
+          } else if (!userData.isOnTrial && userData.subscriptionStatus === 'active' && invoice.amount_paid > 0) {
+            // Handle regular subscription renewals for existing paid subscribers
+            // This includes both monthly renewals and annual subscribers getting monthly resets
             
-            if (!customerQuerySnap.empty) {
-              const userDoc = customerQuerySnap.docs[0];
-              const userData = userDoc.data();
-              
-              if (userData.isOnTrial) {
-                // Get credit allocation for user's plan
-                const userPlan = userData.plan || 'starter';
-                const creditsToReset = getPlanCredits(userPlan);
+            const userPlan = userData.plan || 'starter';
+            const creditsToReset = getPlanCredits(userPlan);
+            
+            // Check if this is a renewal that should trigger credit reset
+            // For monthly users: every payment should reset credits
+            // For annual users: check if it's been a month since last reset
+            let shouldResetCredits = false;
+            
+            if (userData.billingInterval === 'monthly') {
+              // Monthly subscribers: reset credits on every payment
+              shouldResetCredits = true;
+            } else if (userData.billingInterval === 'annual') {
+              // Annual subscribers: check if it's been at least 30 days since last credit reset
+              const lastCreditReset = userData.lastCreditReset;
+              if (!lastCreditReset) {
+                // No last reset recorded, reset now
+                shouldResetCredits = true;
+              } else {
+                // Check if it's been at least 30 days since last reset
+                const now = new Date();
+                let lastReset;
                 
-                const updateData: any = {
-                  isOnTrial: false,
-                  trialExpiredAt: admin.firestore.Timestamp.now(),
-                  subscriptionStatus: 'active',
-                  credits: creditsToReset, // Reset credits to plan allocation
-                };
-
-                await userDoc.ref.set(updateData, { merge: true });
-                
-                // Invalidate user cache since trial status changed
-                cacheService.invalidateUserData(userDoc.id);
-                
-                console.log(`Trial ended and payment succeeded for user ${userDoc.id} via customer ID ${customerId}. Credits reset to ${creditsToReset} for ${userPlan} plan.`);
-                
-                // Send trial conversion email
-                if (userData.email) {
-                  try {
-                    const name = userData.displayName || userData.email.split('@')[0];
-                    const plan = userData.plan || 'starter';
-                    const EmailService = (await import('../services/email.service')).default;
-                    await EmailService.getInstance().sendTrialConversionConfirmation(
-                      userData.email,
-                      name,
-                      plan
-                    );
-                  } catch (emailError) {
-                    console.error('Failed to send trial conversion email:', emailError);
-                  }
+                if (lastCreditReset.toDate) {
+                  lastReset = lastCreditReset.toDate();
+                } else {
+                  lastReset = new Date(lastCreditReset);
                 }
+                
+                // Calculate the difference in days
+                const daysDifference = Math.floor((now.getTime() - lastReset.getTime()) / (1000 * 60 * 60 * 24));
+                
+                // Reset if at least 30 days have passed since last reset
+                shouldResetCredits = daysDifference >= 30;
               }
+            }
+            
+            if (shouldResetCredits) {
+              const updateData: any = {
+                credits: creditsToReset,
+                lastCreditReset: admin.firestore.Timestamp.now(),
+                subscriptionStatus: 'active'
+              };
+
+              await userDoc.ref.set(updateData, { merge: true });
+              
+              // Invalidate user cache since credits changed
+              cacheService.invalidateUserData(userDoc.id);
+              
+              console.log(`Subscription renewal credit reset for user ${userDoc.id}, subscription ${finalSubscriptionId}. Credits reset to ${creditsToReset} for ${userPlan} plan (${userData.billingInterval} billing).`);
             }
           }
         }
-      } else if ((event as any).type === 'customer.subscription.updated') {
-        const subscription = (event as any).data.object as Stripe.Subscription;
-        const stripeCustomerId = (subscription.customer as string) || '';
-        const status = subscription.status;
-        const subscriptionId = subscription.id;
-        
-        // Check if this is a trial ending (trial_end is in the past and status is active)
-        const now = Math.floor(Date.now() / 1000);
-        const trialEnded = subscription.trial_end && subscription.trial_end < now;
-        
-        if (trialEnded && status === 'active') {
-          // Find the user by customer ID
+      } else {
+        // Fallback: try to find user by customer ID
+        const customerId = (invoice.customer as string) || '';
+        if (customerId && invoice.amount_paid > 0) {
           const usersRef = admin.firestore().collection('users');
-          const querySnap = await usersRef.where('stripeCustomerId', '==', stripeCustomerId).get();
+          const customerQuerySnap = await usersRef.where('stripeCustomerId', '==', customerId).get();
           
-          if (!querySnap.empty) {
-            const userDoc = querySnap.docs[0];
-            const userData = userDoc.data();
+          if (!customerQuerySnap.empty) {
+            const userDoc = customerQuerySnap.docs[0];
+            const userData = customerQuerySnap.docs[0].data();
+            
+            // LIFETIME ACCESS PROTECTION: Skip Stripe updates for lifetime users
+            if (userData?.hasLifetimeAccess) {
+              console.log(`Skipping payment processing for lifetime user ${userDoc.id} via customer ID`);
+              return res.json({ received: true, skipped: 'lifetime_user' });
+            }
             
             if (userData.isOnTrial) {
               // Get credit allocation for user's plan
@@ -440,12 +464,12 @@ export const handleWebhook = async (req: Request, res: Response) => {
                 credits: creditsToReset, // Reset credits to plan allocation
               };
 
-              await userDoc.ref.set(updateData, { merge: true });
+              await customerQuerySnap.docs[0].ref.set(updateData, { merge: true });
               
               // Invalidate user cache since trial status changed
-              cacheService.invalidateUserData(userDoc.id);
+              cacheService.invalidateUserData(customerQuerySnap.docs[0].id);
               
-              console.log(`Trial ended via subscription.updated for user ${userDoc.id}, subscription ${subscriptionId}. Credits reset to ${creditsToReset} for ${userPlan} plan.`);
+              console.log(`Trial ended and payment succeeded for user ${customerQuerySnap.docs[0].id} via customer ID ${customerId}. Credits reset to ${creditsToReset} for ${userPlan} plan.`);
               
               // Send trial conversion email
               if (userData.email) {
@@ -462,10 +486,165 @@ export const handleWebhook = async (req: Request, res: Response) => {
                   console.error('Failed to send trial conversion email:', emailError);
                 }
               }
+            } else if (!userData.isOnTrial && userData.subscriptionStatus === 'active' && invoice.amount_paid > 0) {
+              // Handle regular subscription renewals for existing paid subscribers (customer ID fallback)
+              // This includes both monthly renewals and annual subscribers getting monthly resets
+              
+              const userPlan = userData.plan || 'starter';
+              const creditsToReset = getPlanCredits(userPlan);
+              
+              // Check if this is a renewal that should trigger credit reset
+              let shouldResetCredits = false;
+              
+              if (userData.billingInterval === 'monthly') {
+                // Monthly subscribers: reset credits on every payment
+                shouldResetCredits = true;
+              } else if (userData.billingInterval === 'annual') {
+                // Annual subscribers: check if it's been at least 30 days since last credit reset
+                const lastCreditReset = userData.lastCreditReset;
+                if (!lastCreditReset) {
+                  shouldResetCredits = true;
+                } else {
+                  const now = new Date();
+                  let lastReset;
+                  
+                  if (lastCreditReset.toDate) {
+                    lastReset = lastCreditReset.toDate();
+                  } else {
+                    lastReset = new Date(lastCreditReset);
+                  }
+                  
+                  // Calculate the difference in days
+                  const daysDifference = Math.floor((now.getTime() - lastReset.getTime()) / (1000 * 60 * 60 * 24));
+                  
+                  shouldResetCredits = daysDifference >= 30;
+                }
+              }
+              
+              if (shouldResetCredits) {
+                const updateData: any = {
+                  credits: creditsToReset,
+                  lastCreditReset: admin.firestore.Timestamp.now(),
+                  subscriptionStatus: 'active'
+                };
+
+                await customerQuerySnap.docs[0].ref.set(updateData, { merge: true });
+                
+                // Invalidate user cache since credits changed
+                cacheService.invalidateUserData(customerQuerySnap.docs[0].id);
+                
+                console.log(`Subscription renewal credit reset for user ${customerQuerySnap.docs[0].id} via customer ID ${customerId}. Credits reset to ${creditsToReset} for ${userPlan} plan (${userData.billingInterval} billing).`);
+              }
             }
           }
         }
-      } else if (event.type === 'payment_intent.payment_failed') {
+      }
+    } else if ((event as any).type === 'customer.subscription.updated') {
+      const subscription = (event as any).data.object as Stripe.Subscription;
+      const stripeCustomerId = (subscription.customer as string) || '';
+      const status = subscription.status;
+      const subscriptionId = subscription.id;
+      
+      // Check if this is a trial ending (trial_end is in the past and status is active)
+      const now = Math.floor(Date.now() / 1000);
+      const trialEnded = subscription.trial_end && subscription.trial_end < now;
+      
+      if (trialEnded && status === 'active') {
+        // Find the user by customer ID
+        const usersRef = admin.firestore().collection('users');
+        const querySnap = await usersRef.where('stripeCustomerId', '==', stripeCustomerId).get();
+        
+        if (!querySnap.empty) {
+          const userDoc = querySnap.docs[0];
+          const userData = userDoc.data();
+          
+          // LIFETIME ACCESS PROTECTION: Skip Stripe updates for lifetime users
+          if (userData?.hasLifetimeAccess) {
+            console.log(`Skipping trial end processing for lifetime user ${userDoc.id}`);
+            return res.json({ received: true, skipped: 'lifetime_user' });
+          }
+          
+          if (userData.isOnTrial) {
+            // Get credit allocation for user's plan
+            const userPlan = userData.plan || 'starter';
+            const creditsToReset = getPlanCredits(userPlan);
+            
+            const updateData: any = {
+              isOnTrial: false,
+              trialExpiredAt: admin.firestore.Timestamp.now(),
+              subscriptionStatus: 'active',
+              credits: creditsToReset, // Reset credits to plan allocation
+            };
+
+            await userDoc.ref.set(updateData, { merge: true });
+            
+            // Invalidate user cache since trial status changed
+            cacheService.invalidateUserData(userDoc.id);
+            
+            console.log(`Trial ended via subscription.updated for user ${userDoc.id}, subscription ${subscriptionId}. Credits reset to ${creditsToReset} for ${userPlan} plan.`);
+            
+            // Send trial conversion email
+            if (userData.email) {
+              try {
+                const name = userData.displayName || userData.email.split('@')[0];
+                const plan = userData.plan || 'starter';
+                const EmailService = (await import('../services/email.service')).default;
+                await EmailService.getInstance().sendTrialConversionConfirmation(
+                  userData.email,
+                  name,
+                  plan
+                );
+              } catch (emailError) {
+                console.error('Failed to send trial conversion email:', emailError);
+              }
+            }
+          } else if (!userData.isOnTrial && userData.subscriptionStatus === 'active') {
+            // Handle potential monthly credit reset for annual subscribers
+            // This covers edge cases where subscription.updated fires for annual users
+            
+            if (userData.billingInterval === 'annual') {
+              const lastCreditReset = userData.lastCreditReset;
+              let shouldResetCredits = false;
+              
+              if (!lastCreditReset) {
+                shouldResetCredits = true;
+              } else {
+                const now = new Date();
+                let lastReset;
+                
+                if (lastCreditReset.toDate) {
+                  lastReset = lastCreditReset.toDate();
+                } else {
+                  lastReset = new Date(lastCreditReset);
+                }
+                
+                // Calculate the difference in days
+                const daysDifference = Math.floor((now.getTime() - lastReset.getTime()) / (1000 * 60 * 60 * 24));
+                
+                shouldResetCredits = daysDifference >= 30;
+              }
+              
+              if (shouldResetCredits) {
+                const userPlan = userData.plan || 'starter';
+                const creditsToReset = getPlanCredits(userPlan);
+                
+                const updateData: any = {
+                  credits: creditsToReset,
+                  lastCreditReset: admin.firestore.Timestamp.now()
+                };
+
+                await userDoc.ref.set(updateData, { merge: true });
+                
+                // Invalidate user cache since credits changed
+                cacheService.invalidateUserData(userDoc.id);
+                
+                console.log(`Monthly credit reset for annual subscriber via subscription.updated for user ${userDoc.id}. Credits reset to ${creditsToReset} for ${userPlan} plan.`);
+              }
+            }
+          }
+        }
+      }
+    } else if (event.type === 'payment_intent.payment_failed') {
       const paymentIntent = (event as any).data.object as Stripe.PaymentIntent;
       const customerId = (paymentIntent.customer as string) || '';
       
@@ -512,6 +691,12 @@ export const handleWebhook = async (req: Request, res: Response) => {
       if (!querySnap.empty) {
         const userDoc = querySnap.docs[0];
         const userData = userDoc.data();
+        
+        // LIFETIME ACCESS PROTECTION: Skip Stripe updates for lifetime users
+        if (userData?.hasLifetimeAccess) {
+          console.log(`Skipping Stripe subscription deletion for lifetime user ${userDoc.id}`);
+          return res.json({ received: true, skipped: 'lifetime_user' });
+        }
         
         // Check if this is a trial cancellation  
         const isTrialCancellation = userData.isOnTrial;

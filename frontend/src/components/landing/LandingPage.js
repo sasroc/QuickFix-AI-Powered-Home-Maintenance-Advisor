@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
+import { hasLifetimeAccess } from '../../utils/trialUtils';
 import './LandingPage.css';
 
 const db = getFirestore();
@@ -44,7 +45,7 @@ function LandingPage() {
   };
 
   // Determine if user can start a trial
-  const canStartTrial = !currentUser || (userData && !userData.wasOnTrial && userData.subscriptionStatus !== 'active');
+  const canStartTrial = !currentUser || (userData && !userData.wasOnTrial && userData.subscriptionStatus !== 'active' && !hasLifetimeAccess(userData));
 
   useEffect(() => {
     const observerOptions = {
@@ -106,7 +107,11 @@ function LandingPage() {
           </h1>
           <p className="hero-subtitle">Your AI-powered home maintenance companion</p>
           <div className="cta-buttons">
-            {canStartTrial ? (
+            {hasLifetimeAccess(userData) ? (
+              <button onClick={handleStartRepair} className="trial-button">
+                ♾️ Continue with Your Lifetime Access
+              </button>
+            ) : canStartTrial ? (
               <button onClick={handleStartTrial} className="trial-button">
                 🚀 Start Your 5-Day FREE Trial
               </button>

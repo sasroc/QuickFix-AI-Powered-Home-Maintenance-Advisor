@@ -1,3 +1,5 @@
+import { hasLifetimeAccess, getEffectiveSubscriptionStatus } from './trialUtils';
+
 /**
  * Check if a user is eligible to start a free trial
  * @param {Object} userData - User data from Firestore
@@ -5,6 +7,11 @@
  */
 export const canUserStartTrial = (userData) => {
   if (!userData) return true; // New users can start trial
+  
+  // Lifetime users cannot start trials (they already have permanent access)
+  if (hasLifetimeAccess(userData)) {
+    return false;
+  }
   
   // User cannot start trial if they already have an active subscription
   if (userData.subscriptionStatus === 'active') {
@@ -27,6 +34,10 @@ export const canUserStartTrial = (userData) => {
 export const getTrialIneligibilityReason = (userData) => {
   if (!userData) return null; // New users are eligible
   
+  if (hasLifetimeAccess(userData)) {
+    return 'lifetime_access';
+  }
+  
   if (userData.subscriptionStatus === 'active') {
     return 'already_subscribed';
   }
@@ -39,12 +50,12 @@ export const getTrialIneligibilityReason = (userData) => {
 };
 
 /**
- * Check if user has an active subscription
+ * Check if user has an active subscription (including lifetime access)
  * @param {Object} userData - User data from Firestore
- * @returns {boolean} - Whether user has active subscription
+ * @returns {boolean} - Whether user has active subscription or lifetime access
  */
 export const hasActiveSubscription = (userData) => {
-  return userData?.subscriptionStatus === 'active';
+  return userData?.subscriptionStatus === 'active' || hasLifetimeAccess(userData);
 };
 
 /**
@@ -53,23 +64,5 @@ export const hasActiveSubscription = (userData) => {
  * @returns {string} - Human-readable status
  */
 export const getSubscriptionStatusText = (userData) => {
-  if (!userData) return 'No subscription';
-  
-  const status = userData.subscriptionStatus;
-  switch (status) {
-    case 'active':
-      return 'Active';
-    case 'trialing':
-      return 'Free Trial';
-    case 'canceled':
-      return 'Canceled';
-    case 'past_due':
-      return 'Past Due';
-    case 'incomplete':
-      return 'Incomplete';
-    case 'inactive':
-      return 'Inactive';
-    default:
-      return 'Unknown';
-  }
+  return getEffectiveSubscriptionStatus(userData);
 }; 

@@ -47,25 +47,44 @@
 }
 
 .trial-indicator {
-  background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
-  color: #fff;
-  border-radius: 9999px;
-  padding: 0.4rem 1rem;
+  background: linear-gradient(45deg, #007bff, #17a2b8);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
   font-weight: 600;
-  font-size: 0.9rem;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
-  white-space: nowrap;
-  animation: subtle-pulse 2s infinite;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  animation: pulse 2s infinite;
 }
 
-@keyframes subtle-pulse {
+.lifetime-indicator {
+  background: linear-gradient(45deg, #28a745, #20c997);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+  animation: glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
   0%, 100% { 
     transform: scale(1);
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
   }
   50% { 
     transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.5);
+  }
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+  }
+  to {
+    box-shadow: 0 2px 15px rgba(40, 167, 69, 0.6), 0 0 25px rgba(40, 167, 69, 0.3);
   }
 }
 
