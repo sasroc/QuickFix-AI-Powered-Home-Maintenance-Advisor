@@ -103,15 +103,8 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling, userData, subsc
     return currentPlan === planKey && currentBilling === billing;
   };
 
-  const calculateDiscountedPrice = (price) => {
-    return (price * 0.7).toFixed(2);
-  };
-
   return (
     <div className={`payment-plan-container ${!isDarkMode ? 'light' : ''}`}>
-      <div className="limited-time-discount-banner">
-        🎉 Limited Time Offer: Get 30% off all plans! The discount is applied automatically at checkout. 🎉
-      </div>
       {/* Show trial eligibility message if trial was requested but user can't use it */}
       {showTrial && !canStartTrial && currentUser && userData && (
         <div className="trial-eligibility-banner">
@@ -211,19 +204,14 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling, userData, subsc
             <h3 className="plan-label">{plan.label}</h3>
             <div className="plan-price">
               <div className="price-amount">
-                <div className="price-wrapper">
-                  <span className="original-price-text">
-                    ${billing === 'monthly' ? plan.monthly : plan.annual}
-                  </span>
-                  <span className="price">
-                    ${calculateDiscountedPrice(billing === 'monthly' ? plan.monthly : plan.annual)}
-                  </span>
-                </div>
+                <span className="price">
+                  ${billing === 'monthly' ? plan.monthly : plan.annual}
+                </span>
                 <span className="period">per month</span>
               </div>
               {billing === 'annual' && (
                 <span className="annual-note">
-                  billed annually ${calculateDiscountedPrice(plan.annualTotal)}
+                  billed annually ${plan.annualTotal}
                 </span>
               )}
             </div>

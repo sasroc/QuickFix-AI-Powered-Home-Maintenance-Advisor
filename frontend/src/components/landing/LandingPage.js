@@ -72,13 +72,6 @@ function LandingPage() {
 
   return (
     <div className="landing-page-container">
-      <div className="limited-time-offer-banner">
-        <p>
-          <strong>🎉 Limited Time Offer!</strong> Get <strong>30% OFF</strong> all subscription plans. This offer expires on August 6th.
-          <a href="/pricing" className="offer-link">Claim Offer Now</a>
-        </p>
-      </div>
-
       <div className="landing-page" style={{ position: 'relative', overflow: 'hidden' }}>
         <div className="quickfix-gradient-bg" />
         

@@ -79,6 +79,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       ],
       success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}${isTrial ? '&trial=true' : ''}`,
       cancel_url: `${process.env.FRONTEND_URL}/payment-cancelled`,
+      allow_promotion_codes: true,
       metadata: {
         uid,
         plan,
@@ -86,14 +87,6 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
         isTrial: isTrial.toString(),
       },
     };
-
-    // Apply limited-time discount if available, otherwise allow promotion codes
-    const promotionCodeId = process.env.STRIPE_DISCOUNT_COUPON_ID; // This ID should start with 'promo_'
-    if (promotionCodeId) {
-      sessionConfig.discounts = [{ promotion_code: promotionCodeId }];
-    } else {
-      sessionConfig.allow_promotion_codes = true;
-    }
 
     // Add trial configuration if this is a trial
     if (isTrial) {
