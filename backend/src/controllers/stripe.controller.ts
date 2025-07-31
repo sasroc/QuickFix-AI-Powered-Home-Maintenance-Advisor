@@ -9,11 +9,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const getPlanCredits = (plan: string): number => {
   const planCredits: { [key: string]: number } = {
     'none': 0,
-    'starter': 25,
-    'pro': 100,
-    'premium': 500
+    'starter': 10,
+    'pro': 25,
+    'premium': 100
   };
-  return planCredits[plan] || 25; // Default to starter credits
+  return planCredits[plan] || 10; // Default to starter credits
 };
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
@@ -137,10 +137,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
       const isTrial = session.metadata?.isTrial === 'true';
       
       // Set initial credits based on plan
-      let credits = 0;
-      if (plan === 'starter') credits = 25;
-      else if (plan === 'pro') credits = 100;
-      else if (plan === 'premium') credits = 500;
+      let credits = getPlanCredits(plan);
 
       if (uid) {
         // LIFETIME ACCESS PROTECTION: Check if user has lifetime access before updating
@@ -1037,10 +1034,7 @@ const checkRefundEligibility = async (uid: string, userData: any) => {
     }
 
     // Get initial credits based on plan
-    let initialCredits = 0;
-    if (userData.plan === 'starter') initialCredits = 25;
-    else if (userData.plan === 'pro') initialCredits = 100;
-    else if (userData.plan === 'premium') initialCredits = 500;
+    let initialCredits = getPlanCredits(userData.plan);
 
     // Check if credits have been used
     const currentCredits = userData.credits || 0;

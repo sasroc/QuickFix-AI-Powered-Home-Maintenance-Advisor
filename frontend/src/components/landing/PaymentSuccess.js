@@ -126,7 +126,7 @@ const PaymentSuccess = () => {
           textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
         }}>
           {isTrial 
-            ? "🎉 Your 5-day Starter trial has started! You now have full access to repair guides, 25 credits, and community access. No charges until your trial ends."
+            ? "🎉 Your 5-day Starter trial has started! You now have full access to repair guides, 10 credits, and community access. No charges until your trial ends."
             : "Welcome to QuickFix! Your subscription is now active. We're excited to help you with all your home maintenance needs."
           }
         </p>

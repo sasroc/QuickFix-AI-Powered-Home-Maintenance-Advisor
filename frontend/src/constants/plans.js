@@ -1,9 +1,9 @@
 // Plan credit limits for progress bar
 export const PLAN_CREDITS = {
   none: 0,
-  starter: 25,
-  pro: 100,
-  premium: 500
+  starter: 10,
+  pro: 25,
+  premium: 100
 };
 
 // Plan repair history caps

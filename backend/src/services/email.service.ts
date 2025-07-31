@@ -221,7 +221,7 @@ class EmailService {
             <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
               <h3 style="color: #333; margin-top: 0;">🎯 What You Can Do During Your Trial:</h3>
               <ul style="color: #555; line-height: 1.8;">
-                <li><strong>25 AI Credits</strong> - Perfect for essential home repairs</li>
+                <li><strong>10 AI Credits</strong> - Perfect for essential home repairs</li>
                 <li><strong>Unlimited Text, Voice & Image Inputs</strong> - Describe your issues any way you want</li>
                 <li><strong>Advanced Repair Guides</strong> - Get step-by-step instructions with safety tips</li>
                 <li><strong>Progress Tracking</strong> - Save your repairs and track completion</li>
@@ -313,7 +313,7 @@ class EmailService {
           <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
             <h3 style="color: #333; margin-top: 0;">🚀 Your Subscription Benefits:</h3>
             <ul style="color: #555; line-height: 1.8;">
-              <li><strong>25 AI repair guides per month</strong> - Get expert-level repair instructions</li>
+              <li><strong>10 AI repair guides per month</strong> - Get expert-level repair instructions</li>
               <li><strong>GPT-4.1 Nano AI model</strong> - Fast and accurate repair analysis</li>
               <li><strong>Unlimited repair history</strong> - Save and access all your past repairs</li>
               <li><strong>Community access</strong> - Connect with other DIY enthusiasts</li>

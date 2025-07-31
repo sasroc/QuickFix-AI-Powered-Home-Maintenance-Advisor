@@ -87,11 +87,11 @@ function RepairPage() {
               // Get credit allocation for user's plan
               const effectivePlan = getEffectivePlan(data);
               const PLAN_CREDITS_MAP = {
-                'starter': 25,
-                'pro': 100,
-                'premium': 500
+                'starter': 10,
+                'pro': 25,
+                'premium': 100
               };
-              const creditsToReset = PLAN_CREDITS_MAP[effectivePlan] || 25;
+              const creditsToReset = PLAN_CREDITS_MAP[effectivePlan] || 10;
               
               console.log(`Auto-resetting monthly credits for annual ${effectivePlan} subscriber`);
               await updateDoc(userRef, {

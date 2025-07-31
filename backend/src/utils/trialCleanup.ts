@@ -143,7 +143,7 @@ export const resetLifetimeUserCredits = async (): Promise<void> => {
     
     // Batch update users to reset their credits
     const batch = admin.firestore().batch();
-    const STARTER_PLAN_CREDITS = 25; // Lifetime users get starter plan features
+    const STARTER_PLAN_CREDITS = 10; // Lifetime users get starter plan features
     let updateCount = 0;
     
     for (const doc of querySnapshot.docs) {
@@ -227,7 +227,7 @@ export const resetLifetimeUserCreditsForUser = async (uid: string): Promise<bool
       return false;
     }
     
-    const STARTER_PLAN_CREDITS = 25;
+    const STARTER_PLAN_CREDITS = 10;
     
     await userDoc.ref.update({
       credits: STARTER_PLAN_CREDITS,
@@ -274,11 +274,11 @@ export const resetAnnualSubscriberCredits = async (): Promise<void> => {
     const getPlanCredits = (plan: string): number => {
       const planCredits: { [key: string]: number } = {
         'none': 0,
-        'starter': 25,
-        'pro': 100,
-        'premium': 500
+        'starter': 10,
+        'pro': 25,
+        'premium': 100
       };
-      return planCredits[plan] || 25;
+      return planCredits[plan] || 10;
     };
     
     // Batch update users to reset their credits
@@ -362,11 +362,11 @@ export const resetAnnualSubscriberCreditsForUser = async (uid: string): Promise<
     const getPlanCredits = (plan: string): number => {
       const planCredits: { [key: string]: number } = {
         'none': 0,
-        'starter': 25,
-        'pro': 100,
-        'premium': 500
+        'starter': 10,
+        'pro': 25,
+        'premium': 100
       };
-      return planCredits[plan] || 25;
+      return planCredits[plan] || 10;
     };
     
     const userPlan = userData.plan || 'starter';

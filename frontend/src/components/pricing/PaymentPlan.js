@@ -8,11 +8,11 @@ const plans = [
   {
     key: 'starter',
     label: 'Starter',
-    monthly: 19,
-    annual: 9,
-    annualTotal: 108,
+    monthly: 2,
+    annual: 2,
+    annualTotal: 24,
     features: [
-      '25 repair guides per month (credits)',
+      '10 repair guides per month (credits)',
       <span key="starter-ai">Powered by <span className="ai-model starter">GPT-4.1 Nano</span> - Basic, capable model for simple repairs</span>,
       'For individuals and light DIYers',
       'Access to standard repair guides',
@@ -22,11 +22,11 @@ const plans = [
   {
     key: 'pro',
     label: 'Pro',
-    monthly: 49,
-    annual: 29,
-    annualTotal: 348,
+    monthly: 10,
+    annual: 7,
+    annualTotal: 84,
     features: [
-      '100 repair guides per month (credits)',
+      '25 repair guides per month (credits)',
       <span key="pro-ai">Powered by <span className="ai-model pro">GPT-4o Mini</span> - Advanced model with enhanced accuracy and detailed solutions</span>,
       'For busy homeowners and advanced DIYers',
       'Access to all standard and advanced repair guides',
@@ -37,11 +37,11 @@ const plans = [
   {
     key: 'premium',
     label: 'Premium',
-    monthly: 99,
-    annual: 49,
-    annualTotal: 588,
+    monthly: 20,
+    annual: 15,
+    annualTotal: 180,
     features: [
-      '500 repair guides per month (credits)',
+      '100 repair guides per month (credits)',
       <span key="premium-ai">Powered by <span className="ai-model premium">GPT-4o</span> - Most advanced model with expert-level precision and comprehensive solutions</span>,
       'For professionals and power users',
       'All Pro features',
@@ -143,11 +143,11 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling, userData, subsc
             <div className="trial-plan">
               <h3>Starter Plan Trial</h3>
               <div className="trial-price">
-                <span className="original-price">$19/month</span>
+                <span className="original-price">$2/month</span>
                 <span className="trial-price-text">FREE for 5 days</span>
               </div>
               <ul className="trial-features">
-                <li>✅ 25 repair guides (credits)</li>
+                <li>✅ 10 repair guides (credits)</li>
                 <li>✅ Powered by GPT-4.1 Nano</li>
                 <li>✅ Unlimited text, voice & image inputs</li>
                 <li>✅ Standard repair guides with safety tips</li>
@@ -182,7 +182,7 @@ const PaymentPlan = ({ onSubscribe, currentPlan, currentBilling, userData, subsc
           className={`billing-button ${billing === 'annual' ? 'active' : ''}`}
           onClick={() => setBilling('annual')}
         >
-          Yearly <span className="save-badge">Save 53%</span>
+          Yearly <span className="save-badge">Save 28%</span>
         </button>
       </div>
       <div className="payment-plans-grid">

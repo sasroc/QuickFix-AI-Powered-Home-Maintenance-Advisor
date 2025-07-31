@@ -39,21 +39,21 @@ QuickFix AI analyzes your home maintenance problems and provides personalized, s
 
 ### 💳 Flexible Subscription Plans
 
-#### Starter Plan - $9.99/month
-- 25 AI analysis credits per month
+#### Starter Plan - $2/month
+- 10 AI analysis credits per month
 - Basic repair guides
 - 10 saved repair histories
 - Community access
 
-#### Pro Plan - $19.99/month  
-- 100 AI analysis credits per month
+#### Pro Plan - $10/month  
+- 25 AI analysis credits per month
 - Enhanced repair guides with pro tips
 - 50 saved repair histories
 - Priority support
 - Advanced AI models
 
-#### Premium Plan - $39.99/month
-- 500 AI analysis credits per month
+#### Premium Plan - $20/month
+- 100 AI analysis credits per month
 - Premium repair guides with expert insights
 - Unlimited repair histories
 - Direct expert consultation

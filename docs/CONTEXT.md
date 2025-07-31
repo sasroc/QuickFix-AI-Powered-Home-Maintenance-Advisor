@@ -401,8 +401,8 @@ QuickFixAI includes a special **Lifetime Access** feature that provides permanen
 
 ### Features of Lifetime Access
 - **Permanent Access**: Never expires, no billing cycles
-- **Starter Plan Benefits**: 25 credits, 10 repair histories  
-- **Monthly Credit Reset**: Credits automatically reset to 25 every month
+- **Starter Plan Benefits**: 10 credits, 10 repair histories  
+- **Monthly Credit Reset**: Credits automatically reset to 10 every month
 - **No Stripe Integration**: Completely bypasses all payment processing
 - **Admin-Only Granting**: Can only be enabled by direct database modification
 
