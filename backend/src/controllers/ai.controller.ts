@@ -389,7 +389,7 @@ CONFIDENCE: [number]`;
         logger.debug('Sending image analysis request to OpenAI Vision API...');
         
         const completion = await openai.chat.completions.create({
-          model: "gpt-4o", // Use GPT-4o for vision capabilities
+          model: "gpt-4.1", // Use GPT-4.1 for vision capabilities (better than gpt-4o, 20% cheaper)
           messages,
           temperature: 0.5,
           max_tokens: 800,
