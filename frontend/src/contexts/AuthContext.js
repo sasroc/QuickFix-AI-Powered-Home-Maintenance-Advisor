@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  createUserWithEmailAndPassword, 
+import {
+  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   sendPasswordResetEmail,
   GoogleAuthProvider,
+  OAuthProvider,
   signInWithPopup,
   updateProfile
 } from 'firebase/auth';
@@ -77,6 +78,26 @@ export function AuthProvider({ children }) {
       const result = await signInWithPopup(auth, provider);
       trackEvent('user_login', {
         method: 'google',
+        user_id: result.user.uid
+      });
+      return result;
+    } catch (error) {
+      trackEvent('login_error', {
+        error_code: error.code,
+        error_message: error.message
+      });
+      throw error;
+    }
+  }
+
+  async function loginWithApple() {
+    try {
+      const provider = new OAuthProvider('apple.com');
+      provider.addScope('email');
+      provider.addScope('name');
+      const result = await signInWithPopup(auth, provider);
+      trackEvent('user_login', {
+        method: 'apple',
         user_id: result.user.uid
       });
       return result;
@@ -225,6 +246,7 @@ export function AuthProvider({ children }) {
     signup,
     login,
     loginWithGoogle,
+    loginWithApple,
     logout,
     resetPassword,
     updateDisplayName

@@ -14,7 +14,7 @@ function AuthPage() {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { currentUser, login, signup, loginWithGoogle } = useAuth();
+  const { currentUser, login, signup, loginWithGoogle, loginWithApple } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -73,6 +73,21 @@ function AuthPage() {
     setLoading(true);
     try {
       await loginWithGoogle();
+      // Preserve the startTrial state when redirecting after auth
+      const redirectState = location.state?.startTrial ? { startTrial: true } : {};
+      navigate(from, { replace: true, state: redirectState });
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleAppleSignIn() {
+    setError('');
+    setLoading(true);
+    try {
+      await loginWithApple();
       // Preserve the startTrial state when redirecting after auth
       const redirectState = location.state?.startTrial ? { startTrial: true } : {};
       navigate(from, { replace: true, state: redirectState });
@@ -251,6 +266,17 @@ function AuthPage() {
             className="google-icon"
           />
           Continue with Google
+        </button>
+
+        <button
+          onClick={handleAppleSignIn}
+          className="apple-button"
+          disabled={loading}
+        >
+          <svg className="apple-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.39.07 2.36.74 3.18.8 1.2-.22 2.36-.91 3.65-.84 1.57.1 2.73.72 3.5 1.9-3.22 1.96-2.47 5.9.42 7.12-.49 1.33-1.14 2.65-2.75 3.9zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+          </svg>
+          Continue with Apple
         </button>
 
         <div className="auth-footer">

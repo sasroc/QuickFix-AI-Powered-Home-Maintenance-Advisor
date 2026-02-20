@@ -305,6 +305,51 @@
   height: 20px;
 }
 
+.apple-button {
+  width: 100%;
+  background: #000000;
+  border: 2px solid #000000;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.dark .apple-button {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #000000;
+}
+
+.apple-button:hover {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
+.dark .apple-button:hover {
+  background: #e5e7eb;
+  border-color: #e5e7eb;
+}
+
+.apple-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.apple-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
 .auth-footer {
   text-align: center;
   margin-top: 2rem;
@@ -450,7 +495,8 @@
   }
 
   .auth-button,
-  .google-button {
+  .google-button,
+  .apple-button {
     width: 100%;
     box-sizing: border-box;
   }

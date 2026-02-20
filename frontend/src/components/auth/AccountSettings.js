@@ -28,8 +28,9 @@ const AccountSettings = () => {
   const [deleteError, setDeleteError] = useState('');
   const [deleteSuccess, setDeleteSuccess] = useState('');
 
-  // Check if user signed up with Google OAuth
+  // Check if user signed up with Google or Apple OAuth
   const isGoogleUser = currentUser?.providerData?.some(provider => provider.providerId === 'google.com');
+  const isAppleUser = currentUser?.providerData?.some(provider => provider.providerId === 'apple.com');
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -168,6 +169,14 @@ const AccountSettings = () => {
                     To change your email, please update it in your Google account settings. Your QuickFix email will automatically sync with your Google account.
                   </div>
                 </>
+              ) : isAppleUser ? (
+                <>
+                  {currentUser?.email}
+                  <span className="auth-provider-note"> (Apple Account)</span>
+                  <div className="info-message" style={{ marginTop: '8px', fontSize: '0.9em', color: '#666' }}>
+                    To change your email, please update it in your Apple ID settings. Note: if you chose to hide your email, Apple may display a private relay address ending in @privaterelay.appleid.com.
+                  </div>
+                </>
               ) : editingEmail ? (
                 <>
                   <input
@@ -187,7 +196,7 @@ const AccountSettings = () => {
                 </>
               )}
               {/* Show messages outside the editing interface so they persist */}
-              {!isGoogleUser && (emailError || emailSuccess) && (
+              {!isGoogleUser && !isAppleUser && (emailError || emailSuccess) && (
                 <div style={{ marginTop: '12px' }}>
                   {emailError && <div className="error-message">{emailError}</div>}
                   {emailSuccess && <div className="success-message">{emailSuccess}</div>}
@@ -257,6 +266,10 @@ const AccountSettings = () => {
             {isGoogleUser ? (
               <div className="info-message">
                 You signed in with Google. To change your password, please update it in your Google account settings.
+              </div>
+            ) : isAppleUser ? (
+              <div className="info-message">
+                You signed in with Apple. To change your password, please update it in your Apple ID settings at appleid.apple.com.
               </div>
             ) : (
               <>

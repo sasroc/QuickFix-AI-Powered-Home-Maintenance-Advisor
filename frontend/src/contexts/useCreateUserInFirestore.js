@@ -14,23 +14,24 @@ function useCreateUserInFirestore() {
         const userRef = doc(db, 'users', user.uid);
         const userSnap = await getDoc(userRef);
         if (!userSnap.exists()) {
+          const displayName = user.displayName || (user.email ? user.email.split('@')[0] : 'Apple User');
           await setDoc(userRef, {
             email: user.email,
-            displayName: user.displayName || user.email.split('@')[0],
+            displayName,
             subscriptionStatus: 'inactive',
             credits: 0,
             plan: 'none',
             isAdmin: false,
             createdAt: serverTimestamp(),
           });
-            
+
           // Trigger welcome email
             try {
               await apiRequest('api/welcome', {
             method: 'POST',
             body: JSON.stringify({
               email: user.email,
-              name: user.displayName || user.email.split('@')[0],
+              name: displayName,
             }),
           });
             } catch (emailError) {
