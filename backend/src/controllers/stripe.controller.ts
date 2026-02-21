@@ -20,7 +20,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
   let sessionConfig: any; // Declare sessionConfig here to make it available in the catch block
 
   try {
-    const { uid, plan, billing, isTrial = false } = req.body;
+    const { uid, plan, billing, isTrial = false, successUrl, cancelUrl } = req.body;
     if (!uid || !plan || !billing) {
       return res.status(400).json({ message: 'Missing uid, plan, or billing' });
     }
@@ -77,8 +77,8 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}${isTrial ? '&trial=true' : ''}`,
-      cancel_url: `${process.env.FRONTEND_URL}/payment-cancelled`,
+      success_url: successUrl || `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}${isTrial ? '&trial=true' : ''}`,
+      cancel_url: cancelUrl || `${process.env.FRONTEND_URL}/payment-cancelled`,
       allow_promotion_codes: true,
       metadata: {
         uid,
