@@ -43,6 +43,7 @@ import feedbackRoutes from './routes/feedback.routes';
 import cacheRoutes from './routes/cache.routes';
 import testRoutes from './routes/test.routes';
 import adminRoutes from './routes/admin.routes';
+import appleRoutes from './routes/apple.routes';
 
 const app = express();
 const port = parseInt(process.env.PORT || '4000', 10);
@@ -126,6 +127,7 @@ app.use('/api/feedback', feedbackRoutes);
 app.use('/api/cache', cacheRoutes);
 app.use('/api/test', testRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/apple', appleRoutes);
 
 // Error handling (Sentry error handler must come before other error handlers)
 app.use(sentryErrorHandler);
