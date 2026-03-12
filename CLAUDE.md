@@ -64,8 +64,10 @@ React Context only (no Redux):
 ### Credit & Subscription System
 - Plans: Starter (10 credits/mo), Pro (25), Premium (100)
 - Each AI analysis costs 1 credit
-- Stripe webhooks (`checkout.session.completed`, `invoice.paid`) update Firestore user doc
+- **Stripe** (web): webhooks (`checkout.session.completed`, `invoice.paid`) update Firestore user doc; `paymentProvider: "stripe"`
+- **Apple IAP** (iOS): StoreKit 2 transactions verified via `POST /api/apple/verify-purchase`; lifecycle events (renewals, cancellations, refunds) handled via `POST /api/apple/server-notification`; users looked up by `appleOriginalTransactionId` field (Apple doesn't include uid in notifications); `paymentProvider: "apple"`
 - **Lifetime Access**: Special tier (`subscriptionStatus: "lifetime"`) that monthly-resets to 10 credits without Stripe; admin-granted only; bypasses all webhook processing
+- `APPLE_BYPASS_VERIFICATION=true` disables JWS signature verification for Xcode StoreKit config file testing only (ephemeral test keys don't chain to Apple's CA)
 
 ### Caching
 In-memory cache in `backend/src/services/cacheService.ts` — AI responses cached 5 min TTL by issue hash. Reduces OpenAI API costs for repeated queries.
@@ -76,6 +78,7 @@ In-memory cache in `backend/src/services/cacheService.ts` — AI responses cache
 |---|---|
 | AI analysis endpoint | `backend/src/controllers/ai.controller.ts` |
 | Stripe webhooks | `backend/src/controllers/stripe.controller.ts` |
+| Apple IAP verify + server notifications | `backend/src/controllers/apple.controller.ts` |
 | Rate limiting config | `backend/src/middleware/rateLimiter.ts` |
 | Firebase Admin init | `backend/src/utils/firebaseAdmin.ts` |
 | Frontend API calls | `frontend/src/services/aiService.js` |
@@ -100,6 +103,6 @@ In-memory cache in `backend/src/services/cacheService.ts` — AI responses cache
 
 ## Environment Variables
 
-**Backend** (`backend/.env`): `OPENAI_API_KEY`, `FIREBASE_PROJECT_ID/CLIENT_EMAIL/PRIVATE_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_*_PRICE_ID` (one per plan), `STRIPE_WEBHOOK_SECRET`, `SENDGRID_API_KEY`, `SENTRY_DSN`, `FRONTEND_URL`, `PORT=4000`, `NODE_ENV`.
+**Backend** (`backend/.env`): `OPENAI_API_KEY`, `FIREBASE_PROJECT_ID/CLIENT_EMAIL/PRIVATE_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_*_PRICE_ID` (one per plan), `STRIPE_WEBHOOK_SECRET`, `SENDGRID_API_KEY`, `SENTRY_DSN`, `FRONTEND_URL`, `PORT=4000`, `NODE_ENV`. Apple IAP: `APPLE_BUNDLE_ID`, `APPLE_ISSUER_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY` (.p8 contents), `APPLE_APP_APPLE_ID`, `APPLE_SANDBOX` (`true`/`false`), `APPLE_BYPASS_VERIFICATION` (test only).
 
 **Frontend** (`frontend/.env`): `REACT_APP_API_URL`, `REACT_APP_FIREBASE_*` (6 vars), `REACT_APP_STRIPE_PUBLIC_KEY`, `REACT_APP_SENTRY_DSN`.
