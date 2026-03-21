@@ -1,9 +1,15 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import './Legal.css';
 
 function PrivacyPolicy() {
   return (
     <div className="legal-page">
+      <Helmet>
+        <title>Privacy Policy | QuickFix AI</title>
+        <meta name="description" content="Learn how QuickFix AI collects, uses, and protects your personal information when you use our AI-powered home repair guidance platform." />
+        <link rel="canonical" href="https://quickfixai.com/privacy" />
+      </Helmet>
       <div className="legal-content">
         <h1>Privacy Policy</h1>
         <p className="last-updated">Last updated: {new Date().toLocaleDateString()}</p>

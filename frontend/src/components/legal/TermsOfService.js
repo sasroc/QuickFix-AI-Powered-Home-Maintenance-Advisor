@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useTheme } from '../../contexts/ThemeContext';
 import './Legal.css';
 
@@ -7,6 +8,11 @@ function TermsOfService() {
 
   return (
     <div className={`legal-page ${isDarkMode ? 'dark' : ''}`}>
+      <Helmet>
+        <title>Terms of Service | QuickFix AI</title>
+        <meta name="description" content="Read the QuickFix AI Terms of Service governing use of our AI-powered home repair guidance platform." />
+        <link rel="canonical" href="https://quickfixai.com/terms" />
+      </Helmet>
       <div className="legal-content">
         <h1>Terms of Service</h1>
         <p className="last-updated">Last updated: {new Date().toLocaleDateString()}</p>

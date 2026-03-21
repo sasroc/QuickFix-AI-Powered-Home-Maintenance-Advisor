@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import './App.css';
 import Navbar from './components/navigation/Navbar';
@@ -41,6 +42,7 @@ const PageViewTracker = () => {
 function App() {
   useCreateUserInFirestore();
   return (
+    <HelmetProvider>
     <AuthProvider>
       <ThemeProvider>
         <Router>
@@ -100,6 +102,7 @@ function App() {
         </Router>
       </ThemeProvider>
     </AuthProvider>
+    </HelmetProvider>
   );
 }
 

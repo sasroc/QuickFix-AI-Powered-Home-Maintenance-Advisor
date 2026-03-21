@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
@@ -72,6 +73,16 @@ function LandingPage() {
 
   return (
     <div className="landing-page-container">
+      <Helmet>
+        <title>QuickFix AI — AI-Powered Home Repair Guides for Plumbing, Electrical & HVAC</title>
+        <meta name="description" content="Diagnose any home repair in seconds. Get instant step-by-step AI guidance for plumbing, electrical, HVAC, drywall & more — no experience needed. Try free for 5 days." />
+        <link rel="canonical" href="https://quickfixai.com/" />
+        <meta property="og:title" content="QuickFix AI — AI-Powered Home Repair Guides" />
+        <meta property="og:description" content="Diagnose any home repair in seconds. Get instant step-by-step AI guidance for plumbing, electrical, HVAC, drywall & more — no experience needed. Try free for 5 days." />
+        <meta property="og:url" content="https://quickfixai.com/" />
+        <meta name="twitter:title" content="QuickFix AI — AI-Powered Home Repair Guides" />
+        <meta name="twitter:description" content="Diagnose any home repair in seconds. Get instant step-by-step AI guidance for plumbing, electrical, HVAC, drywall & more — no experience needed. Try free for 5 days." />
+      </Helmet>
       <div className="landing-page" style={{ position: 'relative', overflow: 'hidden' }}>
         <div className="quickfix-gradient-bg" />
         
@@ -98,7 +109,7 @@ function LandingPage() {
             <span className="title-fix">Fix</span>
             <span className="title-ai">AI</span>
           </h1>
-          <p className="hero-subtitle">Your AI-powered home maintenance companion</p>
+          <p className="hero-subtitle">Diagnose any home repair instantly — AI step-by-step guides for plumbing, electrical, HVAC & more</p>
           <div className="cta-buttons">
             {hasLifetimeAccess(userData) ? (
               <button onClick={handleStartRepair} className="trial-button">
@@ -313,11 +324,12 @@ function LandingPage() {
 
         {/* CTA Section */}
         <div className="cta-section">
-          <h2>Ready to Master Your Home Repairs?</h2>
-          <p>Join homeowners who are taking control of their maintenance with AI-powered guidance. Save money, learn new skills, and keep your home in perfect condition.</p>
-          <button onClick={handleStartRepair} className="start-button">
-            Start Your First Repair
+          <h2>Stop Paying for Repairs You Can Do Yourself</h2>
+          <p>Join homeowners saving hundreds annually with AI-powered repair guidance. Get instant step-by-step instructions for any home issue — no experience needed.</p>
+          <button onClick={handleStartTrial} className="start-button">
+            Start Your 5-Day Free Trial
           </button>
+          <p className="cta-subtext">No commitment · Cancel anytime</p>
         </div>
 
         {/* FAQ Section */}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
 import PaymentPlan from './PaymentPlan';
@@ -82,6 +83,11 @@ const PricingPage = () => {
 
   return (
     <div className="pricing-page">
+      <Helmet>
+        <title>Pricing | QuickFix AI — Plans from $2/month, 5-Day Free Trial</title>
+        <meta name="description" content="QuickFix AI plans start at $2/month. Get AI-powered home repair guides for plumbing, electrical, HVAC & more. Start with a 5-day free trial — no commitment required." />
+        <link rel="canonical" href="https://quickfixai.com/pricing" />
+      </Helmet>
       {location.state?.fromRepair && (
         <div style={{ 
           textAlign: 'center', 

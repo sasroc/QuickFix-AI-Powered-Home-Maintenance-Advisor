@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useTheme } from '../../contexts/ThemeContext';
 import './FAQ.css';
+
+const faqSchemaQuestions = [
+  { q: "What is QuickFixAI?", a: "QuickFixAI is an AI-powered home maintenance advisor that provides detailed repair guides and solutions for common household issues. Our platform uses advanced AI technology to help homeowners diagnose and fix problems around their homes." },
+  { q: "What kind of repairs can QuickFixAI help with?", a: "QuickFixAI can help with a wide range of home repairs, from basic plumbing and electrical issues to more complex HVAC and structural problems. Our AI provides step-by-step guides, safety precautions, and troubleshooting tips for each repair." },
+  { q: "Is it safe to follow AI-generated repair guides?", a: "While our AI provides detailed and accurate repair guides, we always recommend consulting with a professional for complex or potentially dangerous repairs. Our guides include safety warnings and indicate when to call a professional." },
+  { q: "What is your refund policy?", a: "We offer a 24-hour no-questions-asked refund policy for new subscribers who haven't used any credits. The refund will be processed back to your original payment method within 3-5 business days." },
+  { q: "Can I cancel my subscription anytime?", a: "Yes, you can cancel your subscription at any time. You'll still have access to your plan until the end of your current billing period." },
+  { q: "How does the subscription work?", a: "We offer three subscription tiers: Starter ($2/month), Pro ($10/month), and Premium ($20/month). Each tier provides a different number of AI repair guides per month. Annual billing saves up to 28%." },
+];
 
 const faqCategories = [
   {
@@ -76,8 +86,24 @@ const FAQ = () => {
 
   const currentCategory = faqCategories.find(cat => cat.title === activeCategory);
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqSchemaQuestions.map(({ q, a }) => ({
+      "@type": "Question",
+      "name": q,
+      "acceptedAnswer": { "@type": "Answer", "text": a }
+    }))
+  };
+
   return (
     <div className={`faq-container ${isDarkMode ? 'dark' : ''}`}>
+      <Helmet>
+        <title>FAQ | QuickFix AI — Common Questions Answered</title>
+        <meta name="description" content="Find answers about QuickFix AI's home repair guidance, subscription plans, refund policy, and how the AI works. Repairs for plumbing, electrical, HVAC & more." />
+        <link rel="canonical" href="https://quickfixai.com/faq" />
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+      </Helmet>
       <div className="quickfix-gradient-bg" />
       <div className="faq-content-wrapper">
         <div className="faq-header">

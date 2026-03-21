@@ -64,6 +64,7 @@ React Context only (no Redux):
 ### Credit & Subscription System
 - Plans: Starter (10 credits/mo), Pro (25), Premium (100)
 - Each AI analysis costs 1 credit
+- Repair history caps per plan: Starter (10 saved), Pro (50), Premium (unlimited); see `frontend/src/constants/plans.js`
 - **Stripe** (web): webhooks (`checkout.session.completed`, `invoice.paid`) update Firestore user doc; `paymentProvider: "stripe"`
 - **Apple IAP** (iOS): StoreKit 2 transactions verified via `POST /api/apple/verify-purchase`; lifecycle events (renewals, cancellations, refunds) handled via `POST /api/apple/server-notification`; users looked up by `appleOriginalTransactionId` field (Apple doesn't include uid in notifications); `paymentProvider: "apple"`
 - **Lifetime Access**: Special tier (`subscriptionStatus: "lifetime"`) that monthly-resets to 10 credits without Stripe; admin-granted only; bypasses all webhook processing
@@ -88,6 +89,9 @@ In-memory cache in `backend/src/services/cacheService.ts` — AI responses cache
 | Firebase client init | `frontend/src/config/firebase.js` |
 | Firestore security rules | `firestore.rules` |
 | Netlify config (SPA routing, headers) | `netlify.toml` |
+| Admin API routes | `backend/src/routes/admin.routes.ts` |
+| Email service (SendGrid) | `backend/src/services/email.service.ts` |
+| Plan credit + history cap constants | `frontend/src/constants/plans.js` |
 
 ## Important Patterns
 
@@ -100,6 +104,10 @@ In-memory cache in `backend/src/services/cacheService.ts` — AI responses cache
 **Frontend is JavaScript**: The frontend uses `.js` (not `.tsx`). Chakra UI for all components; Framer Motion for animations.
 
 **Firestore collections**: `users/` (profiles + subscription), `repairs/` (history per user), `feedback/` (submissions).
+
+**Body parser ordering**: In `app.ts`, the Stripe webhook route (`/api/stripe/webhook`) must receive the raw body buffer for HMAC verification — it uses `express.raw()` and is registered before `express.json()`. The feedback submit route (`/api/feedback/submit`) skips JSON parsing because it uses multer for multipart image uploads. Do not reorder or consolidate these parsers.
+
+**Health check**: `GET /health` returns uptime, version, and environment — used by Railway for monitoring.
 
 ## Environment Variables
 
