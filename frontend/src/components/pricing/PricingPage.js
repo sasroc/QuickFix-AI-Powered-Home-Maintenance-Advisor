@@ -11,7 +11,6 @@ const db = getFirestore();
 const PricingPage = () => {
   const { currentUser } = useAuth();
   const [currentPlan, setCurrentPlan] = useState(null);
-  const [currentBilling, setCurrentBilling] = useState(null); // 'monthly' or 'lifetime'
   const [subscriptionStatus, setSubscriptionStatus] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
@@ -26,7 +25,6 @@ const PricingPage = () => {
       if (snap.exists()) {
         const data = snap.data();
         setCurrentPlan(data.plan || null);
-        setCurrentBilling(data.billingInterval || 'annual');
         setSubscriptionStatus(data.subscriptionStatus || 'inactive');
         setUserData(data);
       }
