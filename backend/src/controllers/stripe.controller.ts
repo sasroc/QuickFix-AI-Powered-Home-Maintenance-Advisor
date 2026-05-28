@@ -9,11 +9,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const getPlanCredits = (plan: string): number => {
   const planCredits: { [key: string]: number } = {
     'none': 0,
-    'starter': 10,
-    'pro': 25,
-    'premium': 100
+    'pro': 10,
   };
-  return planCredits[plan] || 10; // Default to starter credits
+  return planCredits[plan] || 10;
 };
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
@@ -27,17 +25,23 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 
     // Lookup table for price IDs
     const priceIdMap: Record<string, string> = {
-      'starter_monthly': process.env.STRIPE_STARTER_MONTHLY_PRICE_ID!,
-      'starter_annual': process.env.STRIPE_STARTER_ANNUAL_PRICE_ID!,
       'pro_monthly': process.env.STRIPE_PRO_MONTHLY_PRICE_ID!,
-      'pro_annual': process.env.STRIPE_PRO_ANNUAL_PRICE_ID!,
-      'premium_monthly': process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID!,
-      'premium_annual': process.env.STRIPE_PREMIUM_ANNUAL_PRICE_ID!,
+      'pro_lifetime': process.env.STRIPE_PRO_LIFETIME_PRICE_ID!,
     };
 
-    // For free trials, we only offer Starter plan and force monthly billing
-    if (isTrial && plan !== 'starter') {
-      return res.status(400).json({ message: 'Free trial is only available for Starter plan' });
+    // Validate plan
+    if (plan !== 'pro') {
+      return res.status(400).json({ message: 'Invalid plan' });
+    }
+
+    // Lifetime plan cannot have a trial
+    if (isTrial && billing === 'lifetime') {
+      return res.status(400).json({ message: 'Free trial is not available for the Lifetime plan' });
+    }
+
+    // For free trials, force monthly billing
+    if (isTrial && plan !== 'pro') {
+      return res.status(400).json({ message: 'Free trial is only available for the Pro plan' });
     }
 
     // Check if user has already used their trial
@@ -68,37 +72,51 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid plan or billing interval' });
     }
 
-    sessionConfig = {
-      payment_method_types: ['card'],
-      mode: 'subscription',
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
+    if (effectiveBilling === 'lifetime') {
+      // One-time payment for lifetime access
+      sessionConfig = {
+        payment_method_types: ['card'],
+        mode: 'payment',
+        line_items: [{ price: priceId, quantity: 1 }],
+        success_url: successUrl || `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: cancelUrl || `${process.env.FRONTEND_URL}/payment-cancelled`,
+        allow_promotion_codes: true,
+        metadata: {
+          uid,
+          plan,
+          billing: 'lifetime',
+          isTrial: 'false',
         },
-      ],
-      success_url: successUrl || `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}${isTrial ? '&trial=true' : ''}`,
-      cancel_url: cancelUrl || `${process.env.FRONTEND_URL}/payment-cancelled`,
-      allow_promotion_codes: true,
-      metadata: {
-        uid,
-        plan,
-        billing: effectiveBilling,
-        isTrial: isTrial.toString(),
-      },
-    };
-
-    // Add trial configuration if this is a trial
-    if (isTrial) {
-      sessionConfig.subscription_data = {
-        trial_period_days: parseInt(process.env.TRIAL_PERIOD_DAYS || '5'), // Default 5 days, configurable via env
+      };
+    } else {
+      // Recurring subscription
+      sessionConfig = {
+        payment_method_types: ['card'],
+        mode: 'subscription',
+        line_items: [{ price: priceId, quantity: 1 }],
+        success_url: successUrl || `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}${isTrial ? '&trial=true' : ''}`,
+        cancel_url: cancelUrl || `${process.env.FRONTEND_URL}/payment-cancelled`,
+        allow_promotion_codes: true,
         metadata: {
           uid,
           plan,
           billing: effectiveBilling,
-          isTrial: 'true',
+          isTrial: isTrial.toString(),
         },
       };
+
+      // Add trial configuration if this is a trial
+      if (isTrial) {
+        sessionConfig.subscription_data = {
+          trial_period_days: parseInt(process.env.TRIAL_PERIOD_DAYS || '5'),
+          metadata: {
+            uid,
+            plan,
+            billing: effectiveBilling,
+            isTrial: 'true',
+          },
+        };
+      }
     }
 
     const session = await stripe.checkout.sessions.create(sessionConfig);
@@ -140,54 +158,73 @@ export const handleWebhook = async (req: Request, res: Response) => {
       let credits = getPlanCredits(plan);
 
       if (uid) {
-        // LIFETIME ACCESS PROTECTION: Check if user has lifetime access before updating
         const existingUserDoc = await admin.firestore().collection('users').doc(uid).get();
         const existingUserData = existingUserDoc.data();
-        
-        if (existingUserData?.hasLifetimeAccess) {
-          console.log(`Skipping checkout completion for lifetime user ${uid}`);
-          return res.json({ received: true, skipped: 'lifetime_user' });
-        }
-        
-        const userUpdateData: any = {
-          subscriptionStatus: 'active',
-          stripeSubscriptionId: subscriptionId,
-          plan,
-          billingInterval: billing,
-          credits,
-          stripeCustomerId,
-        };
 
-        // Add trial-specific data
-        if (isTrial) {
-          const trialPeriodDays = parseInt(process.env.TRIAL_PERIOD_DAYS || '5');
-          const trialEndDate = new Date();
-          trialEndDate.setDate(trialEndDate.getDate() + trialPeriodDays);
-          
-          userUpdateData.isOnTrial = true;
-          userUpdateData.wasOnTrial = true; // Mark that this user has used their trial
-          userUpdateData.trialEndDate = admin.firestore.Timestamp.fromDate(trialEndDate);
-          userUpdateData.trialStartDate = admin.firestore.Timestamp.now();
-        } else {
-          userUpdateData.isOnTrial = false;
-        }
+        if (billing === 'lifetime') {
+          // One-time lifetime purchase — grant permanent access
+          const userUpdateData: any = {
+            hasLifetimeAccess: true,
+            subscriptionStatus: 'lifetime',
+            plan,
+            billingInterval: 'lifetime',
+            credits,
+            stripeCustomerId,
+            isOnTrial: false,
+          };
+          await admin.firestore().collection('users').doc(uid).set(userUpdateData, { merge: true });
+          cacheService.invalidateUserData(uid);
 
-        await admin.firestore().collection('users').doc(uid).set(userUpdateData, { merge: true });
-
-        // Invalidate user cache since plan and credits changed
-        cacheService.invalidateUserData(uid);
-        
-        // Fetch user email and name from Firestore
-        const userDoc = await admin.firestore().collection('users').doc(uid).get();
-        const userData = userDoc.data();
-        if (userData && userData.email) {
-          const name = userData.displayName || userData.email.split('@')[0];
-          const EmailService = (await import('../services/email.service')).default;
-          
-          if (isTrial) {
-            await EmailService.getInstance().sendTrialConfirmation(userData.email, name, plan);
-          } else {
+          const userDoc = await admin.firestore().collection('users').doc(uid).get();
+          const userData = userDoc.data();
+          if (userData && userData.email) {
+            const name = userData.displayName || userData.email.split('@')[0];
+            const EmailService = (await import('../services/email.service')).default;
             await EmailService.getInstance().sendSubscriptionConfirmation(userData.email, name, plan);
+          }
+        } else {
+          // LIFETIME ACCESS PROTECTION: don't overwrite existing lifetime users with a subscription
+          if (existingUserData?.hasLifetimeAccess) {
+            console.log(`Skipping checkout completion for lifetime user ${uid}`);
+            return res.json({ received: true, skipped: 'lifetime_user' });
+          }
+
+          const userUpdateData: any = {
+            subscriptionStatus: 'active',
+            stripeSubscriptionId: subscriptionId,
+            plan,
+            billingInterval: billing,
+            credits,
+            stripeCustomerId,
+          };
+
+          // Add trial-specific data
+          if (isTrial) {
+            const trialPeriodDays = parseInt(process.env.TRIAL_PERIOD_DAYS || '5');
+            const trialEndDate = new Date();
+            trialEndDate.setDate(trialEndDate.getDate() + trialPeriodDays);
+
+            userUpdateData.isOnTrial = true;
+            userUpdateData.wasOnTrial = true;
+            userUpdateData.trialEndDate = admin.firestore.Timestamp.fromDate(trialEndDate);
+            userUpdateData.trialStartDate = admin.firestore.Timestamp.now();
+          } else {
+            userUpdateData.isOnTrial = false;
+          }
+
+          await admin.firestore().collection('users').doc(uid).set(userUpdateData, { merge: true });
+          cacheService.invalidateUserData(uid);
+
+          const userDoc = await admin.firestore().collection('users').doc(uid).get();
+          const userData = userDoc.data();
+          if (userData && userData.email) {
+            const name = userData.displayName || userData.email.split('@')[0];
+            const EmailService = (await import('../services/email.service')).default;
+            if (isTrial) {
+              await EmailService.getInstance().sendTrialConfirmation(userData.email, name, plan);
+            } else {
+              await EmailService.getInstance().sendSubscriptionConfirmation(userData.email, name, plan);
+            }
           }
         }
       }
@@ -253,7 +290,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
         if (isCanceled && userData && userData.email) {
           try {
             const name = userData.displayName || userData.email.split('@')[0];
-            const plan = userData.plan || 'starter';
+            const plan = userData.plan || 'pro';
             const billingInterval = userData.billingInterval || 'monthly';
             
             // Calculate access until date (end of current period)
@@ -337,7 +374,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
           // Check if this is the first payment after trial (trial ending) and amount > 0
           if (userData.isOnTrial && invoice.amount_paid > 0) {
             // Get credit allocation for user's plan
-            const userPlan = userData.plan || 'starter';
+            const userPlan = userData.plan || 'pro';
             const creditsToReset = getPlanCredits(userPlan);
             
             const updateData: any = {
@@ -358,7 +395,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
             if (userData.email) {
               try {
                 const name = userData.displayName || userData.email.split('@')[0];
-                const plan = userData.plan || 'starter';
+                const plan = userData.plan || 'pro';
                 const EmailService = (await import('../services/email.service')).default;
                 await EmailService.getInstance().sendTrialConversionConfirmation(
                   userData.email,
@@ -373,7 +410,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
             // Handle regular subscription renewals for existing paid subscribers
             // This includes both monthly renewals and annual subscribers getting monthly resets
             
-            const userPlan = userData.plan || 'starter';
+            const userPlan = userData.plan || 'pro';
             const creditsToReset = getPlanCredits(userPlan);
             
             // Check if this is a renewal that should trigger credit reset
@@ -444,7 +481,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
             
             if (userData.isOnTrial) {
               // Get credit allocation for user's plan
-              const userPlan = userData.plan || 'starter';
+              const userPlan = userData.plan || 'pro';
               const creditsToReset = getPlanCredits(userPlan);
               
               const updateData: any = {
@@ -465,7 +502,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
               if (userData.email) {
                 try {
                   const name = userData.displayName || userData.email.split('@')[0];
-                  const plan = userData.plan || 'starter';
+                  const plan = userData.plan || 'pro';
                   const EmailService = (await import('../services/email.service')).default;
                   await EmailService.getInstance().sendTrialConversionConfirmation(
                     userData.email,
@@ -480,7 +517,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
               // Handle regular subscription renewals for existing paid subscribers (customer ID fallback)
               // This includes both monthly renewals and annual subscribers getting monthly resets
               
-              const userPlan = userData.plan || 'starter';
+              const userPlan = userData.plan || 'pro';
               const creditsToReset = getPlanCredits(userPlan);
               
               // Check if this is a renewal that should trigger credit reset
@@ -556,7 +593,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
           
           if (userData.isOnTrial) {
             // Get credit allocation for user's plan
-            const userPlan = userData.plan || 'starter';
+            const userPlan = userData.plan || 'pro';
             const creditsToReset = getPlanCredits(userPlan);
             
             const updateData: any = {
@@ -577,7 +614,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
             if (userData.email) {
               try {
                 const name = userData.displayName || userData.email.split('@')[0];
-                const plan = userData.plan || 'starter';
+                const plan = userData.plan || 'pro';
                 const EmailService = (await import('../services/email.service')).default;
                 await EmailService.getInstance().sendTrialConversionConfirmation(
                   userData.email,
@@ -615,7 +652,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
               }
               
               if (shouldResetCredits) {
-                const userPlan = userData.plan || 'starter';
+                const userPlan = userData.plan || 'pro';
                 const creditsToReset = getPlanCredits(userPlan);
                 
                 const updateData: any = {
@@ -729,7 +766,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
         if (userData && userData.email) {
           try {
             const name = userData.displayName || userData.email.split('@')[0];
-            const plan = userData.plan || 'starter';
+            const plan = userData.plan || 'pro';
             const billingInterval = userData.billingInterval || 'monthly';
             
             // Calculate access until date (end of current period)
@@ -956,7 +993,7 @@ export const processRefund = async (req: Request, res: Response) => {
           userData.email,
           name,
           refund.amount / 100, // Convert cents to dollars
-          userData.plan || 'starter'
+          userData.plan || 'pro'
         );
       } catch (emailError) {
         console.error('Failed to send refund confirmation email:', emailError);

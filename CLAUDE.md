@@ -16,12 +16,20 @@ npm run build          # Build both for production
 npm run test           # Run tests for both
 ```
 
+### Root utility scripts
+```bash
+npm run clean      # Remove node_modules + dist for both services
+npm run env:check  # Verify backend/.env and frontend/.env files exist
+```
+
 ### Backend only (`cd backend`)
 ```bash
 npm run dev     # nodemon with auto-reload
 npm run build   # TypeScript → dist/
 npm start       # Run compiled dist/app.js
-npm test        # Run tests
+npm test        # Run all tests (jest)
+npx jest path/to/file.test.ts          # Run a single test file
+npx jest --testNamePattern "pattern"   # Run tests matching a name
 ```
 
 ### Frontend only (`cd frontend`)
@@ -62,13 +70,16 @@ React Context only (no Redux):
 - `useCreateUserInFirestore.js` — auto-creates Firestore user doc on first sign-in
 
 ### Credit & Subscription System
-- Plans: Starter (10 credits/mo), Pro (25), Premium (100)
-- Each AI analysis costs 1 credit
-- Repair history caps per plan: Starter (10 saved), Pro (50), Premium (unlimited); see `frontend/src/constants/plans.js`
-- **Stripe** (web): webhooks (`checkout.session.completed`, `invoice.paid`) update Firestore user doc; `paymentProvider: "stripe"`
-- **Apple IAP** (iOS): StoreKit 2 transactions verified via `POST /api/apple/verify-purchase`; lifecycle events (renewals, cancellations, refunds) handled via `POST /api/apple/server-notification`; users looked up by `appleOriginalTransactionId` field (Apple doesn't include uid in notifications); `paymentProvider: "apple"`
-- **Lifetime Access**: Special tier (`subscriptionStatus: "lifetime"`) that monthly-resets to 10 credits without Stripe; admin-granted only; bypasses all webhook processing
-- `APPLE_BYPASS_VERIFICATION=true` disables JWS signature verification for Xcode StoreKit config file testing only (ephemeral test keys don't chain to Apple's CA)
+- One plan: **Pro** — two payment options:
+  - **Pro Monthly** ($4.99/mo): 10 credits/mo, unlimited repair history; `billingInterval: "monthly"`
+  - **Pro Lifetime** ($49.99 one-time): unlimited repairs + history forever; sets `hasLifetimeAccess: true`, `subscriptionStatus: "lifetime"`
+- Each AI analysis costs 1 credit (lifetime users bypass credit deduction entirely)
+- Repair history cap: unlimited for all paid plans; see `frontend/src/constants/plans.js`
+- All plans use `gpt-4.1-nano` model
+- **Stripe** (web): `checkout.session.completed` webhook handles both subscription (monthly) and one-time payment (lifetime); `paymentProvider: "stripe"`
+- **Apple IAP** (iOS): StoreKit 2 transactions verified via `POST /api/apple/verify-purchase`; lifecycle events handled via `POST /api/apple/server-notification`; users looked up by `appleOriginalTransactionId`; `paymentProvider: "apple"`; product IDs: `com.quickfixai.pro.monthly`, `com.quickfixai.pro.lifetime`
+- **Lifetime Access**: `hasLifetimeAccess: true` flag — set by purchasing the Lifetime plan OR admin-granted; bypasses credit deduction in AI controller and all webhook subscription processing
+- `APPLE_BYPASS_VERIFICATION=true` disables JWS signature verification for Xcode StoreKit config file testing only
 
 ### Caching
 In-memory cache in `backend/src/services/cacheService.ts` — AI responses cached 5 min TTL by issue hash. Reduces OpenAI API costs for repeated queries.
@@ -99,11 +110,13 @@ In-memory cache in `backend/src/services/cacheService.ts` — AI responses cache
 
 **Error handling**: Controllers use try/catch → global `errorHandler.ts` middleware → Sentry + Winston logging. Custom `AppError` class for consistent error responses.
 
-**Backend TypeScript**: Strict mode enabled. New backend files should be `.ts` in `src/`, compiled to `dist/`.
+**Backend TypeScript**: Strict mode enabled. New backend files should be `.ts` in `src/`, compiled to `dist/`. Path alias `@/*` maps to `src/*` (configured in `tsconfig.json`).
 
 **Frontend is JavaScript**: The frontend uses `.js` (not `.tsx`). Chakra UI for all components; Framer Motion for animations.
 
 **Firestore collections**: `users/` (profiles + subscription), `repairs/` (history per user), `feedback/` (submissions).
+
+**Stripe webhook routes**: There are two Stripe-related route files. `stripe.routes.ts` handles checkout/portal/subscription management endpoints. `webhook.routes.ts` handles the raw webhook POST at `/api/stripe/webhook` (needs `express.raw()` for HMAC). Both delegate to `stripe.controller.ts`. Do not merge them — the body parser requirement differs.
 
 **Body parser ordering**: In `app.ts`, the Stripe webhook route (`/api/stripe/webhook`) must receive the raw body buffer for HMAC verification — it uses `express.raw()` and is registered before `express.json()`. The feedback submit route (`/api/feedback/submit`) skips JSON parsing because it uses multer for multipart image uploads. Do not reorder or consolidate these parsers.
 
@@ -111,6 +124,6 @@ In-memory cache in `backend/src/services/cacheService.ts` — AI responses cache
 
 ## Environment Variables
 
-**Backend** (`backend/.env`): `OPENAI_API_KEY`, `FIREBASE_PROJECT_ID/CLIENT_EMAIL/PRIVATE_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_*_PRICE_ID` (one per plan), `STRIPE_WEBHOOK_SECRET`, `SENDGRID_API_KEY`, `SENTRY_DSN`, `FRONTEND_URL`, `PORT=4000`, `NODE_ENV`. Apple IAP: `APPLE_BUNDLE_ID`, `APPLE_ISSUER_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY` (.p8 contents), `APPLE_APP_APPLE_ID`, `APPLE_SANDBOX` (`true`/`false`), `APPLE_BYPASS_VERIFICATION` (test only).
+**Backend** (`backend/.env`): `OPENAI_API_KEY`, `FIREBASE_PROJECT_ID/CLIENT_EMAIL/PRIVATE_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_PRO_MONTHLY_PRICE_ID`, `STRIPE_PRO_LIFETIME_PRICE_ID` (one-time payment price), `STRIPE_WEBHOOK_SECRET`, `SENDGRID_API_KEY`, `SENTRY_DSN`, `FRONTEND_URL`, `PORT=4000`, `NODE_ENV`. Apple IAP: `APPLE_BUNDLE_ID`, `APPLE_ISSUER_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY` (.p8 contents), `APPLE_APP_APPLE_ID`, `APPLE_SANDBOX` (`true`/`false`), `APPLE_BYPASS_VERIFICATION` (test only).
 
 **Frontend** (`frontend/.env`): `REACT_APP_API_URL`, `REACT_APP_FIREBASE_*` (6 vars), `REACT_APP_STRIPE_PUBLIC_KEY`, `REACT_APP_SENTRY_DSN`.

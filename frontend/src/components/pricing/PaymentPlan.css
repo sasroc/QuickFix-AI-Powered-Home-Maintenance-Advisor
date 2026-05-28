@@ -202,11 +202,19 @@
 }
 
 .annual-note {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--text-light);
   font-weight: 500;
-  margin-left: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+.yearly-save-note {
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--accent-secondary);
   margin-top: 8px;
+  font-weight: 600;
 }
 
 .plan-features {

@@ -143,20 +143,20 @@ export const resetLifetimeUserCredits = async (): Promise<void> => {
     
     // Batch update users to reset their credits
     const batch = admin.firestore().batch();
-    const STARTER_PLAN_CREDITS = 10; // Lifetime users get starter plan features
+    const PRO_PLAN_CREDITS = 10;
     let updateCount = 0;
-    
+
     for (const doc of querySnapshot.docs) {
       const userData = doc.data();
-      
+
       // Check if user is eligible for credit reset (hasn't been reset this month)
       const isEligible = await isEligibleForCreditReset(userData);
-      
+
       if (isEligible) {
         batch.update(doc.ref, {
-          credits: STARTER_PLAN_CREDITS,
+          credits: PRO_PLAN_CREDITS,
           lastCreditReset: admin.firestore.Timestamp.now(),
-          plan: 'starter' // Ensure lifetime users always have starter plan
+          plan: 'pro',
         });
         
         // Invalidate user cache for updated credits
@@ -227,12 +227,12 @@ export const resetLifetimeUserCreditsForUser = async (uid: string): Promise<bool
       return false;
     }
     
-    const STARTER_PLAN_CREDITS = 10;
-    
+    const PRO_PLAN_CREDITS = 10;
+
     await userDoc.ref.update({
-      credits: STARTER_PLAN_CREDITS,
+      credits: PRO_PLAN_CREDITS,
       lastCreditReset: admin.firestore.Timestamp.now(),
-      plan: 'starter'
+      plan: 'pro',
     });
     
     // Invalidate user cache
@@ -274,20 +274,18 @@ export const resetAnnualSubscriberCredits = async (): Promise<void> => {
     const getPlanCredits = (plan: string): number => {
       const planCredits: { [key: string]: number } = {
         'none': 0,
-        'starter': 10,
-        'pro': 25,
-        'premium': 100
+        'pro': 10,
       };
       return planCredits[plan] || 10;
     };
-    
+
     // Batch update users to reset their credits
     const batch = admin.firestore().batch();
     let updateCount = 0;
-    
+
     for (const doc of querySnapshot.docs) {
       const userData = doc.data();
-      
+
       // Skip lifetime users (they have their own reset system)
       if (userData?.hasLifetimeAccess) {
         continue;
@@ -362,14 +360,12 @@ export const resetAnnualSubscriberCreditsForUser = async (uid: string): Promise<
     const getPlanCredits = (plan: string): number => {
       const planCredits: { [key: string]: number } = {
         'none': 0,
-        'starter': 10,
-        'pro': 25,
-        'premium': 100
+        'pro': 10,
       };
       return planCredits[plan] || 10;
     };
-    
-    const userPlan = userData.plan || 'starter';
+
+    const userPlan = userData.plan || 'pro';
     const creditsToReset = getPlanCredits(userPlan);
     
     await userDoc.ref.update({

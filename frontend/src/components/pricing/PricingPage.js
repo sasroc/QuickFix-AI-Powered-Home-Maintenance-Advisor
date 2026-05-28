@@ -11,7 +11,7 @@ const db = getFirestore();
 const PricingPage = () => {
   const { currentUser } = useAuth();
   const [currentPlan, setCurrentPlan] = useState(null);
-  const [currentBilling, setCurrentBilling] = useState(null);
+  const [currentBilling, setCurrentBilling] = useState(null); // 'monthly' or 'lifetime'
   const [subscriptionStatus, setSubscriptionStatus] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
@@ -84,8 +84,8 @@ const PricingPage = () => {
   return (
     <div className="pricing-page">
       <Helmet>
-        <title>Pricing | QuickFix AI — Plans from $2/month, 5-Day Free Trial</title>
-        <meta name="description" content="QuickFix AI plans start at $2/month. Get AI-powered home repair guides for plumbing, electrical, HVAC & more. Start with a 5-day free trial — no commitment required." />
+        <title>Pricing | QuickFix AI — $4.99/month or $49.99 Lifetime</title>
+        <meta name="description" content="QuickFix AI Pro gives you AI-powered home repair guides for $4.99/month or a one-time $49.99 lifetime payment. Plumbing, electrical, HVAC & more." />
         <link rel="canonical" href="https://quickfixai.com/pricing" />
       </Helmet>
       {location.state?.fromRepair && (
@@ -108,10 +108,9 @@ const PricingPage = () => {
           </p>
         </div>
       )}
-      <PaymentPlan 
-        onSubscribe={onSubscribe} 
+      <PaymentPlan
+        onSubscribe={onSubscribe}
         currentPlan={currentPlan}
-        currentBilling={currentBilling}
         userData={userData}
         subscriptionStatus={subscriptionStatus}
         showTrial={location.state?.startTrial}

@@ -160,7 +160,7 @@ export const hasLifetimeAccess = (userData) => {
  */
 export const getEffectivePlan = (userData) => {
   if (hasLifetimeAccess(userData)) {
-    return 'starter'; // Lifetime users get starter plan features
+    return 'pro';
   }
   return userData?.plan || 'none';
 };

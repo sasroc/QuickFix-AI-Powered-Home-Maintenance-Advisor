@@ -16,20 +16,14 @@ interface RequestWithUser extends Request {
 // Maps Apple product IDs to plan + billing interval.
 // Must match the product IDs configured in App Store Connect.
 const PRODUCT_PLAN_MAP: Record<string, { plan: string; billing: string }> = {
-  'com.quickfixai.starter.monthly': { plan: 'starter', billing: 'monthly' },
-  'com.quickfixai.starter.annual':  { plan: 'starter', billing: 'annual'  },
-  'com.quickfixai.pro.monthly':     { plan: 'pro',     billing: 'monthly' },
-  'com.quickfixai.pro.annual':      { plan: 'pro',     billing: 'annual'  },
-  'com.quickfixai.premium.monthly': { plan: 'premium', billing: 'monthly' },
-  'com.quickfixai.premium.annual':  { plan: 'premium', billing: 'annual'  },
+  'com.quickfixai.pro.monthly':  { plan: 'pro', billing: 'monthly'  },
+  'com.quickfixai.pro.lifetime': { plan: 'pro', billing: 'lifetime' },
 };
 
 // Must match SubscriptionPlan.credits in the iOS model and stripe.controller.ts
 const PLAN_CREDITS: Record<string, number> = {
-  none:    0,
-  starter: 10,
-  pro:     25,
-  premium: 100,
+  none: 0,
+  pro:  10,
 };
 
 function getPlanCredits(plan: string): number {
@@ -167,12 +161,13 @@ export const verifyPurchase = async (req: RequestWithUser, res: Response) => {
     const isTrial      = offerType === 1;
     const trialEndDate = isTrial && expiresDate ? new Date(expiresDate) : null;
     const credits      = getPlanCredits(plan);
+    const isLifetimePurchase = billing === 'lifetime';
 
     // ── 5. Build Firestore update ─────────────────────────────────────────
     const now = admin.firestore.FieldValue.serverTimestamp();
 
     const update: Record<string, unknown> = {
-      subscriptionStatus:         isTrial ? 'trialing' : 'active',
+      subscriptionStatus:         isLifetimePurchase ? 'lifetime' : isTrial ? 'trialing' : 'active',
       plan,
       billingInterval:            billing,
       credits,
@@ -181,6 +176,7 @@ export const verifyPurchase = async (req: RequestWithUser, res: Response) => {
       lastCreditReset:            now,
       isOnTrial:                  isTrial,
       wasOnTrial:                 isTrial ? true : (userData?.wasOnTrial ?? false),
+      ...(isLifetimePurchase && { hasLifetimeAccess: true }),
     };
 
     if (isTrial && trialEndDate) {
@@ -404,7 +400,7 @@ export const handleServerNotification = async (req: Request, res: Response) => {
             await EmailService.getInstance().sendSubscriptionCancellation(
               email,
               userData.displayName ?? '',
-              userData.plan ?? 'starter',
+              userData.plan ?? 'pro',
               accessUntilDate,
               userData.billingInterval ?? 'monthly'
             );

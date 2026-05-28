@@ -85,10 +85,9 @@ const SubscriptionGate = ({ children }) => {
         <h2>⚠️ Grace Period Active</h2>
         <p>Your trial has ended, but you still have {gracePeriodTime} to subscribe.</p>
         <p>After this period, access will be restricted.</p>
-        <PaymentPlan 
+        <PaymentPlan
           onSubscribe={onSubscribe}
           currentPlan={userData?.plan}
-          currentBilling={userData?.billingInterval || 'annual'}
           userData={userData}
           subscriptionStatus={status}
         />
@@ -112,8 +111,8 @@ const SubscriptionGate = ({ children }) => {
       {trialEligible ? (
         <>
           <p>Start your free trial to access this feature!</p>
-          <button 
-            onClick={() => onSubscribe('starter', 'monthly')} 
+          <button
+            onClick={() => onSubscribe('pro', 'monthly')}
             disabled={loadingCheckout}
             style={{
               backgroundColor: '#007bff',
@@ -144,10 +143,9 @@ const SubscriptionGate = ({ children }) => {
         </>
       )}
       
-      <PaymentPlan 
+      <PaymentPlan
         onSubscribe={onSubscribe}
         currentPlan={userData?.plan}
-        currentBilling={userData?.billingInterval || 'annual'}
         userData={userData}
         subscriptionStatus={status}
       />

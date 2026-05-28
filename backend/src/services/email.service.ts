@@ -97,9 +97,7 @@ class EmailService {
 
   public async sendSubscriptionConfirmation(to: string, name: string, plan: string): Promise<void> {
     const planLabels = {
-      starter: 'Starter',
-      pro: 'Pro', 
-      premium: 'Premium'
+      pro: 'Pro',
     };
 
     // Try to use template if available, otherwise use HTML
@@ -263,9 +261,7 @@ class EmailService {
 
   public async sendTrialConversionConfirmation(to: string, name: string, plan: string): Promise<void> {
     const planLabels = {
-      starter: 'Starter',
-      pro: 'Pro', 
-      premium: 'Premium'
+      pro: 'Pro',
     };
 
     // Try to use template if available, otherwise use HTML
@@ -445,9 +441,7 @@ class EmailService {
     billingInterval: string
   ): Promise<void> {
     const planLabels = {
-      starter: 'Starter',
       pro: 'Pro',
-      premium: 'Premium'
     };
 
     const intervalLabels = {
@@ -608,9 +602,7 @@ class EmailService {
     plan: string
   ): Promise<void> {
     const planLabels = {
-      starter: 'Starter',
       pro: 'Pro',
-      premium: 'Premium'
     };
 
     await this.sendEmail({

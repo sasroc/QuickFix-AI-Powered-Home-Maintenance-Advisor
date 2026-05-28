@@ -47,8 +47,8 @@ function RepairPage() {
         if (hasLifetimeAccess(data) && (data.credits === null || data.credits === undefined)) {
           try {
             await updateDoc(userRef, {
-              credits: 25,
-              plan: 'starter',
+              credits: 10,
+              plan: 'pro',
               lastCreditReset: serverTimestamp()
             });
             // Don't update local state here - let the snapshot update handle it
@@ -64,8 +64,8 @@ function RepairPage() {
           if (isEligibleForReset) {
             try {
               await updateDoc(userRef, {
-                credits: 25,
-                plan: 'starter',
+                credits: 10,
+                plan: 'pro',
                 lastCreditReset: serverTimestamp()
               });
               // Don't update local state here - let the snapshot update handle it
@@ -87,9 +87,7 @@ function RepairPage() {
               // Get credit allocation for user's plan
               const effectivePlan = getEffectivePlan(data);
               const PLAN_CREDITS_MAP = {
-                'starter': 10,
-                'pro': 25,
-                'premium': 100
+                'pro': 10,
               };
               const creditsToReset = PLAN_CREDITS_MAP[effectivePlan] || 10;
               
@@ -307,9 +305,10 @@ function RepairPage() {
     }
   };
 
-  const outOfCredits = credits !== null && credits <= 0;
+  const isLifetime = hasLifetimeAccess(userData);
+  const outOfCredits = !isLifetime && credits !== null && credits <= 0;
   const effectivePlan = getEffectivePlan(userData);
-  const maxCredits = PLAN_CREDITS[effectivePlan] || 25;
+  const maxCredits = PLAN_CREDITS[effectivePlan] || 10;
   const percent = credits !== null ? Math.max(0, Math.min(100, Math.round((credits / maxCredits) * 100))) : 100;
 
   return (
@@ -318,7 +317,7 @@ function RepairPage() {
         <div className="credits-container">
           <div className="credits-info">
             <span className="credits-badge">
-              {credits !== null ? `Credits: ${credits}/${maxCredits}` : 'Loading credits...'}
+              {isLifetime ? 'Credits: Unlimited' : credits !== null ? `Credits: ${credits}/${maxCredits}` : 'Loading credits...'}
             </span>
             {userData?.isOnTrial && (
               <span className="trial-indicator">
@@ -338,7 +337,7 @@ function RepairPage() {
               onClick={() => navigate('/pricing')}
               style={{ display: hasLifetimeAccess(userData) ? 'none' : 'block' }}
             >
-              {userData?.isOnTrial ? 'Subscribe' : effectivePlan === 'starter' ? 'Upgrade' : 'Change plan'}
+              {userData?.isOnTrial ? 'Subscribe' : 'Manage plan'}
             </button>
           </div>
           <button

@@ -107,60 +107,59 @@ export const analyzeIssue = async (
     // Get uid from authenticated user or from request body (fallback for compatibility)
     const uid = req.user?.uid || req.body.uid;
     
-    let plan = 'starter';
+    let plan = 'pro';
     let credits = 3; // Default credits for anonymous users
+    let isLifetimeUser = false;
 
     // If user is authenticated, fetch their plan and credits
     if (uid) {
       // Check and update trial status if needed (real-time cleanup)
       await checkAndUpdateUserTrialStatus(uid);
-      
+
       // Try to get user data from cache first
       let cachedUserData = cacheService.getUserData(uid);
-      
+
       if (cachedUserData) {
-        // Use cached data
         plan = cachedUserData.plan;
         credits = cachedUserData.credits;
+        isLifetimeUser = !!(cachedUserData as any).hasLifetimeAccess;
         logger.debug('Using cached user data', { uid, plan, credits });
       } else {
-        // Fetch from Firestore and cache the result
         const userRef = admin.firestore().collection('users').doc(uid);
         const userSnap = await userRef.get();
         if (userSnap.exists) {
           const userData = userSnap.data();
           plan = userData?.plan || 'none';
           credits = userData?.credits ?? 0;
-          
-          // Cache the user data for future requests
+          isLifetimeUser = userData?.hasLifetimeAccess === true;
+
           cacheService.setUserData(uid, {
             plan,
             credits,
             subscriptionStatus: userData?.subscriptionStatus,
+            hasLifetimeAccess: isLifetimeUser,
             lastUpdated: Date.now()
-          });
-          
+          } as any);
+
           logger.debug('Fetched and cached user data from Firestore', { uid, plan, credits });
         }
       }
-      
-      if (credits <= 0) {
-        return res.status(403).json({ message: 'You have no credits remaining. Please upgrade your plan.' });
-      }
 
-      // Deduct a credit for authenticated users and invalidate cache
-      const userRef = admin.firestore().collection('users').doc(uid);
-      await userRef.update({ credits: credits - 1 });
-      
-      // Invalidate user cache since credits changed
-      cacheService.invalidateUserData(uid);
+      // Lifetime users bypass credit checks entirely
+      if (!isLifetimeUser) {
+        if (credits <= 0) {
+          return res.status(403).json({ message: 'You have no credits remaining. Please upgrade your plan.' });
+        }
+        // Deduct a credit
+        const userRef = admin.firestore().collection('users').doc(uid);
+        await userRef.update({ credits: credits - 1 });
+        cacheService.invalidateUserData(uid);
+      }
     }
     // For anonymous users, we don't deduct credits from Firestore
 
-    // Select model based on plan
-    let model = 'gpt-4.1-nano';
-    if (plan === 'pro') model = 'gpt-4o-mini';
-    else if (plan === 'premium') model = 'gpt-4o';
+    // All plans use the same best-value model
+    const model = 'gpt-4.1-nano';
 
     logger.info('Processing repair request:', { hasDescription: !!description, hasImage: !!image, plan, model });
     
