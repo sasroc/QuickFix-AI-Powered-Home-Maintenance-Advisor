@@ -1,0 +1,43 @@
+{
+  "slug": "samsung-refrigerator-5e-ice-maker-error",
+  "title": "Samsung Refrigerator 5E / SE Error Code: Ice Maker Fix",
+  "metaDescription": "Samsung fridge showing 5E or SE and the ice maker stopped working? Here's what the code means and how to fix a frozen or jammed ice maker yourself.",
+  "category": "appliances",
+  "symptom": "The display shows \"5E\" or \"SE\", the ice maker stops making ice, and the auger may make a grinding or clicking sound.",
+  "difficulty": "Easy",
+  "estimatedTime": "20-40 minutes",
+  "toolsNeeded": ["Hair dryer (low heat) or warm towels", "Phillips screwdriver", "Flashlight"],
+  "partsNeeded": ["Replacement ice maker assembly (only if it doesn't recover after a full thaw)"],
+  "estimatedDIYCost": "$0–$60",
+  "estimatedProCost": "$150–$350",
+  "steps": [
+    {
+      "heading": "Understand what the code means",
+      "body": "5E (or SE, depending on model/firmware) means the ice maker's auger motor is drawing too much current — almost always because ice has jammed or fused solid around the auger, not because the motor itself is broken."
+    },
+    {
+      "heading": "Power down the ice maker",
+      "body": "From the fridge's control panel, turn off Ice Maker mode (or use the off-switch, usually on the side of the unit in the freezer). This stops the auger from repeatedly trying and re-triggering the fault."
+    },
+    {
+      "heading": "Remove and empty the ice bucket",
+      "body": "Take out the ice bucket/bin and empty it completely. Check the auger and the chute for a solid clump of fused ice — this is the most common cause of 5E/SE."
+    },
+    {
+      "heading": "Thaw the ice maker assembly itself",
+      "body": "With the bucket out, use a hair dryer on low heat (held several inches away) or a warm, damp towel to melt any ice built up around the auger motor housing and the dispenser chute. A full thaw can take 2-4 hours if you leave the freezer door propped and skip the hair dryer."
+    },
+    {
+      "heading": "Dry everything and power back on",
+      "body": "Once fully thawed, dry the bin and chute thoroughly (residual water will just refreeze), reinstall the bucket, and turn Ice Maker mode back on. Give it a few hours to resume normal cycles."
+    }
+  ],
+  "whenToCallAPro": "If the code returns immediately after a full thaw and dry-out with no ice jam present, the auger motor or control board itself has likely failed and needs professional diagnosis — this isn't a jam you can clear by thawing again.",
+  "safetyWarnings": [
+    "Unplug the refrigerator (or switch off Ice Maker mode) before reaching into the ice maker assembly to avoid the auger motor engaging on your fingers.",
+    "Never use a hair dryer on high heat directly against plastic ice maker components — it can warp or crack them.",
+    "Don't use a knife or hard tool to chip out fused ice — you can puncture the evaporator coil behind the ice maker, which is an expensive repair."
+  ],
+  "relatedSlugs": ["whirlpool-dishwasher-f8-e4-error", "lg-washer-oe-error-code", "ge-oven-f2-error-code"],
+  "updatedAt": "2026-09-08"
+}

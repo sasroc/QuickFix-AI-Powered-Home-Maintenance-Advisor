@@ -1,0 +1,37 @@
+[
+  {
+    "slug": "appliances",
+    "title": "Appliance Repair Guides",
+    "shortTitle": "Appliances",
+    "description": "Step-by-step fixes for washers, dryers, dishwashers, refrigerators, ovens, and more — including error code lookups by brand (Whirlpool, LG, Samsung, GE, Bosch, Maytag).",
+    "metaDescription": "Free DIY appliance repair guides for Whirlpool, LG, Samsung, GE, Bosch, Maytag and more. Fix error codes and common problems step by step."
+  },
+  {
+    "slug": "plumbing",
+    "title": "Plumbing Repair Guides",
+    "shortTitle": "Plumbing",
+    "description": "Fixes for leaks, clogs, running toilets, low water pressure, and other common plumbing problems.",
+    "metaDescription": "Free DIY plumbing repair guides — fix leaky faucets, clogged drains, running toilets, and more, step by step."
+  },
+  {
+    "slug": "electrical",
+    "title": "Electrical Repair Guides",
+    "shortTitle": "Electrical",
+    "description": "Fixes for outlets, switches, breakers, and lighting — with clear guidance on when to call a licensed electrician instead.",
+    "metaDescription": "Free DIY electrical repair guides for outlets, switches, breakers, and lighting — plus when to call a licensed electrician."
+  },
+  {
+    "slug": "hvac",
+    "title": "HVAC Repair Guides",
+    "shortTitle": "HVAC",
+    "description": "Fixes for furnaces, air conditioners, thermostats, and ventilation problems.",
+    "metaDescription": "Free DIY HVAC repair guides — troubleshoot furnaces, air conditioners, thermostats, and airflow problems step by step."
+  },
+  {
+    "slug": "drywall",
+    "title": "Drywall Repair Guides",
+    "shortTitle": "Drywall",
+    "description": "Fixes for holes, cracks, water damage, and texture matching in drywall and plaster.",
+    "metaDescription": "Free DIY drywall repair guides — patch holes, fix cracks, and repair water damage step by step."
+  }
+]

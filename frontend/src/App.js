@@ -25,6 +25,8 @@ import PrivacyPolicy from './components/legal/PrivacyPolicy';
 import HelpButton from './components/common/HelpButton';
 import FeedbackDashboard from './components/feedback/FeedbackDashboard';
 import AdminRoute from './components/auth/AdminRoute';
+import GuidesIndexPage from './components/guides/GuidesIndexPage';
+import FixRouteResolver from './components/guides/FixRouteResolver';
 
 // Component to track page views
 const PageViewTracker = () => {
@@ -85,6 +87,8 @@ function App() {
                 <Route path="/settings" element={<AccountSettings />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/fix" element={<GuidesIndexPage />} />
+                <Route path="/fix/:slug" element={<FixRouteResolver />} />
                 <Route
                   path="/admin/feedback"
                   element={

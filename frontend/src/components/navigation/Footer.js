@@ -17,6 +17,7 @@ function Footer() {
             <li><Link to="/about">About</Link></li>
             <li><Link to="/pricing">Pricing</Link></li>
             <li><Link to="/faq">FAQ</Link></li>
+            <li><Link to="/fix">Repair Guides</Link></li>
           </ul>
         </div>
         <div className="footer-section">

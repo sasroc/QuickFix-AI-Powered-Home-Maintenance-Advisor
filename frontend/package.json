@@ -30,8 +30,12 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build && npm run prerender",
+    "build": "npm run validate:guides && npm run generate:sitemap && craco build && npm run prerender && npm run generate:og",
     "prerender": "node scripts/prerender.js",
+    "validate:guides": "node scripts/validate-guides.js",
+    "generate:sitemap": "node scripts/generate-sitemap.js",
+    "generate:og": "node scripts/generate-og-images.js",
+    "new:guide": "node scripts/new-guide.js",
     "test": "craco test",
     "eject": "react-scripts eject"
   },

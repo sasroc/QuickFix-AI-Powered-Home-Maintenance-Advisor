@@ -1,0 +1,43 @@
+{
+  "slug": "lg-washer-oe-error-code",
+  "title": "LG Washer OE Error Code: How to Fix a Drain Problem",
+  "metaDescription": "LG washer stuck on OE? It means the machine can't drain. Here's how to clear the pump filter, check the hose, and get your wash cycle finishing again.",
+  "category": "appliances",
+  "symptom": "The washer displays \"OE\" (or \"DE\" on some models), stops draining, and won't advance to spin.",
+  "difficulty": "Easy",
+  "estimatedTime": "15-30 minutes",
+  "toolsNeeded": ["Shallow pan or towels", "Flathead screwdriver (for the filter door)", "Needle-nose pliers"],
+  "partsNeeded": ["None for most fixes — a replacement drain pump only if the filter and hose are already clear"],
+  "estimatedDIYCost": "$0–$10",
+  "estimatedProCost": "$120–$250",
+  "steps": [
+    {
+      "heading": "Check the drain hose for kinks",
+      "body": "Pull the washer out from the wall enough to see the drain hose. A kinked, crushed, or overly high drain-hose loop is a common cause of OE — the hose needs a clear, downward path with no more than about 8 feet of horizontal run."
+    },
+    {
+      "heading": "Clear the drain pump filter",
+      "body": "Most LG front-load washers have a small access door in the bottom-left corner. Open it, place a shallow pan underneath (water will come out), and unscrew the filter cap slowly. Remove any lint, coins, or debris and check that the small impeller inside spins freely."
+    },
+    {
+      "heading": "Check for a clogged or kinked inlet to the pump",
+      "body": "With the filter out, look and feel inside the pump housing for anything lodged in the drain path — small items like socks, bra underwires, and coins are common culprits."
+    },
+    {
+      "heading": "Inspect the external drain standpipe",
+      "body": "If the hose and filter are clear, the clog may be further downstream in your home's drain standpipe. Detach the hose and check that water flows freely into the standpipe."
+    },
+    {
+      "heading": "Reset and run a drain/spin cycle",
+      "body": "Reinsert the filter, reconnect the hose, and run the washer's dedicated \"Drain & Spin\" cycle to confirm water clears without the code returning."
+    }
+  ],
+  "whenToCallAPro": "If the filter and hose are clear but the washer still won't drain, the drain pump motor itself may have failed — this requires disassembling the front of some models to access, and replacing the pump if a multimeter check confirms no continuity.",
+  "safetyWarnings": [
+    "Unplug the washer before opening the pump filter door — water and electrical connections can be close together on some models.",
+    "Expect residual water (up to a few cups) when opening the filter — have towels and a shallow pan ready.",
+    "Never run the washer with the filter door open or the filter removed."
+  ],
+  "relatedSlugs": ["whirlpool-dishwasher-f8-e4-error", "bosch-dishwasher-e15-error-code", "samsung-refrigerator-5e-ice-maker-error"],
+  "updatedAt": "2026-09-08"
+}

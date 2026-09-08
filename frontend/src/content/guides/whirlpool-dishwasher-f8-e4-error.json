@@ -1,0 +1,43 @@
+{
+  "slug": "whirlpool-dishwasher-f8-e4-error",
+  "title": "Whirlpool Dishwasher F8 E4 Error: How to Fix It",
+  "metaDescription": "Whirlpool dishwasher showing F8 E4? Here's what it means, the most common causes, and step-by-step fixes to try before calling a repair tech.",
+  "category": "appliances",
+  "symptom": "The dishwasher displays \"F8 E4\" on the control panel, beeps, and stops mid-cycle.",
+  "difficulty": "Moderate",
+  "estimatedTime": "20-45 minutes",
+  "toolsNeeded": ["Phillips screwdriver", "Flathead screwdriver", "Multimeter (optional, for wiring checks)", "Flashlight"],
+  "partsNeeded": ["Replacement door latch/strike assembly (if faulty)", "Replacement thermistor (if faulty)"],
+  "estimatedDIYCost": "$0–$35",
+  "estimatedProCost": "$150–$300",
+  "steps": [
+    {
+      "heading": "Check the door latch first",
+      "body": "F8 E4 on most Whirlpool dishwashers points to a water-heating or door-sensing fault, and a loose or misaligned door latch is the single most common trigger. Open and firmly close the door, checking that the latch clicks fully and the door doesn't feel loose. Inspect the latch assembly for cracks or a bent strike."
+    },
+    {
+      "heading": "Power-cycle the dishwasher",
+      "body": "Turn off the circuit breaker that feeds the dishwasher (don't just press a button — cut power at the breaker) for 60 seconds, then restore power. This clears many transient control-board faults and is worth trying before removing any panels."
+    },
+    {
+      "heading": "Inspect the wiring harness at the door switch",
+      "body": "With power still off at the breaker, open the lower access panel (usually a few screws along the bottom kick plate) and locate the wiring harness that runs to the door latch/switch assembly. Look for a loose, corroded, or disconnected connector — this is a frequent cause of intermittent F8 E4 codes."
+    },
+    {
+      "heading": "Test the thermistor if the fault repeats mid-cycle",
+      "body": "If the code returns during a wash (not just at door-close), the thermistor (water temperature sensor) may be reading out of range. With a multimeter, check its resistance against the spec in your model's service sheet; a reading well outside spec means it needs replacing."
+    },
+    {
+      "heading": "Run a cycle to confirm the fix",
+      "body": "After reseating connectors or swapping a part, run a normal wash cycle and watch for the code to reappear. If it doesn't return within a full cycle, the fix held."
+    }
+  ],
+  "whenToCallAPro": "If the code returns after a full power-cycle and a visual inspection of the door latch and wiring, or if testing points to the control board itself, it's time to call a professional — control board diagnosis requires model-specific service documentation, and board-level repairs run a real risk of misdiagnosis on an expensive part.",
+  "safetyWarnings": [
+    "Always shut off power at the circuit breaker — not just the door switch — before removing any panels or touching wiring.",
+    "Dishwashers use both mains voltage and hot water; never work on one that's mid-cycle or still warm inside.",
+    "If you smell burning or see scorch marks near the control board, stop and call a professional — do not power the unit on again."
+  ],
+  "relatedSlugs": ["lg-washer-oe-error-code", "bosch-dishwasher-e15-error-code", "ge-oven-f2-error-code"],
+  "updatedAt": "2026-09-08"
+}

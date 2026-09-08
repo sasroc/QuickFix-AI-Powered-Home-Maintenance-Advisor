@@ -1,0 +1,43 @@
+{
+  "slug": "ge-oven-f2-error-code",
+  "title": "GE Oven F2 Error Code: How to Fix an Overheating Fault",
+  "metaDescription": "GE oven flashing F2 or F2 E0 mid-bake? It's an overheat/temperature-sensor fault. Here's how to check the sensor and the door, and reset it safely.",
+  "category": "appliances",
+  "symptom": "The oven beeps, displays \"F2\" (or \"F2 E0\"), and shuts off heat mid-cycle — sometimes during self-clean.",
+  "difficulty": "Moderate",
+  "estimatedTime": "20-40 minutes",
+  "toolsNeeded": ["Phillips screwdriver", "Multimeter", "Oven mitts"],
+  "partsNeeded": ["Replacement oven temperature sensor (RTD probe)"],
+  "estimatedDIYCost": "$15–$40",
+  "estimatedProCost": "$150–$275",
+  "steps": [
+    {
+      "heading": "Let the oven cool completely",
+      "body": "F2 means the control board detected the oven exceeding its safe temperature range (often triggered during self-clean). Cancel the cycle at the breaker if it won't respond, and let the oven cool fully — at least an hour — before touching anything inside."
+    },
+    {
+      "heading": "Locate the temperature sensor",
+      "body": "It's the small metal probe (a slim rod, not a screw) mounted on the back or side wall of the oven cavity, separate from any control knob. It should hang free, not touch the oven walls or racks."
+    },
+    {
+      "heading": "Check for contact with the oven wall or a rack",
+      "body": "If the sensor probe is bent and touching the cavity wall, it will read inaccurately and can trigger F2. Gently bend it back to hang about 1/2 inch clear of the wall — do this only when the oven is cool."
+    },
+    {
+      "heading": "Test the sensor's resistance",
+      "body": "With the oven unplugged, unclip the sensor's wire connector at the back of the oven and check its resistance with a multimeter. At room temperature it should read close to the spec in your model's manual (often near 1,080 ohms for GE ovens). A reading far off spec, or no continuity at all, means the sensor has failed."
+    },
+    {
+      "heading": "Replace the sensor if it's out of spec",
+      "body": "The sensor typically unscrews from inside the cavity and unplugs from a connector at the back — no wiring to cut. Replacements are inexpensive and this is a beginner-friendly swap once the oven is unplugged and cool."
+    }
+  ],
+  "whenToCallAPro": "If the sensor tests within spec and isn't touching the cavity wall, but F2 keeps returning — especially if it happens outside of self-clean — the issue is likely the control board itself (a more expensive part) and is worth a professional diagnosis before buying one on a guess.",
+  "safetyWarnings": [
+    "Never open a hot oven door to work inside — wait for a full cool-down, especially after a self-clean cycle which can exceed 800°F.",
+    "Unplug the oven (or shut off its breaker) before removing any back panel or touching wiring — ovens run on a 240V circuit.",
+    "If F2 appeared during self-clean, don't run self-clean again until the cause is fixed — repeated overheat faults are a fire-risk signal, not a glitch to ignore."
+  ],
+  "relatedSlugs": ["whirlpool-dishwasher-f8-e4-error", "bosch-dishwasher-e15-error-code", "samsung-refrigerator-5e-ice-maker-error"],
+  "updatedAt": "2026-09-08"
+}

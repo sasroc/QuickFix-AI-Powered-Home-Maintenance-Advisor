@@ -11,7 +11,10 @@
  * Routes here intentionally match public/sitemap.xml and the `Allow`d
  * portion of public/robots.txt: only routes crawlers should index get a
  * prerendered snapshot. Auth-gated routes (/repair, /settings, /admin/*)
- * are excluded on purpose.
+ * are excluded on purpose. The /fix/* guide routes are the exception to
+ * "match sitemap.xml" being a hand-maintained list — see loadFixRoutes()
+ * below, which derives them from src/content/ the same way
+ * scripts/generate-sitemap.js does.
  *
  * Failure handling: this step is best-effort and NEVER fails the overall
  * `npm run build`. If headless Chrome can't launch in a given CI
@@ -30,6 +33,30 @@ const puppeteer = require('puppeteer');
 const PORT = 4568;
 const BUILD_DIR = path.join(__dirname, '..', 'build');
 const SERVE_BIN = path.join(__dirname, '..', 'node_modules', '.bin', process.platform === 'win32' ? 'serve.cmd' : 'serve');
+const GUIDES_DIR = path.join(__dirname, '..', 'src', 'content', 'guides');
+const CATEGORIES_PATH = path.join(__dirname, '..', 'src', 'content', 'categories.json');
+
+// Derives every /fix/* route from the same content records the React app
+// itself reads (src/content/) — a new guide or category picked up there is
+// prerendered automatically, no route list to maintain by hand. Falls back
+// to no /fix routes (rather than failing the whole build) if content can't
+// be read.
+function loadFixRoutes() {
+  try {
+    const categories = JSON.parse(fs.readFileSync(CATEGORIES_PATH, 'utf8'));
+    const guideFiles = fs.readdirSync(GUIDES_DIR).filter((f) => f.endsWith('.json'));
+    const guideRoutes = guideFiles.map((f) => {
+      const guide = JSON.parse(fs.readFileSync(path.join(GUIDES_DIR, f), 'utf8'));
+      return `/fix/${guide.slug}`;
+    });
+    const categoryRoutes = categories.map((c) => `/fix/${c.slug}`);
+    return ['/fix', ...categoryRoutes, ...guideRoutes];
+  } catch (err) {
+    console.warn('[prerender] WARNING: could not load /fix routes from content, skipping them:', err.message);
+    return [];
+  }
+}
+
 // "/" is rendered LAST on purpose. serve's SPA fallback serves build/index.html
 // for any route that doesn't yet have a physical file on disk. If we wrote "/"
 // first, every other route's initial (pre-hydration) HTML would be the
@@ -37,7 +64,7 @@ const SERVE_BIN = path.join(__dirname, '..', 'node_modules', '.bin', process.pla
 // since that snapshot's <title>/<link rel="canonical"> aren't tags Helmet
 // rendered, Helmet would append its own alongside them instead of replacing
 // them, duplicating both on every other page.
-const ROUTES = ['/pricing', '/faq', '/community', '/auth', '/terms', '/privacy', '/'];
+const ROUTES = ['/pricing', '/faq', '/community', '/auth', '/terms', '/privacy', ...loadFixRoutes(), '/'];
 
 function waitForServer(url, timeoutMs = 20000) {
   const start = Date.now();

@@ -1,0 +1,294 @@
+.guide-page {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+  color: var(--text-primary);
+}
+
+.guide-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.guide-breadcrumb a {
+  color: var(--accent-primary);
+  text-decoration: none;
+}
+
+.guide-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.guide-breadcrumb [aria-current='page'] {
+  color: var(--text-secondary);
+}
+
+.guide-header {
+  margin-bottom: 1.5rem;
+}
+
+.guide-title {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.guide-symptom {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.guide-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.guide-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--accent-secondary);
+}
+
+.guide-badge.difficulty-easy {
+  background: #10b981;
+}
+
+.guide-badge.difficulty-moderate {
+  background: #f59e0b;
+}
+
+.guide-badge.difficulty-pro {
+  background: #ef4444;
+}
+
+.guide-meta-item {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.guide-cost-block {
+  display: flex;
+  align-items: stretch;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 6px 16px var(--shadow-light);
+}
+
+.guide-cost-card {
+  flex: 1;
+  text-align: center;
+}
+
+.guide-cost-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 0.35rem;
+}
+
+.guide-cost-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.guide-cost-diy .guide-cost-value {
+  color: #10b981;
+}
+
+.guide-cost-pro .guide-cost-value {
+  color: var(--text-primary);
+}
+
+.guide-cost-vs {
+  align-self: center;
+  color: var(--text-light);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.guide-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.guide-list-card {
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+}
+
+.guide-list-card h2 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.guide-list-card ul {
+  padding-left: 1.1rem;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+.guide-safety-callout {
+  margin: 1.5rem 0;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1.5px solid rgba(239, 68, 68, 0.35);
+  border-left: 5px solid #ef4444;
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+}
+
+.guide-safety-callout h2 {
+  font-size: 1rem;
+  color: #ef4444;
+  margin-bottom: 0.5rem;
+}
+
+.guide-safety-callout ul {
+  padding-left: 1.1rem;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+}
+
+.guide-safety-callout li + li {
+  margin-top: 0.4rem;
+}
+
+.guide-steps {
+  margin: 2rem 0;
+}
+
+.guide-steps h2,
+.guide-when-to-call-pro h2,
+.guide-related h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.guide-steps ol {
+  list-style: none;
+  padding: 0;
+  counter-reset: guide-step;
+}
+
+.guide-step {
+  counter-increment: guide-step;
+  position: relative;
+  padding: 1rem 1rem 1rem 3.25rem;
+  margin-bottom: 0.75rem;
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
+  border-radius: 12px;
+  scroll-margin-top: 5rem;
+}
+
+.guide-step::before {
+  content: counter(guide-step);
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.guide-step h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.35rem;
+}
+
+.guide-step p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.guide-when-to-call-pro {
+  margin: 2rem 0;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.guide-when-to-call-pro p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.guide-related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.guide-related-card {
+  display: block;
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
+  border-radius: 12px;
+  padding: 1rem;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.guide-related-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--shadow-medium);
+}
+
+.guide-related-card h3 {
+  font-size: 0.98rem;
+  margin: 0.5rem 0 0.35rem;
+}
+
+.guide-related-card p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 600px) {
+  .guide-lists {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-title {
+    font-size: 1.6rem;
+  }
+
+  .guide-cost-block {
+    flex-direction: column;
+  }
+
+  .guide-cost-vs {
+    display: none;
+  }
+}

@@ -1,0 +1,63 @@
+.guide-cta-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 1.5rem 0;
+  padding: 1.1rem 1.4rem;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  border-radius: 16px;
+  color: #ffffff;
+  box-shadow: 0 8px 20px var(--shadow-medium);
+}
+
+.guide-cta-text {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.guide-cta-emoji {
+  font-size: 1.75rem;
+}
+
+.guide-cta-title {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.15rem;
+}
+
+.guide-cta-subtitle {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.guide-cta-button {
+  flex-shrink: 0;
+  background: #ffffff;
+  color: var(--accent-primary);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 999px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.15s ease;
+}
+
+.guide-cta-button:hover {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 500px) {
+  .guide-cta-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .guide-cta-button {
+    width: 100%;
+    text-align: center;
+  }
+}

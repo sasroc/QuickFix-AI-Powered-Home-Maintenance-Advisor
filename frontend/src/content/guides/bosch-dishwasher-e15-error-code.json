@@ -1,0 +1,47 @@
+{
+  "slug": "bosch-dishwasher-e15-error-code",
+  "title": "Bosch Dishwasher E15 Error Code: How to Fix a Water Leak Fault",
+  "metaDescription": "Bosch dishwasher showing E15 and won't run? It means the Aquastop leak sensor detected water in the base pan. Here's how to find the leak and reset it.",
+  "category": "appliances",
+  "symptom": "The display shows \"E15\", the dishwasher won't start a new cycle, and there may be visible water in the base of the unit.",
+  "difficulty": "Moderate",
+  "estimatedTime": "30-60 minutes",
+  "toolsNeeded": ["Towels", "Flashlight", "Phillips screwdriver", "Wet/dry vacuum (helpful, not required)"],
+  "partsNeeded": ["Replacement fill hose or drain hose (only if a hose is the source of the leak)"],
+  "estimatedDIYCost": "$0–$40",
+  "estimatedProCost": "$180–$350",
+  "steps": [
+    {
+      "heading": "Understand what E15 means",
+      "body": "Bosch's Aquastop system has a float switch in the base pan that trips E15 the moment it detects standing water — it's a safety feature, not a random glitch, and it will keep blocking new cycles until the water is gone and the float resets."
+    },
+    {
+      "heading": "Turn off water supply and power",
+      "body": "Shut off the water supply valve under the sink that feeds the dishwasher, and cut power at the breaker. This stops any active leak from continuing while you investigate."
+    },
+    {
+      "heading": "Remove standing water from the base pan",
+      "body": "Pull the dishwasher out or open the front lower panel/kickplate to access the base. Soak up standing water with towels or a wet/dry vac — the float switch needs to see a genuinely dry pan to reset."
+    },
+    {
+      "heading": "Trace the leak to its source",
+      "body": "With the base dry, run a short cycle while briefly watching from outside for where water reappears: the door gasket, the fill hose connections, the drain hose/pump gasket, and the tub-to-pump seal are the most common culprits."
+    },
+    {
+      "heading": "Fix or replace the leaking component",
+      "body": "A worn door gasket or a loose hose clamp can often be reseated or replaced cheaply. If the leak traces to the pump/tub seal itself, that's a bigger job — note it and consider a professional at that point."
+    },
+    {
+      "heading": "Dry the base pan fully and reset",
+      "body": "Once the leak source is addressed, thoroughly dry the base pan again, restore water and power, and start a normal cycle to confirm E15 doesn't return."
+    }
+  ],
+  "whenToCallAPro": "If you can't find a visible leak source after drying and re-running the dishwasher, or if the leak traces to the tub seal or pump housing, call a professional — those repairs usually require partially disassembling the unit, and getting it wrong can turn a small leak into a bigger one.",
+  "safetyWarnings": [
+    "Shut off both the water supply and the circuit breaker before reaching into the base pan — you'll have water and mains voltage in the same space.",
+    "Standing water plus a household electrical circuit is a shock hazard — never touch internal components while water is still present.",
+    "If the leak is significant or recurring, don't just keep resetting and running the dishwasher — repeated water exposure can damage the subfloor and cabinetry."
+  ],
+  "relatedSlugs": ["whirlpool-dishwasher-f8-e4-error", "lg-washer-oe-error-code", "ge-oven-f2-error-code"],
+  "updatedAt": "2026-09-08"
+}
