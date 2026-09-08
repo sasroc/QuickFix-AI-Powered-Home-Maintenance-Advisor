@@ -1,0 +1,43 @@
+{
+  "slug": "gfci-outlet-not-working",
+  "title": "GFCI Outlet Not Working: How to Reset and Fix It",
+  "metaDescription": "GFCI outlet dead in the kitchen or bathroom? Here's how to find the right outlet to reset, and what to check if resetting it doesn't work.",
+  "category": "electrical",
+  "symptom": "An outlet (often in a kitchen, bathroom, garage, or outdoors) has no power, and other nearby outlets may also be dead.",
+  "difficulty": "Easy",
+  "estimatedTime": "10-20 minutes",
+  "toolsNeeded": ["Flashlight", "Non-contact voltage tester (optional but recommended)"],
+  "partsNeeded": ["Replacement GFCI outlet (only if resetting doesn't fix it)"],
+  "estimatedDIYCost": "$0–$20",
+  "estimatedProCost": "$100–$200",
+  "steps": [
+    {
+      "heading": "Find the GFCI outlet controlling the dead one",
+      "body": "GFCI outlets (the ones with \"Test\" and \"Reset\" buttons) often protect several other outlets downstream on the same circuit. Check kitchens, bathrooms, garages, and exterior walls first — one GFCI can control outlets in more than one room."
+    },
+    {
+      "heading": "Press Reset firmly",
+      "body": "Press the \"Reset\" button firmly until you hear or feel a click. If the outlet had tripped, this alone restores power to it and everything downstream."
+    },
+    {
+      "heading": "Check the breaker if reset doesn't work",
+      "body": "If pressing Reset does nothing, go to the electrical panel and check whether the breaker for that circuit has tripped (the switch sits in a middle position rather than fully on). Flip it fully off, then fully on."
+    },
+    {
+      "heading": "Unplug what might be causing the trip",
+      "body": "A GFCI trips to protect you from a ground fault — often caused by a faulty appliance, a damp/outdoor connection, or an overloaded circuit. Unplug everything on that circuit, reset the GFCI, then plug items back in one at a time to identify the culprit."
+    },
+    {
+      "heading": "Test with the Test button",
+      "body": "Once power is restored, press \"Test\" — it should cut power immediately, and \"Reset\" should restore it. If Test doesn't cut power, or Reset won't hold power at all, the GFCI outlet itself has likely failed and needs replacing."
+    }
+  ],
+  "whenToCallAPro": "If the GFCI keeps tripping immediately after every reset with nothing plugged in, or if you smell burning or see scorch marks at the outlet, stop and call a licensed electrician — that points to a wiring fault, not a simple nuisance trip, and working past that point involves the panel and live wiring.",
+  "safetyWarnings": [
+    "Never work inside an outlet box (beyond pressing the visible buttons) without shutting off the breaker for that circuit first, and confirm it's off with a voltage tester before touching any wires.",
+    "A GFCI that won't reset and shows signs of heat damage (discoloration, a burning smell) should not be used again until a licensed electrician inspects the circuit.",
+    "Never bypass a tripping GFCI by using a non-GFCI outlet or extension cord in its place — it's a required safety device in wet-prone areas for a reason."
+  ],
+  "relatedSlugs": ["dead-outlet-no-power", "breaker-keeps-tripping", "light-switch-not-working"],
+  "updatedAt": "2026-09-08"
+}

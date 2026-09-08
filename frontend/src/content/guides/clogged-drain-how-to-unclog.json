@@ -1,0 +1,46 @@
+{
+  "slug": "clogged-drain-how-to-unclog",
+  "title": "Clogged Drain: How to Unclog a Sink or Tub Drain",
+  "metaDescription": "Slow or fully clogged drain? Here's how to clear it with a plunger, a zip-it tool, and a plumbing snake — without harsh chemical drain cleaners.",
+  "category": "plumbing",
+  "symptom": "Water drains slowly or not at all from a sink or tub, sometimes with a gurgling sound.",
+  "difficulty": "Easy",
+  "estimatedTime": "20-40 minutes",
+  "toolsNeeded": ["Sink/cup plunger", "Plastic drain-cleaning tool (\"zip-it\" style) or a bent wire hanger", "Plumbing snake (auger) for stubborn clogs", "Gloves"],
+  "partsNeeded": ["None for most clogs"],
+  "estimatedDIYCost": "$0–$20",
+  "estimatedProCost": "$100–$250",
+  "steps": [
+    {
+      "heading": "Remove the stopper and pull out visible debris",
+      "body": "Most sink and tub clogs are hair, soap scum, and gunk sitting right at or just below the stopper. Pop or unscrew the stopper and pull out anything visible by hand (wear gloves) before trying anything else."
+    },
+    {
+      "heading": "Try the plastic drain tool first",
+      "body": "Feed a flexible plastic drain-cleaning tool a few inches down the drain, twist, and pull out — these are inexpensive, cheap, and pull out hair clogs directly instead of pushing them further down."
+    },
+    {
+      "heading": "Plunge it",
+      "body": "Fill the sink or tub with a couple inches of water (enough to cover the plunger cup), block any overflow holes with a wet rag, and plunge firmly 10-15 times with a good seal. This clears most clogs that are further down than the drain tool can reach."
+    },
+    {
+      "heading": "Snake it if plunging doesn't work",
+      "body": "Feed a plumbing snake (auger) down the drain until you feel resistance, then crank the handle to break through or hook the clog, and pull it back out slowly."
+    },
+    {
+      "heading": "Flush with hot water",
+      "body": "Once it's draining again, run hot water for a couple minutes to clear any remaining residue."
+    },
+    {
+      "heading": "Skip chemical drain cleaners",
+      "body": "Chemical drain cleaners rarely clear a real clog, can damage older pipes, and make it more dangerous for a plumber to work on the drain later if the clog doesn't clear — mechanical methods above are safer and usually more effective."
+    }
+  ],
+  "whenToCallAPro": "If plunging and snaking from the fixture don't clear it, or if multiple drains in the house are backing up at once (a sign the clog is in the main line, not a single fixture), call a plumber — that needs a longer power auger and possibly a camera inspection.",
+  "safetyWarnings": [
+    "Never mix chemical drain cleaners with each other or use one after another hasn't worked — the combination can produce dangerous fumes.",
+    "If a chemical drain cleaner was already used, wear gloves and eye protection before plunging or snaking — it can splash back."
+  ],
+  "relatedSlugs": ["leaking-under-sink-p-trap", "leaky-faucet-repair", "running-toilet-fix"],
+  "updatedAt": "2026-09-08"
+}

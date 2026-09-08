@@ -1,0 +1,46 @@
+{
+  "slug": "running-toilet-fix",
+  "title": "Running Toilet: How to Fix a Toilet That Won't Stop Running",
+  "metaDescription": "Toilet running non-stop or randomly refilling itself? Here's how to check the flapper, fill valve, and chain to fix it — no plumber needed.",
+  "category": "plumbing",
+  "symptom": "The toilet tank keeps refilling on its own, or you can hear water running continuously after a flush.",
+  "difficulty": "Easy",
+  "estimatedTime": "15-30 minutes",
+  "toolsNeeded": ["None for most fixes — an adjustable wrench for the fill valve"],
+  "partsNeeded": ["Replacement flapper", "Replacement fill valve (if the flapper isn't the issue)"],
+  "estimatedDIYCost": "$5–$20",
+  "estimatedProCost": "$100–$200",
+  "steps": [
+    {
+      "heading": "Take the tank lid off and watch a cycle",
+      "body": "Remove the tank lid and set it somewhere safe. Flush and watch what happens — this tells you which of the two most common parts (flapper or fill valve) is at fault."
+    },
+    {
+      "heading": "Check the flapper first",
+      "body": "The flapper is the rubber piece at the bottom of the tank that lifts to flush and should drop and seal after. If it doesn't seal fully, or looks warped/cracked/coated in mineral buildup, water leaks past it constantly — this is the #1 cause of a running toilet."
+    },
+    {
+      "heading": "Check the chain length",
+      "body": "The chain connecting the flush lever to the flapper should have a little slack — too short and it holds the flapper slightly open; too long and it can get caught under the flapper. Adjust the clip to leave about 1/2 inch of slack."
+    },
+    {
+      "heading": "Replace the flapper if it's worn",
+      "body": "Flappers are cheap and universal-ish — take the old one to the store to match the size. Turn off the water supply, drain the tank, unhook the old flapper, and press the new one onto the mounting pegs."
+    },
+    {
+      "heading": "Check the fill valve and water level",
+      "body": "If the flapper seals fine but water still trickles, look at the fill valve (the taller mechanism, usually with a float). Water should shut off about an inch below the top of the overflow tube — if it's higher, the toilet is constantly running down the overflow tube. Adjust the float or the valve's height screw to lower the water level."
+    },
+    {
+      "heading": "Flush and confirm it stops",
+      "body": "Let the tank refill fully and confirm the water shuts off completely and stays off. Listen after a few minutes — a properly working toilet should be silent between flushes."
+    }
+  ],
+  "whenToCallAPro": "If you've replaced the flapper and adjusted the fill valve but the toilet still runs, or if water is leaking from the base of the toilet onto the floor, the issue may be a cracked tank, a failing wax ring, or a problem with the supply line — worth a plumber at that point.",
+  "safetyWarnings": [
+    "A running toilet wastes a genuinely large amount of water (often 200+ gallons/day) — don't put this fix off even though it's not dangerous.",
+    "Turn off the shutoff valve at the wall before removing the fill valve or flapper to avoid an overflow while parts are out."
+  ],
+  "relatedSlugs": ["leaky-faucet-repair", "low-water-pressure-shower-head", "leaking-under-sink-p-trap"],
+  "updatedAt": "2026-09-08"
+}

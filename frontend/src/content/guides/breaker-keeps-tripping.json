@@ -1,0 +1,43 @@
+{
+  "slug": "breaker-keeps-tripping",
+  "title": "Circuit Breaker Keeps Tripping: How to Fix It",
+  "metaDescription": "Same breaker trips over and over? Here's how to figure out if it's overload, a short, or a bad breaker — and what's safe to check yourself.",
+  "category": "electrical",
+  "symptom": "A specific breaker in the panel trips repeatedly, cutting power to part of the house, sometimes right after being reset.",
+  "difficulty": "Moderate",
+  "estimatedTime": "20-30 minutes (diagnosis only)",
+  "toolsNeeded": ["Flashlight", "A notepad to track what's plugged in when it trips"],
+  "partsNeeded": ["None — a tripping breaker is a symptom to diagnose, not a part to swap yourself"],
+  "estimatedDIYCost": "$0",
+  "estimatedProCost": "$150–$350",
+  "steps": [
+    {
+      "heading": "Note exactly what was running when it tripped",
+      "body": "This is the single most useful diagnostic step. A breaker that trips only when several high-draw appliances run at once (space heater, microwave, hair dryer) usually points to a simple overload, not a wiring fault."
+    },
+    {
+      "heading": "Unplug everything on that circuit, then reset",
+      "body": "Turn off or unplug everything the breaker controls, then flip the breaker fully off and back on. If it holds with nothing running, you likely have an overload situation, not a short."
+    },
+    {
+      "heading": "Reintroduce devices one at a time",
+      "body": "Plug items back in one at a time, waiting a minute between each, to see if a specific device trips it immediately — that points to a fault in that device, not the house wiring."
+    },
+    {
+      "heading": "If it trips instantly with nothing plugged in, stop here",
+      "body": "A breaker that trips immediately on reset with the entire circuit unplugged points to a short or ground fault in the wiring itself, not an overload — this is not something to keep resetting and testing further yourself."
+    },
+    {
+      "heading": "Check whether it's an overload pattern or a real fault",
+      "body": "An overload trip is fixed by using fewer high-draw devices on that circuit at once (or having a new circuit added). A short/ground-fault pattern (immediate trip, or a trip with a burning smell, buzzing, or a warm panel) is an electrician's job."
+    }
+  ],
+  "whenToCallAPro": "If the breaker trips immediately with nothing plugged in, trips repeatedly regardless of what's connected, feels warm to the touch, or you notice any burning smell or buzzing at the panel, stop resetting it and call a licensed electrician right away — a breaker that won't hold is a real fire-risk signal, not a nuisance to reset around.",
+  "safetyWarnings": [
+    "Never hold a breaker switch in the 'on' position with tape, force, or any other workaround if it keeps tripping — the breaker is doing its job protecting the circuit.",
+    "Do not open the panel cover beyond flipping the breaker switches themselves — the panel interior has exposed live components and is not a DIY area.",
+    "A warm panel, buzzing sound, or burning smell means stop immediately and call an electrician (or your utility, if you're not sure it's safe to even approach the panel)."
+  ],
+  "relatedSlugs": ["dead-outlet-no-power", "gfci-outlet-not-working", "flickering-lights-fix"],
+  "updatedAt": "2026-09-08"
+}

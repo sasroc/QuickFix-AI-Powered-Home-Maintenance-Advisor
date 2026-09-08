@@ -1,0 +1,43 @@
+{
+  "slug": "dead-outlet-no-power",
+  "title": "Outlet Has No Power: How to Fix a Dead Outlet",
+  "metaDescription": "One outlet stopped working but the rest of the room is fine? Here's how to check the breaker, nearby GFCIs, and the outlet itself, safely.",
+  "category": "electrical",
+  "symptom": "A single outlet (or a few in the same area) has no power, while lights and other outlets in the room work fine.",
+  "difficulty": "Moderate",
+  "estimatedTime": "20-40 minutes",
+  "toolsNeeded": ["Non-contact voltage tester", "Flashlight", "Phillips screwdriver"],
+  "partsNeeded": ["Replacement outlet (only if the outlet itself has failed)"],
+  "estimatedDIYCost": "$3–$15",
+  "estimatedProCost": "$120–$220",
+  "steps": [
+    {
+      "heading": "Check the breaker panel",
+      "body": "A tripped breaker is the most common cause. Look for a switch sitting in a middle position rather than fully on/off, flip it fully off then fully on."
+    },
+    {
+      "heading": "Check for an upstream GFCI",
+      "body": "A single dead outlet is very often downstream of a tripped GFCI outlet elsewhere in the house — check kitchens, bathrooms, garages, and outdoor outlets for one with Test/Reset buttons and press Reset."
+    },
+    {
+      "heading": "Test with a voltage tester before touching anything inside",
+      "body": "Hold a non-contact voltage tester near the outlet's slots — if it doesn't light up/beep, that confirms no power is reaching it. Don't proceed to remove the cover plate assuming it's safe; always verify with the tester, not by assumption."
+    },
+    {
+      "heading": "Check for a loose connection at the outlet",
+      "body": "With the breaker for that circuit switched off and confirmed dead with your voltage tester, remove the outlet's cover plate and check that the wires are securely connected to their terminal screws — a loose connection is a common cause of an outlet losing power over time."
+    },
+    {
+      "heading": "Look for a mid-circuit break",
+      "body": "If the wiring at this specific outlet looks fine, the break may be at another outlet earlier in the same circuit (outlets are often daisy-chained). This is harder to trace without opening multiple boxes — a good point to stop and call an electrician."
+    }
+  ],
+  "whenToCallAPro": "If the breaker and any upstream GFCI are fine but the outlet is still dead, or if you find scorch marks, a burning smell, or melted plastic anywhere in the outlet box, stop and call a licensed electrician — tracing a break through in-wall wiring or a damaged circuit isn't a safe DIY job.",
+  "safetyWarnings": [
+    "Always confirm a circuit is off with a voltage tester at the outlet itself before touching any wires — labels on breakers are sometimes wrong.",
+    "Never touch bare wires or terminal screws with the breaker still on, even if the outlet 'seems' dead.",
+    "If you find any sign of heat damage (discoloration, melted plastic, a burning smell), don't reset the breaker again — that's a fire risk sign, not a normal fault."
+  ],
+  "relatedSlugs": ["gfci-outlet-not-working", "breaker-keeps-tripping", "flickering-lights-fix"],
+  "updatedAt": "2026-09-08"
+}

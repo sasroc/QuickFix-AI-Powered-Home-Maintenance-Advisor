@@ -1,0 +1,51 @@
+{
+  "slug": "large-hole-drywall-patch",
+  "title": "How to Fix a Large Hole in Drywall",
+  "metaDescription": "Hole bigger than a fist — doorknob-through-wall or worse? Here's how to patch it properly with a drywall patch kit and joint compound, step by step.",
+  "category": "drywall",
+  "symptom": "A hole roughly 3 inches or larger — too big for spackle alone to fill without cracking or falling out.",
+  "difficulty": "Moderate",
+  "estimatedTime": "2-3 hours active work, spread across 1-2 days for drying between coats",
+  "toolsNeeded": ["Utility knife", "Drywall saw or oscillating tool", "6-inch and 10-inch putty/joint knives", "Sanding sponge or pole sander", "Drill/screwdriver"],
+  "partsNeeded": ["Self-adhesive drywall patch (for holes up to ~6 inches) or a drywall offcut + wood backing strips (for larger holes)", "Joint compound (mud)", "Drywall screws", "Touch-up paint"],
+  "estimatedDIYCost": "$15–$40",
+  "estimatedProCost": "$150–$300",
+  "steps": [
+    {
+      "heading": "Choose your patch method by size",
+      "body": "For holes up to about 6 inches, a self-adhesive mesh patch is the simplest route. For anything bigger, you'll cut a piece of new drywall to fit and screw it to wood backing strips inside the wall cavity — more work, but far more durable than a giant mesh patch."
+    },
+    {
+      "heading": "Clean and square up the hole",
+      "body": "Cut away any crumbling or damaged drywall edges with a utility knife or drywall saw until you have clean, solid edges to work from."
+    },
+    {
+      "heading": "Install backing strips for larger holes",
+      "body": "For holes too big for a mesh patch, cut two wood strips (scrap furring strip works) a few inches longer than the hole's height. Slide them into the wall cavity behind the opening, holding half exposed, and screw through the existing drywall into the strip on each side to anchor them."
+    },
+    {
+      "heading": "Cut and attach the drywall patch",
+      "body": "Cut a piece of new drywall to match the hole's shape, set it into the opening, and screw it into the backing strips you just installed, flush with the surrounding wall surface. For smaller holes, just apply the self-adhesive mesh patch centered over the hole instead."
+    },
+    {
+      "heading": "Apply joint compound over the seams",
+      "body": "Using the 6-inch knife, apply a thin layer of joint compound over all seams and screw heads, feathering the edges out several inches beyond the patch so it blends into the wall. Let dry fully (usually 24 hours)."
+    },
+    {
+      "heading": "Sand, apply a second coat, and repeat",
+      "body": "Lightly sand the first coat, apply a second, wider coat with the 10-inch knife to feather it out further, and let dry again. Most patches need 2-3 coats to disappear completely once painted."
+    },
+    {
+      "heading": "Final sand, prime, and paint",
+      "body": "Sand the final coat smooth, wipe away dust, prime the patched area, and paint to match. Priming matters here — an unprimed patch will show as a flat spot ('flashing') under the final paint color."
+    }
+  ],
+  "whenToCallAPro": "If the hole was caused by a leak or you find soft, damp, or moldy drywall around it, address the water source and consider a pro for mold-safe removal before patching. Very large areas (multiple square feet) or holes near electrical boxes/plumbing are also worth a contractor's involvement.",
+  "safetyWarnings": [
+    "Before cutting into a wall, check for hidden electrical wiring or plumbing — tap around the area and go slowly with the first cut.",
+    "Wear a dust mask when cutting drywall and sanding dried compound.",
+    "If the damage came from water and you see mold or a musty smell, don't sand or disturb it dry — that spreads spores. Get the moisture source fixed and consider a professional for remediation first."
+  ],
+  "relatedSlugs": ["small-hole-drywall-repair", "water-stained-drywall-repair", "drywall-crack-repair"],
+  "updatedAt": "2026-09-08"
+}

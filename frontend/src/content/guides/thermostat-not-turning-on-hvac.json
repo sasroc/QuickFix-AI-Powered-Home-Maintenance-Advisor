@@ -1,0 +1,46 @@
+{
+  "slug": "thermostat-not-turning-on-hvac",
+  "title": "Thermostat Not Turning On the AC or Heat: How to Fix It",
+  "metaDescription": "Thermostat screen blank or the system won't respond to it? Here's how to check the batteries, breaker, and wiring before assuming it needs replacing.",
+  "category": "hvac",
+  "symptom": "The thermostat display is blank, unresponsive, or the system doesn't turn on no matter what temperature is set.",
+  "difficulty": "Easy",
+  "estimatedTime": "15-30 minutes",
+  "toolsNeeded": ["Small screwdriver", "Fresh AA or AAA batteries (if applicable)", "Soft brush or compressed air"],
+  "partsNeeded": ["Replacement batteries"],
+  "estimatedDIYCost": "$0–$10",
+  "estimatedProCost": "$150–$300",
+  "steps": [
+    {
+      "heading": "Check for a blank display first",
+      "body": "A completely blank screen is most often dead batteries (on battery-powered models) or a tripped breaker/blown fuse for the system — not a thermostat failure."
+    },
+    {
+      "heading": "Replace the batteries",
+      "body": "Even hardwired thermostats often have backup batteries. Pop off the faceplate and swap in fresh batteries, then wait a minute for it to reboot."
+    },
+    {
+      "heading": "Check the breaker and furnace/AC switch",
+      "body": "Confirm the breaker for the HVAC system hasn't tripped, and that any dedicated on/off switch near the furnace or air handler (often looks like a light switch) is in the 'on' position — this is easy to bump accidentally."
+    },
+    {
+      "heading": "Check the furnace's own fuse or reset button",
+      "body": "Many furnaces/air handlers have a small reset button or an internal fuse that protects the system's control board. If the thermostat has power but the system won't respond, check your furnace's manual for this."
+    },
+    {
+      "heading": "Gently clean the thermostat's contacts",
+      "body": "On older mechanical (non-digital) thermostats, dust on the internal contacts can prevent it from calling for heat/cool. Remove the cover and gently clean with a soft brush — don't use liquid cleaners."
+    },
+    {
+      "heading": "Check smart thermostat wiring and app settings",
+      "body": "For smart thermostats, confirm it's connected to Wi-Fi and not stuck in a schedule/away mode, and that the wires are still firmly seated in their labeled terminals (they can work loose, especially the common 'C' wire)."
+    }
+  ],
+  "whenToCallAPro": "If batteries, the breaker, and the furnace switch are all fine but the thermostat still won't power the system, or if you suspect a wiring issue at the furnace/air handler, call an HVAC technician — miswired low-voltage thermostat wires can trip a control board fuse repeatedly if reconnected wrong.",
+  "safetyWarnings": [
+    "Thermostat wiring is low-voltage and generally safe to handle, but always turn off the system's breaker before disconnecting or reconnecting wires at the furnace/air handler end.",
+    "Never bypass a tripped breaker for the HVAC system by resetting it repeatedly — a breaker that won't hold points to an electrical fault, not the thermostat."
+  ],
+  "relatedSlugs": ["ac-not-cooling", "furnace-blowing-cold-air", "furnace-not-igniting"],
+  "updatedAt": "2026-09-08"
+}

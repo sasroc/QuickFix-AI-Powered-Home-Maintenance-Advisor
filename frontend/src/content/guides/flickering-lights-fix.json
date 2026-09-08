@@ -1,0 +1,42 @@
+{
+  "slug": "flickering-lights-fix",
+  "title": "Flickering Lights: How to Diagnose and Fix It",
+  "metaDescription": "Lights flickering in one room or the whole house? Here's how to tell if it's a cheap bulb/dimmer fix or a wiring issue that needs an electrician.",
+  "category": "electrical",
+  "symptom": "One or more light fixtures flicker, dim briefly, or flash — either occasionally or every time a large appliance kicks on.",
+  "difficulty": "Easy",
+  "estimatedTime": "15-30 minutes",
+  "toolsNeeded": ["Replacement bulb (to rule it out)", "Flashlight"],
+  "partsNeeded": ["Compatible dimmer switch (only if an incompatible dimmer is the cause)"],
+  "estimatedDIYCost": "$0–$25",
+  "estimatedProCost": "$150–$300",
+  "steps": [
+    {
+      "heading": "Rule out the bulb first",
+      "body": "A loose or failing bulb is the single most common cause of flickering in a single fixture. Turn off power to the fixture, then tighten the bulb (LEDs and CFLs can flicker if not seated fully) or swap in a bulb you know is good."
+    },
+    {
+      "heading": "Check if it's on a dimmer",
+      "body": "Many LED bulbs flicker on older dimmer switches that weren't designed for LED loads. If the fixture is dimmable, try the bulb in a non-dimmed fixture — if the flicker stops, you need an LED-compatible dimmer, not a new bulb."
+    },
+    {
+      "heading": "Notice the pattern: one fixture vs. whole room vs. whole house",
+      "body": "Flickering isolated to one fixture usually means the bulb, socket, or switch. Flickering that happens house-wide, especially in sync with a large appliance (AC, dryer, well pump) turning on, points to a bigger issue — a loose main connection or an overloaded shared circuit."
+    },
+    {
+      "heading": "Check for a loose connection at the switch (with power off)",
+      "body": "If it's isolated to one switch/fixture, turn off the breaker for that circuit, confirm it's dead with a voltage tester, then check that the wire connections at the switch are snug — a loose neutral or hot connection is a common flicker cause."
+    },
+    {
+      "heading": "Watch for whole-house flickering, which is not a DIY fix",
+      "body": "If lights flicker throughout the entire house, especially when large appliances cycle on, this often points to a loose connection at the meter or panel — a serious issue that can damage appliances and is a fire risk. Don't attempt to trace this past the switch level yourself."
+    }
+  ],
+  "whenToCallAPro": "If flickering happens across multiple rooms or the whole house, syncs with large appliances turning on, or continues after ruling out the bulb and dimmer, call a licensed electrician — a loose connection at the panel or meter is a genuine fire hazard and isn't something to keep monitoring.",
+  "safetyWarnings": [
+    "Always switch off the breaker and confirm it's dead with a voltage tester before opening any switch or fixture — don't rely on the wall switch alone.",
+    "Whole-house flickering, especially with a burning smell or warm outlets/switch plates, means stop investigating yourself and call an electrician immediately."
+  ],
+  "relatedSlugs": ["breaker-keeps-tripping", "dead-outlet-no-power", "light-switch-not-working"],
+  "updatedAt": "2026-09-08"
+}

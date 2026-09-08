@@ -1,0 +1,45 @@
+{
+  "slug": "drywall-crack-repair",
+  "title": "How to Fix Cracks in Drywall",
+  "metaDescription": "Hairline or corner cracks showing up in your walls or ceiling? Here's how to fix them so they don't just come back in a few months.",
+  "category": "drywall",
+  "symptom": "Thin cracks in a wall or ceiling, often near corners, door frames, or where a wall meets the ceiling.",
+  "difficulty": "Easy",
+  "estimatedTime": "1-2 hours active work, plus drying time between coats",
+  "toolsNeeded": ["Utility knife", "5-in-1 tool or putty knife", "Sanding sponge"],
+  "partsNeeded": ["Self-adhesive fiberglass mesh tape", "Joint compound (mud)", "Touch-up paint"],
+  "estimatedDIYCost": "$10–$20",
+  "estimatedProCost": "$100–$200",
+  "steps": [
+    {
+      "heading": "Widen the crack slightly",
+      "body": "Run a utility knife along the crack to open it very slightly (a V-groove) — this gives the joint compound something to actually grip instead of just sitting on top of a hairline gap that will telegraph back through."
+    },
+    {
+      "heading": "Clean out dust and debris",
+      "body": "Brush or vacuum away any loose drywall dust from the widened crack so the compound bonds directly to solid material."
+    },
+    {
+      "heading": "Apply mesh tape over the crack",
+      "body": "Press self-adhesive fiberglass mesh tape directly over the full length of the crack — this is the step most DIY crack fixes skip, and skipping it is why the crack usually comes back within a year. The tape bridges the crack so future minor movement doesn't reopen it."
+    },
+    {
+      "heading": "Apply joint compound over the tape",
+      "body": "Using a putty knife, spread a thin, even layer of joint compound over the tape, feathering the edges a few inches out on both sides. Let it dry fully — usually overnight."
+    },
+    {
+      "heading": "Sand and apply a second coat",
+      "body": "Lightly sand the first coat, then apply a second, slightly wider coat to further feather the edges into the wall for an invisible transition. Let dry again."
+    },
+    {
+      "heading": "Final sand, prime, and paint",
+      "body": "Sand smooth, wipe away dust, prime the patched area, and paint to match the surrounding wall."
+    }
+  ],
+  "whenToCallAPro": "A single crack that comes back repeatedly after proper taping, cracks wider than about 1/4 inch, or diagonal cracks at door/window corners across multiple rooms can indicate the house is settling or has a structural issue — worth having a contractor or structural engineer take a look rather than just re-patching.",
+  "safetyWarnings": [
+    "Wear a dust mask when sanding dried joint compound, especially indoors with limited ventilation."
+  ],
+  "relatedSlugs": ["small-hole-drywall-repair", "nail-pops-drywall-fix", "large-hole-drywall-patch"],
+  "updatedAt": "2026-09-08"
+}

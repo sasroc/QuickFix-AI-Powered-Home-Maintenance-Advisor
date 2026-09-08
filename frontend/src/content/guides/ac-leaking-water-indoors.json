@@ -1,0 +1,46 @@
+{
+  "slug": "ac-leaking-water-indoors",
+  "title": "AC Leaking Water Inside the House: How to Fix It",
+  "metaDescription": "Water dripping from your indoor AC unit or pooling near the furnace? It's almost always a clogged condensate drain line. Here's how to clear it.",
+  "category": "hvac",
+  "symptom": "Water drips from the indoor air handler/furnace area, pools on the floor nearby, or the AC shuts itself off unexpectedly.",
+  "difficulty": "Easy",
+  "estimatedTime": "20-30 minutes",
+  "toolsNeeded": ["Wet/dry shop vacuum", "Funnel", "Towels"],
+  "partsNeeded": ["Distilled white vinegar or a condensate-line cleaning tablet"],
+  "estimatedDIYCost": "$0–$15",
+  "estimatedProCost": "$150–$300",
+  "steps": [
+    {
+      "heading": "Understand what's causing it",
+      "body": "AC units remove humidity from the air as condensation, which normally drains out through a condensate line to the outside or a floor drain. A clogged line (algae/mold buildup is common) is by far the most frequent cause of indoor water leaks."
+    },
+    {
+      "heading": "Find the condensate drain line",
+      "body": "It's usually a white PVC pipe running from the indoor unit to outside the house, or to a nearby drain/pump. Look for the point where it exits, and check if water is dripping there normally or not at all."
+    },
+    {
+      "heading": "Check the drain pan for cracks",
+      "body": "If your system is accessible, look at the drain pan under the indoor coil for visible cracks or rust-through — a damaged pan leaks regardless of whether the line is clear, and needs replacing rather than clearing."
+    },
+    {
+      "heading": "Clear the line with a wet/dry vacuum",
+      "body": "At the outdoor end of the drain line, attach a wet/dry shop vacuum (with a rag around the connection to seal it) and run it for 2-3 minutes to suck out the clog. You'll often see algae/sludge come through."
+    },
+    {
+      "heading": "Flush the line",
+      "body": "Find the access point near the indoor unit (often a T-fitting with a cap), remove the cap, and pour a cup of distilled white vinegar down the line using a funnel. This helps break down algae buildup and slows future clogs."
+    },
+    {
+      "heading": "Run the AC and confirm it drains properly",
+      "body": "Run the system for 20-30 minutes and check that condensation is draining normally at the outdoor exit point, with no new water appearing indoors."
+    }
+  ],
+  "whenToCallAPro": "If the drain pan is cracked, if clearing the line doesn't stop the leak, or if you can't locate/access the condensate line safely, call an HVAC technician — a cracked pan needs replacement, and repeated indoor leaking can lead to real water damage if it's not fully resolved.",
+  "safetyWarnings": [
+    "Turn off the AC system before working on the condensate line or drain pan to avoid it running while water is actively draining incorrectly.",
+    "Standing water near the furnace/air handler and its electrical connections is a shock hazard — dry the area before doing anything else."
+  ],
+  "relatedSlugs": ["ac-not-cooling", "thermostat-not-turning-on-hvac", "furnace-blowing-cold-air"],
+  "updatedAt": "2026-09-08"
+}

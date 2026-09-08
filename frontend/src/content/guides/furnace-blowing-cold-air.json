@@ -1,0 +1,46 @@
+{
+  "slug": "furnace-blowing-cold-air",
+  "title": "Furnace Blowing Cold Air Instead of Heat: How to Fix It",
+  "metaDescription": "Furnace running but only blowing cold or lukewarm air? Here's what to check on the thermostat, filter, and fan settings before calling for service.",
+  "category": "hvac",
+  "symptom": "The furnace fan is running (you can hear/feel air moving from vents), but the air is cold or only slightly warm instead of hot.",
+  "difficulty": "Easy",
+  "estimatedTime": "15-30 minutes",
+  "toolsNeeded": ["Fresh air filter", "Flashlight"],
+  "partsNeeded": ["Replacement air filter"],
+  "estimatedDIYCost": "$10–$25",
+  "estimatedProCost": "$150–$400",
+  "steps": [
+    {
+      "heading": "Check the thermostat fan setting",
+      "body": "If the fan is set to 'On' instead of 'Auto', the blower runs continuously — including between heating cycles, when it circulates room-temperature (not heated) air. Set it to 'Auto' so the fan only runs while the furnace is actively heating."
+    },
+    {
+      "heading": "Confirm the thermostat is set to Heat",
+      "body": "Sounds obvious, but double-check it's set to 'Heat' and not 'Cool' or 'Off', and the set temperature is above the current room temperature."
+    },
+    {
+      "heading": "Replace a dirty air filter",
+      "body": "A severely clogged filter can restrict airflow enough that the furnace's high-limit safety switch shuts off the burners early to prevent overheating, while the fan keeps running — producing a cold-air feeling even though the system 'is on'."
+    },
+    {
+      "heading": "Give it a few minutes after startup",
+      "body": "It's normal for a furnace to blow cool air for the first 30-60 seconds after starting a cycle, before the heat exchanger warms up. If it stays cold well beyond that, something else is wrong."
+    },
+    {
+      "heading": "Listen for the burners igniting",
+      "body": "Standing near the furnace, you should hear the burners ignite shortly after the blower starts (a whoosh or click-then-whoosh). If you never hear ignition at all, the issue isn't airflow — it's the burner/ignition system, which is a separate, more involved fix."
+    },
+    {
+      "heading": "Check for a tripped high-limit switch",
+      "body": "If the filter was very dirty, replacing it and letting the furnace run a normal cycle after a reset often resolves a nuisance high-limit shutoff. If cold air continues after a fresh filter, don't keep cycling the system — move to calling a pro."
+    }
+  ],
+  "whenToCallAPro": "If you never hear the burners ignite, if the furnace shuts off repeatedly, or if cold air continues after checking the fan setting and filter, call an HVAC technician — this can point to an ignition system fault, a failed flame sensor, or a gas supply issue, none of which are safe or advisable to diagnose further yourself.",
+  "safetyWarnings": [
+    "Never attempt to relight a gas furnace's pilot or inspect its burner assembly yourself if you smell gas — leave the house and call your gas utility or 911 immediately, then a professional once it's safe.",
+    "If the furnace repeatedly shuts off on its own, don't keep resetting it — that's a safety system doing its job, not a glitch to work around."
+  ],
+  "relatedSlugs": ["furnace-not-igniting", "thermostat-not-turning-on-hvac", "ac-not-cooling"],
+  "updatedAt": "2026-09-08"
+}

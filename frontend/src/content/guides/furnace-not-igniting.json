@@ -1,0 +1,43 @@
+{
+  "slug": "furnace-not-igniting",
+  "title": "Furnace Won't Ignite: How to Fix It",
+  "metaDescription": "Furnace fan runs but the burners won't light? Here's what's safe to check yourself — and why gas ignition issues usually need a professional.",
+  "category": "hvac",
+  "symptom": "The furnace's blower fan turns on, but you never hear or feel the burners ignite, and no heat comes through the vents.",
+  "difficulty": "Call a pro",
+  "estimatedTime": "10-15 minutes (safe checks only)",
+  "toolsNeeded": ["Flashlight"],
+  "partsNeeded": ["None — ignition system components are not a DIY replacement"],
+  "estimatedDIYCost": "$0",
+  "estimatedProCost": "$150–$400",
+  "steps": [
+    {
+      "heading": "Check the thermostat and power switch",
+      "body": "Confirm the thermostat is set to Heat with a target temperature above the current room temperature, and that the furnace's dedicated power switch (often near the unit, looks like a light switch) is on."
+    },
+    {
+      "heading": "Check the filter",
+      "body": "A severely clogged filter can cause a furnace to shut down before ignition as a safety precaution. Replace it if it's visibly dirty — this alone resolves a surprising number of 'won't ignite' calls."
+    },
+    {
+      "heading": "Look at the furnace's status light",
+      "body": "Most modern furnaces have a small LED behind a viewing window that blinks an error code. Don't open the furnace itself — just note the blink pattern and look it up in your furnace's manual or model-specific documentation to understand what's wrong before calling for service, so you can describe the issue accurately."
+    },
+    {
+      "heading": "Try one reset",
+      "body": "If your furnace has an accessible reset button per its manual, one press is reasonable. Don't press it repeatedly — an ignition system that fails to light after one reset needs a professional, not repeated attempts."
+    },
+    {
+      "heading": "Stop here if you smell gas at any point",
+      "body": "If there's any smell of gas near the furnace, do not investigate further, do not flip any switches, and do not attempt to relight anything. Leave the house, call your gas utility's emergency line or 911 from outside, and only return once they confirm it's safe."
+    }
+  ],
+  "whenToCallAPro": "This is a 'call a pro' repair by default. A furnace that won't ignite usually points to a failed igniter, a dirty or misaligned flame sensor, a faulty gas valve, or a blocked vent — all of which involve gas components, high-voltage igniters, or safety controls that require proper tools and training to diagnose and fix safely. Beyond the checks above, this isn't a DIY repair.",
+  "safetyWarnings": [
+    "Never attempt to light a gas furnace's pilot or manually override its ignition system — modern furnaces use electronic ignition and safety interlocks for a reason.",
+    "If you smell gas, leave the house immediately and call your gas utility or 911 from a safe location — don't operate light switches, phones, or anything electrical inside.",
+    "A furnace that repeatedly fails to ignite and then shuts down is doing so via a safety control — don't keep resetting it hoping it 'catches'."
+  ],
+  "relatedSlugs": ["furnace-blowing-cold-air", "thermostat-not-turning-on-hvac", "breaker-keeps-tripping"],
+  "updatedAt": "2026-09-08"
+}

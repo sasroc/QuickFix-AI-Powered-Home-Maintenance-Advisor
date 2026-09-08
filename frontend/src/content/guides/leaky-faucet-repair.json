@@ -1,0 +1,46 @@
+{
+  "slug": "leaky-faucet-repair",
+  "title": "Leaky Faucet: How to Fix a Dripping Faucet",
+  "metaDescription": "Faucet dripping and won't stop? Here's how to identify the worn part — washer, cartridge, or O-ring — and fix it yourself in under an hour.",
+  "category": "plumbing",
+  "symptom": "The faucet drips steadily from the spout even when fully closed, often worse from the hot side.",
+  "difficulty": "Easy",
+  "estimatedTime": "30-60 minutes",
+  "toolsNeeded": ["Adjustable wrench", "Phillips and flathead screwdrivers", "Allen key set", "Plumber's grease"],
+  "partsNeeded": ["Replacement cartridge, washer, or O-ring (matched to your faucet brand/model)"],
+  "estimatedDIYCost": "$5–$25",
+  "estimatedProCost": "$150–$250",
+  "steps": [
+    {
+      "heading": "Shut off the water supply",
+      "body": "Turn off the shutoff valves under the sink (or the main water supply if there are none). Open the faucet afterward to release any remaining pressure and confirm the water is off."
+    },
+    {
+      "heading": "Plug the drain and remove the handle",
+      "body": "Plug the drain so small screws/parts can't fall in. Pry off the decorative cap on the handle, then remove the screw underneath and pull the handle straight up."
+    },
+    {
+      "heading": "Identify your faucet type",
+      "body": "Compression faucets (two handles, need firm force to shut off) use a washer. Cartridge, ball, and ceramic-disk faucets (common on single-handle faucets) use a cartridge or O-rings instead. This determines which part you need to replace."
+    },
+    {
+      "heading": "Remove and inspect the worn part",
+      "body": "Unscrew the packing nut or retaining clip and pull out the cartridge/stem. Look for a cracked, flattened, or grooved washer or O-ring — that's almost always the source of the drip."
+    },
+    {
+      "heading": "Install the matching replacement part",
+      "body": "Take the old part (or a photo/model number) to a hardware store to match it exactly. Coat the new washer/O-ring lightly with plumber's grease before installing — this helps it seat properly and last longer."
+    },
+    {
+      "heading": "Reassemble and test",
+      "body": "Reassemble in reverse order, turn the water supply back on slowly, and run the faucet for a minute checking for drips at the spout and leaks around the handle base."
+    }
+  ],
+  "whenToCallAPro": "If replacing the cartridge or washer doesn't stop the drip, the valve seat inside the faucet body itself may be corroded or damaged — that requires a seat-dressing tool or a full faucet replacement, and is worth a plumber's opinion before you buy parts twice.",
+  "safetyWarnings": [
+    "Always shut off the water supply before disassembling a faucet — even a slow drip from a partially open valve can spray once you remove parts.",
+    "Don't overtighten packing nuts or retaining clips — plastic threads on many modern faucets crack easily and turn a $10 fix into a full faucet replacement."
+  ],
+  "relatedSlugs": ["running-toilet-fix", "low-water-pressure-shower-head", "leaking-under-sink-p-trap"],
+  "updatedAt": "2026-09-08"
+}

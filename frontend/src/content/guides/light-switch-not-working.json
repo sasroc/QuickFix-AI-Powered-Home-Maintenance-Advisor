@@ -1,0 +1,47 @@
+{
+  "slug": "light-switch-not-working",
+  "title": "Light Switch Not Working: How to Troubleshoot and Fix It",
+  "metaDescription": "Light switch doesn't turn the light on anymore? Here's how to check the bulb, the breaker, and the switch itself — and safely replace a failed switch.",
+  "category": "electrical",
+  "symptom": "Flipping the switch does nothing — the light stays off (or on) regardless of the switch position.",
+  "difficulty": "Moderate",
+  "estimatedTime": "20-40 minutes",
+  "toolsNeeded": ["Non-contact voltage tester", "Flathead and Phillips screwdrivers", "Flashlight"],
+  "partsNeeded": ["Replacement switch (matched to single-pole, 3-way, or dimmer as needed)"],
+  "estimatedDIYCost": "$3–$20",
+  "estimatedProCost": "$100–$200",
+  "steps": [
+    {
+      "heading": "Rule out the bulb and breaker first",
+      "body": "Swap in a bulb you know works, and check the breaker panel for a tripped breaker. These two account for a large share of 'dead' switches that have nothing wrong with the switch itself."
+    },
+    {
+      "heading": "Check for a 3-way setup",
+      "body": "If the light is also controlled from a second switch elsewhere (stairs, hallways), check that one too — it's a 3-way circuit, and either switch can cause the fault."
+    },
+    {
+      "heading": "Turn off the breaker before opening the switch",
+      "body": "Once you've ruled out the bulb, go to the panel and turn off the breaker for that circuit. Confirm it's dead by flipping the switch and checking the light stays off, and ideally verify with a non-contact voltage tester at the switch plate before removing it."
+    },
+    {
+      "heading": "Remove the switch and inspect the wiring",
+      "body": "Unscrew the cover plate and the switch itself, and gently pull it out without letting it touch the box sides. Check that wires are firmly connected to their terminal screws — a loose wire is the most common cause of a switch that's stopped working."
+    },
+    {
+      "heading": "Test the switch for continuity if you have a multimeter",
+      "body": "With the switch removed and wires disconnected, a multimeter set to continuity should show a connection when the switch is 'on' and none when 'off'. No continuity in the 'on' position means the switch itself has failed internally."
+    },
+    {
+      "heading": "Replace the switch if needed",
+      "body": "Buy a matching replacement (single-pole, 3-way, or dimmer — check your old one's markings), connect the wires to the same terminals in the same configuration, and screw it back into the box before restoring power."
+    }
+  ],
+  "whenToCallAPro": "If you're not confident identifying which wires go where (especially on a 3-way switch), if the wiring looks damaged/scorched, or if replacing the switch doesn't fix it, call a licensed electrician — miswiring a switch can create a real safety hazard.",
+  "safetyWarnings": [
+    "Always turn off the breaker for that circuit — not just the switch — before removing a switch plate or touching any wires.",
+    "Confirm the circuit is dead with a voltage tester before touching bare wire; don't rely on the switch position alone.",
+    "Take a photo of the existing wiring before disconnecting anything so you can match it exactly on reassembly."
+  ],
+  "relatedSlugs": ["dead-outlet-no-power", "flickering-lights-fix", "gfci-outlet-not-working"],
+  "updatedAt": "2026-09-08"
+}

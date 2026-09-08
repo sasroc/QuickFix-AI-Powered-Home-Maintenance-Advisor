@@ -1,0 +1,50 @@
+{
+  "slug": "nail-pops-drywall-fix",
+  "title": "How to Fix Nail Pops in Drywall",
+  "metaDescription": "Small bumps or rings showing through your wall or ceiling paint? Those are nail pops. Here's how to fix them permanently in about 20 minutes each.",
+  "category": "drywall",
+  "symptom": "Small raised bumps or circular cracks in the paint, usually in a line along a wall or ceiling, where the drywall was originally fastened to a stud.",
+  "difficulty": "Easy",
+  "estimatedTime": "20-30 minutes per nail pop, plus drying time",
+  "toolsNeeded": ["Hammer or drill/driver", "Utility knife", "Putty knife"],
+  "partsNeeded": ["Drywall screws", "Joint compound (mud)", "Touch-up paint"],
+  "estimatedDIYCost": "$5–$15",
+  "estimatedProCost": "$100–$200 (for several)",
+  "steps": [
+    {
+      "heading": "Understand what's happening",
+      "body": "A nail pop happens when the original nail holding the drywall to a stud works its way slightly out over time (often from lumber shrinking/settling), pushing a small bump through the paint. The fix isn't to hammer it back in — that often just pops again."
+    },
+    {
+      "heading": "Break through the paint over the pop",
+      "body": "Use a utility knife to score an X or small circle over the raised bump, cutting through the paint layer down to the nail head."
+    },
+    {
+      "heading": "Drive a drywall screw nearby instead",
+      "body": "About 1-2 inches above or below the popped nail (still on the same stud), drive a drywall screw in until its head dips slightly below the surface without tearing the paper — this re-secures the drywall to the stud properly."
+    },
+    {
+      "heading": "Remove or set the old nail",
+      "body": "If the original nail is loose, pull it out. If it's still fairly seated, tap it back in slightly and drive it just below the surface — the new screw is doing the real holding work now, not the nail."
+    },
+    {
+      "heading": "Fill both spots with joint compound",
+      "body": "Apply a thin coat of joint compound over the screw dimple and the old nail spot, feathering the edges. Let dry, then sand smooth."
+    },
+    {
+      "heading": "Apply a second thin coat if needed",
+      "body": "Compound shrinks slightly as it dries — a quick second coat over any remaining dip gets it fully flush before sanding a final time."
+    },
+    {
+      "heading": "Prime and touch up paint",
+      "body": "Prime the patched spots before painting so they don't flash (show through) differently than the surrounding wall once painted."
+    }
+  ],
+  "whenToCallAPro": "A handful of isolated nail pops are a normal, easy DIY fix. If you're seeing many pops across a large area, sagging in the ceiling, or pops paired with cracking, that can point to a framing or moisture issue worth having a contractor assess.",
+  "safetyWarnings": [
+    "Wear eye protection when driving screws overhead into a ceiling.",
+    "Wear a dust mask when sanding dried joint compound."
+  ],
+  "relatedSlugs": ["small-hole-drywall-repair", "drywall-crack-repair", "large-hole-drywall-patch"],
+  "updatedAt": "2026-09-08"
+}

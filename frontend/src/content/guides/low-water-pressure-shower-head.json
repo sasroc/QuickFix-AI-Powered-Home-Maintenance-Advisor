@@ -1,0 +1,45 @@
+{
+  "slug": "low-water-pressure-shower-head",
+  "title": "Low Water Pressure in Shower: How to Fix It",
+  "metaDescription": "Shower pressure suddenly weak? It's usually mineral buildup, not your plumbing. Here's how to clean or replace the showerhead and check for other causes.",
+  "category": "plumbing",
+  "symptom": "Water barely trickles or sprays weakly from the shower, especially compared to other faucets in the house.",
+  "difficulty": "Easy",
+  "estimatedTime": "20-40 minutes",
+  "toolsNeeded": ["Adjustable wrench or pliers", "Old toothbrush", "Plumber's tape"],
+  "partsNeeded": ["White vinegar (for cleaning)", "Replacement showerhead (if cleaning doesn't fix it)"],
+  "estimatedDIYCost": "$0–$30",
+  "estimatedProCost": "$120–$250",
+  "steps": [
+    {
+      "heading": "Confirm it's isolated to the shower",
+      "body": "Check pressure at another faucet in the house. If everything is weak, the issue is house-wide (main valve, pressure regulator, or a leak) — skip to the last step. If it's just the shower, the showerhead itself is almost always the cause."
+    },
+    {
+      "heading": "Remove the showerhead",
+      "body": "Unscrew the showerhead from the arm by hand, or with a wrench wrapped in a cloth (to avoid scratching the finish) if it's stuck. Check the small mesh screen inside — this catches the mineral sediment that causes most low-pressure complaints."
+    },
+    {
+      "heading": "Soak it in vinegar",
+      "body": "Submerge the showerhead (or just the nozzle plate) in a bowl of white vinegar for 30-60 minutes to dissolve mineral deposits clogging the spray holes. For hard-water buildup that's visibly crusty, an overnight soak works better."
+    },
+    {
+      "heading": "Scrub and clear each spray hole",
+      "body": "After soaking, scrub the nozzle plate with an old toothbrush and use a toothpick or paperclip to poke out any hole that's still clogged."
+    },
+    {
+      "heading": "Reinstall with fresh plumber's tape",
+      "body": "Wrap the arm's threads with 2-3 turns of plumber's tape before screwing the showerhead back on — this helps it seal without over-tightening, which can crack the fitting."
+    },
+    {
+      "heading": "If it's house-wide, check the main valve and regulator",
+      "body": "Make sure the main shutoff valve is fully open (not partially closed). If your home has a pressure regulator (a bell-shaped valve near where the main line enters the house), a failing one can drop pressure house-wide — that's a job for a plumber to diagnose."
+    }
+  ],
+  "whenToCallAPro": "If cleaning and replacing the showerhead doesn't help, or if pressure is low throughout the whole house, the cause is likely upstream — a partially closed main valve, a failing pressure regulator, or a hidden pipe leak — and needs a plumber to pinpoint.",
+  "safetyWarnings": [
+    "Don't force a stuck showerhead with excessive torque — you can crack the shower arm, which is a bigger repair inside the wall."
+  ],
+  "relatedSlugs": ["leaky-faucet-repair", "running-toilet-fix", "leaking-under-sink-p-trap"],
+  "updatedAt": "2026-09-08"
+}

@@ -1,0 +1,47 @@
+{
+  "slug": "ac-not-cooling",
+  "title": "Air Conditioner Not Cooling: How to Fix It",
+  "metaDescription": "AC running but blowing warm or weak air? Here's how to check the filter, thermostat, and outdoor unit before assuming it's a refrigerant problem.",
+  "category": "hvac",
+  "symptom": "The AC runs (you can hear the system on) but the air coming out is warm, weak, or the house isn't cooling down.",
+  "difficulty": "Easy",
+  "estimatedTime": "20-40 minutes",
+  "toolsNeeded": ["Garden hose (for the outdoor unit)", "Flashlight", "Fresh air filter"],
+  "partsNeeded": ["Replacement air filter"],
+  "estimatedDIYCost": "$10–$30",
+  "estimatedProCost": "$150–$450",
+  "steps": [
+    {
+      "heading": "Check the thermostat settings",
+      "body": "Confirm it's set to 'Cool', not 'Fan' or 'Heat', and that the set temperature is below the current room temperature. If it's a smart thermostat, check it hasn't switched to a schedule or hold mode you didn't expect."
+    },
+    {
+      "heading": "Replace the air filter",
+      "body": "A clogged filter is one of the most common causes of weak, warm-feeling airflow — it restricts air over the evaporator coil, which can even cause the coil to freeze. Check it monthly during heavy use season and replace if visibly dirty."
+    },
+    {
+      "heading": "Check the outdoor condenser unit",
+      "body": "Look at the outdoor unit — it should be running with the fan spinning. Clear away leaves, grass clippings, or debris from around and inside the unit, since blocked airflow there directly reduces cooling capacity."
+    },
+    {
+      "heading": "Rinse the condenser coils",
+      "body": "With the unit powered off at its disconnect switch, gently rinse the outdoor coils (the fins around the unit) with a garden hose from the inside out to remove built-up dirt — don't use a pressure washer, which can bend the delicate fins."
+    },
+    {
+      "heading": "Check supply vents aren't blocked",
+      "body": "Make sure furniture, rugs, or curtains aren't blocking supply vents or the return air grille — restricted airflow indoors has the same effect as a dirty filter."
+    },
+    {
+      "heading": "Look for ice on the indoor unit or refrigerant lines",
+      "body": "If you see ice on the indoor coil or the copper refrigerant lines, turn the system off completely (switch to 'Off', not just raising the temperature) and let it fully thaw for a few hours before running it again — running a frozen system can damage the compressor."
+    }
+  ],
+  "whenToCallAPro": "If the filter is clean, the outdoor unit is clear and running, and the system still isn't cooling — or if you see ice forming, hear unusual noises, or the outdoor fan/compressor isn't running at all — call an HVAC technician. Low refrigerant, a failing compressor, or an electrical fault inside the unit all require specialized tools and, for refrigerant, EPA certification to handle legally.",
+  "safetyWarnings": [
+    "Always switch off power at the outdoor unit's disconnect (a small box near the unit) before cleaning or working near it.",
+    "Never add refrigerant yourself — it requires EPA certification to purchase and handle, and the wrong amount can damage the compressor.",
+    "If you smell a strong chemical odor near the unit, that can indicate a refrigerant leak — ventilate the area and call a professional rather than investigating further."
+  ],
+  "relatedSlugs": ["thermostat-not-turning-on-hvac", "ac-leaking-water-indoors", "furnace-blowing-cold-air"],
+  "updatedAt": "2026-09-08"
+}

@@ -1,0 +1,51 @@
+{
+  "slug": "water-stained-drywall-repair",
+  "title": "How to Repair Water-Damaged Drywall",
+  "metaDescription": "Brown stain, sagging, or soft spot on your ceiling or wall from a past leak? Here's how to fix water-damaged drywall the right way — after the leak is fixed.",
+  "category": "drywall",
+  "symptom": "A brown/yellow stain, bubbling paint, sagging, or a soft spot on a wall or ceiling, usually below a bathroom, roof, or plumbing line.",
+  "difficulty": "Moderate",
+  "estimatedTime": "2-4 hours active work across a couple of days, plus fully drying the area first",
+  "toolsNeeded": ["Moisture meter (optional but helpful)", "Utility knife", "Drywall saw", "Putty knife", "Stain-blocking primer sprayer or brush"],
+  "partsNeeded": ["Replacement drywall (for any soft/damaged section)", "Stain-blocking (shellac or oil-based) primer", "Joint compound", "Touch-up paint"],
+  "estimatedDIYCost": "$25–$75",
+  "estimatedProCost": "$300–$800+ (more if mold remediation is needed)",
+  "steps": [
+    {
+      "heading": "Find and fully fix the source of the water first",
+      "body": "Patching over an active leak just hides the problem and guarantees it comes back, often worse. Confirm the leak (roof, plumbing, appliance, condensation) is fully repaired before doing anything to the drywall itself."
+    },
+    {
+      "heading": "Let the area dry out completely",
+      "body": "Give the affected area several days to a week to dry fully, ideally with a fan/dehumidifier running nearby. A moisture meter (inexpensive, from a hardware store) can confirm it's actually dry, not just dry to the touch on the surface."
+    },
+    {
+      "heading": "Cut out any soft or sagging drywall",
+      "body": "Press gently on the stained area — if it's soft, spongy, or crumbles, that section has lost structural integrity and needs to be cut out and replaced, not just painted over. Cut back to solid, firm drywall on all sides."
+    },
+    {
+      "heading": "Check for mold before proceeding",
+      "body": "Look for black, green, or fuzzy spotting, or a musty smell, on the exposed drywall or framing behind it. Small, isolated surface mold on drywall you're already removing is generally fine to handle with normal precautions; anything more extensive is worth pausing for."
+    },
+    {
+      "heading": "Patch the removed section",
+      "body": "Follow the same process as a large hole repair: cut a new piece of drywall to fit, screw it to any exposed framing or added backing strips, tape the seams, and apply joint compound in thin coats, sanding between each."
+    },
+    {
+      "heading": "Seal any remaining stain with a stain-blocking primer",
+      "body": "Water stains bleed through regular paint and primer almost every time. Use a dedicated stain-blocking primer (shellac-based products work fastest) over the repaired area and a few inches beyond it before your final paint coat."
+    },
+    {
+      "heading": "Paint to match",
+      "body": "Once the stain-blocking primer is fully dry, paint the area to match — this is the step that finally makes the repair invisible."
+    }
+  ],
+  "whenToCallAPro": "If you find significant mold (more than a small, isolated patch), if the water damage affects a large area or multiple rooms, if you're unsure whether framing/insulation behind the drywall was also affected, or if the original leak source isn't fully clear, call a water damage restoration professional or contractor — mold remediation in particular has its own safety protocols beyond a standard drywall patch.",
+  "safetyWarnings": [
+    "Don't patch over drywall while it's still damp — trapped moisture behind a fresh patch encourages mold growth you can no longer see.",
+    "Wear an N95 mask and gloves when cutting out water-damaged drywall, since it can carry mold spores even without visible mold.",
+    "If you see extensive mold or a strong musty odor, stop and get a professional assessment before disturbing the area further — dry removal can spread spores through the house."
+  ],
+  "relatedSlugs": ["large-hole-drywall-patch", "drywall-crack-repair", "ac-leaking-water-indoors"],
+  "updatedAt": "2026-09-08"
+}

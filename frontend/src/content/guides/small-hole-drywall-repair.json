@@ -1,0 +1,45 @@
+{
+  "slug": "small-hole-drywall-repair",
+  "title": "How to Patch a Small Hole in Drywall",
+  "metaDescription": "Nail hole, doorknob dent, or small drywall hole (under 2 inches)? Here's how to patch it invisibly with spackle in under an hour, no mesh patch needed.",
+  "category": "drywall",
+  "symptom": "A small hole or dent in the wall (roughly nail-hole to golf-ball size) from a doorknob, picture hook, or minor impact.",
+  "difficulty": "Easy",
+  "estimatedTime": "30-45 minutes (plus drying time)",
+  "toolsNeeded": ["Putty knife (2-3 inch)", "120-220 grit sanding sponge", "Damp cloth"],
+  "partsNeeded": ["Lightweight spackle or vinyl spackling compound", "Touch-up paint matching the wall"],
+  "estimatedDIYCost": "$5–$15",
+  "estimatedProCost": "$75–$150",
+  "steps": [
+    {
+      "heading": "Clean up the hole edges",
+      "body": "Remove any loose or crumbling drywall paper/debris around the hole with your fingers or the putty knife edge so the spackle has a clean surface to bond to."
+    },
+    {
+      "heading": "Apply the first layer of spackle",
+      "body": "Load a small amount onto the putty knife and press it into the hole, then draw the knife across at a slight angle to fill it flush with the surrounding wall. Don't worry about it being perfectly smooth yet."
+    },
+    {
+      "heading": "Let it dry fully",
+      "body": "Lightweight spackle typically dries in 30-60 minutes, but check the product label — it should feel fully hard and slightly lighter/whiter in color when cured, not tacky."
+    },
+    {
+      "heading": "Sand it smooth",
+      "body": "Using a fine sanding sponge, sand in small circles until the patch is flush with the wall. Wipe away dust with a slightly damp cloth."
+    },
+    {
+      "heading": "Apply a thin second coat if needed",
+      "body": "Spackle shrinks slightly as it dries, so a small dip is common after the first coat. A thin second coat, dried and sanded the same way, usually gets it fully flush."
+    },
+    {
+      "heading": "Prime and paint to match",
+      "body": "Spackled areas absorb paint differently than the surrounding wall, so a quick coat of primer (or a paint-and-primer touch-up product) before your matching paint color prevents a visible flat spot once painted."
+    }
+  ],
+  "whenToCallAPro": "This size of hole is genuinely beginner-friendly — a professional isn't typically needed. If you're dealing with a hole larger than a couple inches, or several holes close together weakening a section of wall, see the guide for larger drywall holes instead.",
+  "safetyWarnings": [
+    "Wear a dust mask when sanding dried spackle, especially in an enclosed room."
+  ],
+  "relatedSlugs": ["large-hole-drywall-patch", "drywall-crack-repair", "nail-pops-drywall-fix"],
+  "updatedAt": "2026-09-08"
+}

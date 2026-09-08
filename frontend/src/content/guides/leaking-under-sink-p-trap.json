@@ -1,0 +1,46 @@
+{
+  "slug": "leaking-under-sink-p-trap",
+  "title": "P-Trap Leaking Under Sink: How to Fix It",
+  "metaDescription": "Water pooling in the cabinet under your sink? Here's how to find and fix a leaking P-trap — usually a loose slip nut, not a cracked pipe.",
+  "category": "plumbing",
+  "symptom": "Water drips or pools under the sink, usually noticed when you open the cabinet doors, especially after running the faucet or draining a full sink.",
+  "difficulty": "Moderate",
+  "estimatedTime": "30-45 minutes",
+  "toolsNeeded": ["Bucket or shallow pan", "Channel-lock pliers", "Towels", "Flashlight"],
+  "partsNeeded": ["Replacement slip-nut washers", "Replacement P-trap assembly (if the pipe itself is cracked)"],
+  "estimatedDIYCost": "$5–$25",
+  "estimatedProCost": "$150–$275",
+  "steps": [
+    {
+      "heading": "Clear out the cabinet and place a bucket",
+      "body": "Remove everything from under the sink and put a bucket or shallow pan directly under the P-trap (the U-shaped pipe) to catch water and debris during the fix."
+    },
+    {
+      "heading": "Find exactly where it's leaking",
+      "body": "Dry everything off with a towel, then run water and watch closely. Leaks almost always show up at one of the slip-nut connections (the ribbed plastic/metal collars where pipe sections join) rather than from a crack in the pipe itself."
+    },
+    {
+      "heading": "Tighten the slip nuts by hand first",
+      "body": "Try hand-tightening the slip nut at the leaking joint a quarter turn. Loose connections are the most common cause and often need nothing more than this."
+    },
+    {
+      "heading": "Disassemble and inspect the washer if it still leaks",
+      "body": "If hand-tightening doesn't stop it, use channel-lock pliers to loosen the slip nut, slide it back, and check the washer inside. A cracked, flattened, or missing washer is the next most common culprit."
+    },
+    {
+      "heading": "Replace the washer and reassemble",
+      "body": "Install a new washer (bring the old one to the store to match size/shape), make sure the pipe ends are pushed together fully and square, then hand-tighten the slip nut followed by a quarter turn with pliers — snug, not forceful."
+    },
+    {
+      "heading": "Run water and check for drips",
+      "body": "Run the faucet for a couple minutes and check every joint, then let a full sink drain at once (the higher flow rate reveals leaks a slow trickle won't)."
+    }
+  ],
+  "whenToCallAPro": "If the pipe itself (not a joint) is cracked, if the leak is coming from where the trap connects to the wall drain, or if tightening/rewashering the joints doesn't stop it, call a plumber — a damaged wall drain fitting isn't a DIY-friendly repair.",
+  "safetyWarnings": [
+    "Don't overtighten slip nuts with pliers — plastic P-trap fittings crack under too much torque, turning a small leak into a bigger repair.",
+    "Standing water under a sink near outlets or extension cords is a shock hazard — dry the area and check for nearby electrical before working."
+  ],
+  "relatedSlugs": ["leaky-faucet-repair", "running-toilet-fix", "low-water-pressure-shower-head"],
+  "updatedAt": "2026-09-08"
+}
