@@ -6,31 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#3b82f6" />
     
-    <!-- Primary Meta Tags -->
-    <title>QuickFix AI — AI-Powered Home Repair Guides for Plumbing, Electrical & HVAC</title>
-    <meta name="title" content="QuickFix AI — AI-Powered Home Repair Guides for Plumbing, Electrical & HVAC" />
-    <meta name="description" content="Diagnose any home repair in seconds. Get instant step-by-step AI guidance for plumbing, electrical, HVAC, drywall & more — no experience needed. Try free for 5 days." />
+    <!--
+      Page-specific tags (title, description, canonical, og:*, twitter:*) are
+      intentionally NOT hardcoded here. Every route renders <Seo> (see
+      src/components/common/Seo.js), which is the single source for those
+      tags via react-helmet-async. Duplicating them here would leave two
+      <title>/<link rel="canonical"> elements in the DOM — Helmet only
+      manages tags it rendered itself, so a hardcoded tag here is never
+      replaced, only added alongside. The build's prerender step
+      (scripts/prerender.js) bakes each route's Seo output into its own
+      static HTML file, so this template's absence of these tags does not
+      affect what crawlers see.
+    -->
     <meta name="keywords" content="home repair guide, DIY home repair, AI home maintenance, fix leaky faucet, electrical outlet repair, HVAC troubleshooting, drywall repair, plumbing repair, home improvement AI, step-by-step repair instructions" />
     <meta name="author" content="QuickFix AI" />
     <meta name="robots" content="index, follow" />
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://quickfixai.com/" />
-    <meta property="og:title" content="QuickFix AI — AI-Powered Home Repair Guides" />
-    <meta property="og:description" content="Diagnose any home repair in seconds. Get instant step-by-step AI guidance for plumbing, electrical, HVAC, drywall & more — no experience needed. Try free for 5 days." />
-    <meta property="og:image" content="https://quickfixai.com/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:site_name" content="QuickFix AI" />
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://quickfixai.com/" />
-    <meta property="twitter:title" content="QuickFix AI — AI-Powered Home Repair Guides" />
-    <meta property="twitter:description" content="Diagnose any home repair in seconds. Get instant step-by-step AI guidance for plumbing, electrical, HVAC, drywall & more — no experience needed. Try free for 5 days." />
-    <meta property="twitter:image" content="https://quickfixai.com/og-image.png" />
-    
     <!-- Additional SEO Meta Tags -->
     <meta name="application-name" content="QuickFix AI" />
     <meta name="apple-mobile-web-app-title" content="QuickFix AI" />
@@ -38,9 +29,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-TileColor" content="#3b82f6" />
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://quickfixai.com/" />
-    
+
     <!-- Preconnect to external domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -56,10 +45,10 @@
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "QuickFix AI",
-      "url": "https://quickfixai.com",
-      "logo": "https://quickfixai.com/logo512.png",
+      "url": "https://quickfixai.net",
+      "logo": "https://quickfixai.net/logo512.png",
       "sameAs": [
-        "https://apps.apple.com/us/app/quickfixai/id6759504103"
+        "https://apps.apple.com/us/app/quickfixai-home-repair-guide/id6759504103"
       ]
     }
     </script>
@@ -71,30 +60,26 @@
       "@type": "SoftwareApplication",
       "name": "QuickFix AI",
       "description": "AI-powered home repair guidance providing instant step-by-step instructions for plumbing, electrical, HVAC, drywall, and more household repairs.",
-      "url": "https://quickfixai.com",
+      "url": "https://quickfixai.net",
       "applicationCategory": "HomeApplication",
       "operatingSystem": "Web Browser, iOS",
+      "sameAs": [
+        "https://apps.apple.com/us/app/quickfixai-home-repair-guide/id6759504103"
+      ],
       "offers": [
         {
           "@type": "Offer",
-          "name": "Starter Plan",
-          "price": "2.00",
+          "name": "Pro Monthly",
+          "price": "4.99",
           "priceCurrency": "USD",
-          "description": "10 AI repair guides per month"
+          "description": "10 AI repair guides per month, unlimited repair history"
         },
         {
           "@type": "Offer",
-          "name": "Pro Plan",
-          "price": "10.00",
+          "name": "Pro Lifetime",
+          "price": "49.99",
           "priceCurrency": "USD",
-          "description": "25 AI repair guides per month with advanced GPT-4o Mini model"
-        },
-        {
-          "@type": "Offer",
-          "name": "Premium Plan",
-          "price": "20.00",
-          "priceCurrency": "USD",
-          "description": "100 AI repair guides per month with expert GPT-4o model"
+          "description": "Unlimited AI repair guides and history, one-time payment"
         }
       ],
       "featureList": [

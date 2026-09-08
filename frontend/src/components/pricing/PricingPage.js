@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
 import PaymentPlan from './PaymentPlan';
 import { useNavigate, useLocation } from 'react-router-dom';
+import Seo from '../common/Seo';
 import { apiRequest } from '../../services/apiConfig';
 
 const db = getFirestore();
@@ -81,11 +81,10 @@ const PricingPage = () => {
 
   return (
     <div className="pricing-page">
-      <Helmet>
-        <title>Pricing | QuickFix AI — $4.99/month or $49.99 Lifetime</title>
-        <meta name="description" content="QuickFix AI Pro gives you AI-powered home repair guides for $4.99/month or a one-time $49.99 lifetime payment. Plumbing, electrical, HVAC & more." />
-        <link rel="canonical" href="https://quickfixai.com/pricing" />
-      </Helmet>
+      <Seo
+        title="Pricing | QuickFix AI — $4.99/month or $49.99 Lifetime"
+        description="QuickFix AI Pro gives you AI-powered home repair guides for $4.99/month or a one-time $49.99 lifetime payment. Plumbing, electrical, HVAC & more."
+      />
       {location.state?.fromRepair && (
         <div style={{ 
           textAlign: 'center', 

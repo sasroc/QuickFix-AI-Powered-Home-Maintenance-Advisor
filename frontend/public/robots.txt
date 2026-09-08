@@ -10,4 +10,4 @@ Disallow: /payment-success
 Disallow: /admin/
 
 # Sitemap location
-Sitemap: https://quickfixai.com/sitemap.xml
+Sitemap: https://quickfixai.net/sitemap.xml

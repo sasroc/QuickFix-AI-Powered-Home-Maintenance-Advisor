@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import Seo from '../common/Seo';
 import './AuthPage.css';
 
 function AuthPage() {
@@ -104,13 +105,17 @@ function AuthPage() {
   }
 
   return (
-    <div className="auth-container" style={{ 
-      position: 'relative', 
+    <div className="auth-container" style={{
+      position: 'relative',
       overflow: 'hidden',
       width: '100vw',
       maxWidth: '100vw',
       boxSizing: 'border-box'
     }}>
+      <Seo
+        title="Sign In | QuickFix AI"
+        description="Sign in or create a free QuickFix AI account to get instant, step-by-step AI guidance for plumbing, electrical, HVAC, drywall & more home repairs."
+      />
       <div className="quickfix-gradient-bg" />
       <div className="auth-card" style={{ 
         position: 'relative', 

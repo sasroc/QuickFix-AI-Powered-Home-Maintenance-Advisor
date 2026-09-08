@@ -30,7 +30,8 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build": "craco build && npm run prerender",
+    "prerender": "node scripts/prerender.js",
     "test": "craco test",
     "eject": "react-scripts eject"
   },
@@ -53,6 +54,8 @@
     ]
   },
   "devDependencies": {
-    "@craco/craco": "^7.1.0"
+    "@craco/craco": "^7.1.0",
+    "puppeteer": "^24.43.1",
+    "serve": "^14.2.4"
   }
 }

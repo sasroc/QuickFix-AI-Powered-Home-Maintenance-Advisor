@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import Seo from '../common/Seo';
 import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, updateDoc, increment, getDoc } from 'firebase/firestore';
 import './Community.css';
 
@@ -244,11 +244,10 @@ function Community() {
 
   return (
     <div className={`community-container ${isDarkMode ? 'dark' : ''}`}>
-      <Helmet>
-        <title>Community | QuickFix AI — Real Home Repair Success Stories</title>
-        <meta name="description" content="See how homeowners are fixing their homes with AI-powered guidance. Browse real repair success stories for plumbing, electrical, HVAC, and drywall projects." />
-        <link rel="canonical" href="https://quickfixai.com/community" />
-      </Helmet>
+      <Seo
+        title="Community | QuickFix AI — Real Home Repair Success Stories"
+        description="See how homeowners are fixing their homes with AI-powered guidance. Browse real repair success stories for plumbing, electrical, HVAC, and drywall projects."
+      />
       <div className="community-header">
         <h2>Community Success Stories</h2>
         <p>Share your repair victories and learn from others</p>

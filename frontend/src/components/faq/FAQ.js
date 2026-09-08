@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useTheme } from '../../contexts/ThemeContext';
+import Seo from '../common/Seo';
 import './FAQ.css';
 
 const faqSchemaQuestions = [
@@ -98,12 +98,11 @@ const FAQ = () => {
 
   return (
     <div className={`faq-container ${isDarkMode ? 'dark' : ''}`}>
-      <Helmet>
-        <title>FAQ | QuickFix AI — Common Questions Answered</title>
-        <meta name="description" content="Find answers about QuickFix AI's home repair guidance, subscription plans, refund policy, and how the AI works. Repairs for plumbing, electrical, HVAC & more." />
-        <link rel="canonical" href="https://quickfixai.com/faq" />
-        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
-      </Helmet>
+      <Seo
+        title="FAQ | QuickFix AI — Common Questions Answered"
+        description="Find answers about QuickFix AI's home repair guidance, subscription plans, refund policy, and how the AI works. Repairs for plumbing, electrical, HVAC & more."
+        jsonLd={faqSchema}
+      />
       <div className="quickfix-gradient-bg" />
       <div className="faq-content-wrapper">
         <div className="faq-header">

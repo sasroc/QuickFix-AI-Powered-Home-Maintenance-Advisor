@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
 import { hasLifetimeAccess } from '../../utils/trialUtils';
+import Seo from '../common/Seo';
 import './LandingPage.css';
 
 const db = getFirestore();
@@ -73,16 +73,10 @@ function LandingPage() {
 
   return (
     <div className="landing-page-container">
-      <Helmet>
-        <title>QuickFix AI — AI-Powered Home Repair Guides for Plumbing, Electrical & HVAC</title>
-        <meta name="description" content="Diagnose any home repair in seconds. Get instant step-by-step AI guidance for plumbing, electrical, HVAC, drywall & more — no experience needed. Try free for 5 days." />
-        <link rel="canonical" href="https://quickfixai.com/" />
-        <meta property="og:title" content="QuickFix AI — AI-Powered Home Repair Guides" />
-        <meta property="og:description" content="Diagnose any home repair in seconds. Get instant step-by-step AI guidance for plumbing, electrical, HVAC, drywall & more — no experience needed. Try free for 5 days." />
-        <meta property="og:url" content="https://quickfixai.com/" />
-        <meta name="twitter:title" content="QuickFix AI — AI-Powered Home Repair Guides" />
-        <meta name="twitter:description" content="Diagnose any home repair in seconds. Get instant step-by-step AI guidance for plumbing, electrical, HVAC, drywall & more — no experience needed. Try free for 5 days." />
-      </Helmet>
+      <Seo
+        title="QuickFix AI — AI-Powered Home Repair Guides for Plumbing, Electrical & HVAC"
+        description="Diagnose any home repair in seconds. Get instant step-by-step AI guidance for plumbing, electrical, HVAC, drywall & more — no experience needed. Try free for 5 days."
+      />
       <div className="landing-page" style={{ position: 'relative', overflow: 'hidden' }}>
         <div className="quickfix-gradient-bg" />
         
