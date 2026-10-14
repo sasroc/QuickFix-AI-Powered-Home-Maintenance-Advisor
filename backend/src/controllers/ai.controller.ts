@@ -92,6 +92,34 @@ interface RequestWithUser extends Request {
   };
 }
 
+/**
+ * Atomically marks the user's one free diagnosis as used. Returns false if it
+ * was already used or the user has (or had) a subscription or trial — those
+ * users never get a free diagnosis.
+ */
+const claimFreeDiagnosis = async (uid: string): Promise<boolean> => {
+  const userRef = admin.firestore().collection('users').doc(uid);
+  const claimed = await admin.firestore().runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+    const data = snap.data();
+    if (!snap.exists || !data) return false;
+
+    const hadAccess =
+      data.hasLifetimeAccess === true ||
+      data.wasOnTrial === true ||
+      ['active', 'trialing'].includes(data.subscriptionStatus);
+    if (data.freeDiagnosisUsed === true || hadAccess) return false;
+
+    tx.update(userRef, {
+      freeDiagnosisUsed: true,
+      freeDiagnosisAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    return true;
+  });
+  if (claimed) cacheService.invalidateUserData(uid);
+  return claimed;
+};
+
 export const analyzeIssue = async (
   req: RequestWithUser,
   res: Response,
@@ -148,12 +176,19 @@ export const analyzeIssue = async (
       // Lifetime users bypass credit checks entirely
       if (!isLifetimeUser) {
         if (credits <= 0) {
-          return res.status(403).json({ message: 'You have no credits remaining. Please upgrade your plan.' });
+          // iOS "paywall after first diagnosis" test: one free analysis per
+          // account. Only honoured for a verified token, never a body uid.
+          const wantsFree = req.body.freeDiagnosis === true && req.user?.uid === uid;
+          if (!wantsFree || !(await claimFreeDiagnosis(uid))) {
+            return res.status(403).json({ message: 'You have no credits remaining. Please upgrade your plan.' });
+          }
+          logger.info('Granted free first diagnosis', { uid });
+        } else {
+          // Deduct a credit
+          const userRef = admin.firestore().collection('users').doc(uid);
+          await userRef.update({ credits: credits - 1 });
+          cacheService.invalidateUserData(uid);
         }
-        // Deduct a credit
-        const userRef = admin.firestore().collection('users').doc(uid);
-        await userRef.update({ credits: credits - 1 });
-        cacheService.invalidateUserData(uid);
       }
     }
     // For anonymous users, we don't deduct credits from Firestore
