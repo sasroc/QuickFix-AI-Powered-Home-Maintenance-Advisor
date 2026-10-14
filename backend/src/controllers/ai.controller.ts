@@ -94,8 +94,8 @@ interface RequestWithUser extends Request {
 
 /**
  * Atomically marks the user's one free diagnosis as used. Returns false if it
- * was already used or the user has (or had) a subscription or trial — those
- * users never get a free diagnosis.
+ * was already used or the user has ever had a subscription, trial or lifetime
+ * purchase — lapsed subscribers end up 'canceled' but keep paymentProvider.
  */
 const claimFreeDiagnosis = async (uid: string): Promise<boolean> => {
   const userRef = admin.firestore().collection('users').doc(uid);
@@ -104,11 +104,13 @@ const claimFreeDiagnosis = async (uid: string): Promise<boolean> => {
     const data = snap.data();
     if (!snap.exists || !data) return false;
 
-    const hadAccess =
+    const everSubscribed =
       data.hasLifetimeAccess === true ||
       data.wasOnTrial === true ||
-      ['active', 'trialing'].includes(data.subscriptionStatus);
-    if (data.freeDiagnosisUsed === true || hadAccess) return false;
+      (data.subscriptionStatus ?? 'inactive') !== 'inactive' ||
+      !!data.paymentProvider ||
+      !!data.stripeSubscriptionId;
+    if (data.freeDiagnosisUsed === true || everSubscribed) return false;
 
     tx.update(userRef, {
       freeDiagnosisUsed: true,
